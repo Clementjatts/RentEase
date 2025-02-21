@@ -39,7 +39,9 @@ class PropertyDetailsActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.toolbar.setNavigationOnClickListener { 
+            finish() 
+        }
     }
 
     private fun setupImageGallery() {
@@ -60,7 +62,7 @@ class PropertyDetailsActivity : AppCompatActivity() {
         binding.contactFab.setOnClickListener {
             val state = viewModel.uiState.value
             if (state is PropertyDetailsUiState.Success) {
-                viewModel.contactLandlord(state.property)
+                startActivity(ContactFormActivity.createIntent(this, state.property.id))
             }
         }
     }

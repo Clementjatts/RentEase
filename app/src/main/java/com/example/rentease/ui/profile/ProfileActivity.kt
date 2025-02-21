@@ -44,9 +44,20 @@ class ProfileActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.setNavigationOnClickListener { 
+            finish() 
+        }
     }
 
     private fun setupButtons() {
+        binding.changePasswordButton.setOnClickListener {
+            showChangePasswordDialog()
+        }
+
+        binding.logoutButton.setOnClickListener {
+            showLogoutConfirmation()
+        }
+
         binding.saveButton.setOnClickListener {
             val fullName = binding.fullNameInput.text.toString()
             val email = binding.emailInput.text.toString()
@@ -54,11 +65,23 @@ class ProfileActivity : AppCompatActivity() {
 
             viewModel.updateProfile(fullName, email, phone)
         }
+    }
 
-        binding.changePasswordButton.setOnClickListener {
-            // TODO: Implement change password functionality
-            showNotImplementedMessage()
-        }
+    private fun showChangePasswordDialog() {
+        // TODO: Implement change password dialog
+    }
+
+    private fun showLogoutConfirmation() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Logout") { _, _ ->
+                viewModel.logout()
+                startActivity(LoginActivity.createIntent(this))
+                finishAffinity()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun observeViewModel() {
@@ -80,11 +103,13 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun showLoading() {
         binding.saveButton.isEnabled = false
-        // TODO: Add progress indicator
+        binding.changePasswordButton.isEnabled = false
+        // Show loading indicator if needed
     }
 
     private fun hideLoading() {
         binding.saveButton.isEnabled = true
+        binding.changePasswordButton.isEnabled = true
     }
 
     private fun showProfile(user: User) {
@@ -104,27 +129,6 @@ class ProfileActivity : AppCompatActivity() {
     private fun showError(message: String) {
         hideLoading()
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-    }
-
-    private fun showNotImplementedMessage() {
-        Snackbar.make(
-            binding.root,
-            "This feature is coming soon!",
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    private fun showLogoutConfirmation() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Logout")
-            .setMessage("Are you sure you want to logout?")
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Logout") { _, _ ->
-                viewModel.logout()
-                startActivity(LoginActivity.createIntent(this))
-                finishAffinity()
-            }
-            .show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
