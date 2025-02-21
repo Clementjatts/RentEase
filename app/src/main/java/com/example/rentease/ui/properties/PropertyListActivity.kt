@@ -18,6 +18,7 @@ import com.example.rentease.databinding.ActivityPropertyListBinding
 import com.example.rentease.ui.login.LoginActivity
 import com.example.rentease.ui.profile.ProfileActivity
 import com.example.rentease.ui.propertyform.PropertyFormActivity
+import com.example.rentease.ui.propertylist.SortBottomSheetDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.FlowPreview
@@ -42,6 +43,7 @@ class PropertyListActivity : AppCompatActivity() {
         setupSwipeRefresh()
         setupSearch()
         setupFilterChips()
+        setupSortButton()
         setupFab()
         observeViewModel()
     }
@@ -95,6 +97,21 @@ class PropertyListActivity : AppCompatActivity() {
             }
             viewModel.setFilter(filter)
         }
+    }
+
+    private fun setupSortButton() {
+        binding.sortButton.setOnClickListener {
+            showSortDialog()
+        }
+    }
+
+    private fun showSortDialog() {
+        SortBottomSheetDialog.newInstance(
+            currentOption = viewModel.getCurrentSortOption(),
+            onOptionSelected = { option ->
+                viewModel.setSortOption(option)
+            }
+        ).show(supportFragmentManager, "sort_dialog")
     }
 
     private fun setupFab() {

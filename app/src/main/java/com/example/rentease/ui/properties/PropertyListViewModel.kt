@@ -9,6 +9,7 @@ import com.example.rentease.auth.AuthManager
 import com.example.rentease.data.api.ApiClient
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
+import com.example.rentease.ui.propertylist.SortBottomSheetDialog
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -29,35 +30,58 @@ class PropertyListViewModel(
     private val _searchQuery = MutableStateFlow("")
     private val _selectedFilter = MutableStateFlow(PropertyFilter.ALL)
     private val _properties = MutableStateFlow<List<Property>>(emptyList())
+    private val _sortOption = MutableStateFlow(SortBottomSheetDialog.SortOption.NEWEST)
 
     val filteredProperties: StateFlow<List<Property>> = combine(
         _searchQuery,
         _selectedFilter,
-        _properties
-    ) { query, filter, properties ->
-        properties
-            .filter { property ->
-                if (query.isBlank()) return@filter true
+        _properties,
+        _sortOption
+    ) { query, filter, properties, sortOption ->
+        var filtered = properties.filter { property ->
+            if (query.isBlank()) return@filter true
 
-                when (filter) {
-                    PropertyFilter.ALL -> {
-                        property.title.contains(query, ignoreCase = true) ||
-                        property.description.contains(query, ignoreCase = true) ||
-                        property.address.contains(query, ignoreCase = true)
-                    }
-                    PropertyFilter.PRICE -> {
-                        try {
-                            val queryPrice = BigDecimal(query)
-                            property.price <= queryPrice
-                        } catch (e: NumberFormatException) {
-                            false
-                        }
-                    }
-                    PropertyFilter.LOCATION -> {
-                        property.address.contains(query, ignoreCase = true)
+            when (filter) {
+                PropertyFilter.ALL -> {
+                    property.title.contains(query, ignoreCase = true) ||
+                    property.description.contains(query, ignoreCase = true) ||
+                    property.address.contains(query, ignoreCase = true)
+                }
+                PropertyFilter.PRICE -> {
+                    try {
+                        val queryPrice = BigDecimal(query)
+                        property.price <= queryPrice
+                    } catch (e: NumberFormatException) {
+                        false
                     }
                 }
+                PropertyFilter.LOCATION -> {
+                    property.address.contains(query, ignoreCase = true)
+                }
             }
+        }
+
+        // Apply sorting
+        filtered = when (sortOption) {
+            SortBottomSheetDialog.SortOption.PRICE_LOW_TO_HIGH -> {
+                filtered.sortedBy { it.price }
+            }
+            SortBottomSheetDialog.SortOption.PRICE_HIGH_TO_LOW -> {
+                filtered.sortedByDescending { it.price }
+            }
+            SortBottomSheetDialog.SortOption.NEWEST -> {
+                filtered.sortedByDescending { it.dateAdded }
+            }
+            SortBottomSheetDialog.SortOption.OLDEST -> {
+                filtered.sortedBy { it.dateAdded }
+            }
+            SortBottomSheetDialog.SortOption.NEAREST -> {
+                // TODO: Implement location-based sorting when location services are added
+                filtered
+            }
+        }
+
+        filtered
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -75,6 +99,12 @@ class PropertyListViewModel(
     fun setFilter(filter: PropertyFilter) {
         _selectedFilter.value = filter
     }
+
+    fun setSortOption(option: SortBottomSheetDialog.SortOption) {
+        _sortOption.value = option
+    }
+
+    fun getCurrentSortOption() = _sortOption.value
 
     fun loadProperties() {
         viewModelScope.launch {
