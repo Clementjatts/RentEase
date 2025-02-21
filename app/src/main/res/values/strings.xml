@@ -28,6 +28,15 @@
     <string name="prompt_login">Already have an account? Login</string>
     <string name="prompt_register">Don\'t have an account? Register</string>
     <string name="title_images">Images</string>
+    <string name="apply">Apply</string>
+    
+    <!-- Property List Sorting -->
+    <string name="sort_by">Sort By</string>
+    <string name="sort_price_low_to_high">Price: Low to High</string>
+    <string name="sort_price_high_to_low">Price: High to Low</string>
+    <string name="sort_newest">Newest First</string>
+    <string name="sort_oldest">Oldest First</string>
+    <string name="sort_nearest">Nearest to Me</string>
     
     <!-- Login -->
     <string name="login_title">Welcome Back</string>
