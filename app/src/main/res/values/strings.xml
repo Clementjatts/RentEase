@@ -11,6 +11,8 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="success">Success</string>
+    <string name="content_description_app_logo">App Logo</string>
+    <string name="appbar_scrolling_view_behavior">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     
     <!-- Login -->
     <string name="login_title">Welcome Back</string>
@@ -21,6 +23,11 @@
     <string name="login_forgot_password">Forgot Password?</string>
     <string name="error_invalid_credentials">Invalid email or password</string>
     <string name="action_login">Login</string>
+    <string name="tab_admin">Admin</string>
+    <string name="tab_landlord">Landlord</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+    <string name="button_login">Login</string>
     
     <!-- Register -->
     <string name="register_title">Create Account</string>
@@ -31,6 +38,12 @@
     <string name="register_button">Register</string>
     <string name="register_login_prompt">Already have an account? Login</string>
     <string name="error_passwords_dont_match">Passwords don\'t match</string>
+    <string name="title_create_account">Create Account</string>
+    <string name="hint_full_name">Full Name</string>
+    <string name="hint_email">Email Address</string>
+    <string name="hint_phone">Phone Number</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="button_create_account">Create Account</string>
     
     <!-- Profile -->
     <string name="profile_title">My Profile</string>
@@ -50,6 +63,12 @@
     <string name="property_list_filter">Filter</string>
     <string name="property_list_sort">Sort</string>
     <string name="property_list_search_hint">Search properties…</string>
+    <string name="search_properties_hint">Search properties…</string>
+    <string name="filter_all">All</string>
+    <string name="filter_price">Price</string>
+    <string name="filter_location">Location</string>
+    <string name="no_properties_found">No properties found</string>
+    <string name="add_property">Add Property</string>
     
     <!-- Property Details -->
     <string name="property_details_title">Property Details</string>
@@ -59,6 +78,9 @@
     <string name="property_details_contact">Contact Landlord</string>
     <string name="property_details_amenities">Amenities</string>
     <string name="property_details_gallery">Photo Gallery</string>
+    <string name="title_property_details">Property Details</string>
+    <string name="title_landlord_info">Landlord Information</string>
+    <string name="contact_landlord">Contact Landlord</string>
     
     <!-- Contact Form -->
     <string name="contact_form_title">Contact Landlord</string>
