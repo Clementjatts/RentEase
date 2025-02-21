@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RentEase</string>
+    
+    <!-- Property List -->
+    <string name="search_properties_hint">Search properties…</string>
+    <string name="filter_all">All</string>
+    <string name="filter_price">Price</string>
+    <string name="filter_location">Location</string>
+    <string name="no_properties_found">No properties found</string>
+    <string name="add_property">Add Property</string>
+    <string name="retry">Retry</string>
+    
+    <!-- Property Form -->
+    <string name="title_property_form">Add Property</string>
+    <string name="title_property">Property Title</string>
+    <string name="title_description">Description</string>
+    <string name="title_address">Address</string>
+    <string name="title_price">Price</string>
+    <string name="title_images">Property Images</string>
+    <string name="button_add_image">Add Image</string>
+    <string name="button_save">Save</string>
+    <string name="content_description_property_image">Property Image</string>
+    <string name="content_description_delete_image">Delete Image</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_contact">Contact</string>
+    <string name="property_title">Modern Apartment</string>
+    <string name="property_description">A beautiful 2-bedroom apartment</string>
+    <string name="landlord_name">Listed by: %1$s</string>
+    <string name="content_description_close">Close</string>
+    <string name="title_property_details">Property Details</string>
+    <string name="title_landlord_info">Landlord Information</string>
+    <string name="button_contact_landlord">Contact Landlord</string>
+    
+    <!-- Profile -->
+    <string name="title_profile">Profile</string>
+    <string name="title_personal_info">Personal Information</string>
+    <string name="title_account_info">Account Information</string>
+    <string name="button_save_changes">Save Changes</string>
+    <string name="button_change_password">Change Password</string>
+    <string name="action_logout">Logout</string>
+    
+    <!-- Change Password -->
+    <string name="title_change_password">Change Password</string>
+    <string name="hint_current_password">Current Password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="hint_confirm_password">Confirm New Password</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+
+    <!-- Login -->
+    <string name="button_login">Login</string>
+    <string name="content_description_app_logo">App Logo</string>
+    
+    <!-- Registration -->
+    <string name="title_registration">Register</string>
+    <string name="title_create_account">Create Account</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_full_name">Full Name</string>
+    <string name="hint_phone">Phone Number</string>
+    <string name="action_register">Register</string>
+    <string name="tab_admin">Admin</string>
+    <string name="tab_landlord">Landlord</string>
+    <string name="prompt_login">Already have an account? Login</string>
+    
+    <!-- Error Messages -->
+    <string name="error_loading_properties">Failed to load properties</string>
+    <string name="error_unknown">Unknown error occurred</string>
+    <string name="error_delete_property">Failed to delete property</string>
+
+    <!-- Contact Form -->
+    <string name="title_contact_form">Contact Landlord</string>
+    <string name="hint_name">Your Name</string>
+    <string name="hint_subject">Subject</string>
+    <string name="hint_message">Message</string>
+    <string name="button_send">Send Message</string>
+</resources>
