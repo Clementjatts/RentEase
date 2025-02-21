@@ -29,6 +29,7 @@
     <string name="prompt_register">Don\'t have an account? Register</string>
     <string name="title_images">Images</string>
     <string name="apply">Apply</string>
+    <string name="action_logout">Logout</string>
     
     <!-- Property List Sorting -->
     <string name="sort_by">Sort By</string>
