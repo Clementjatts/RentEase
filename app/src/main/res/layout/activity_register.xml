@@ -160,12 +160,14 @@
 
             <TextView
                 android:id="@+id/loginPrompt"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:text="@string/prompt_login"
-                android:textColor="?attr/colorPrimary" />
+                android:textColor="?attr/colorPrimary"
+                android:clickable="true"
+                android:focusable="true" />
 
             <TextView
                 android:id="@+id/errorText"
