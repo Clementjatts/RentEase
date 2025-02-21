@@ -113,6 +113,7 @@
     <string name="property_title">Property Title</string>
     <string name="property_description">Property Description</string>
     <string name="landlord_name">Landlord Name</string>
+    <string name="property_price_format">$%.2f/month</string>
     
     <!-- Contact Form -->
     <string name="contact_form_title">Contact Landlord</string>

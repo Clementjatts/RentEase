@@ -21,6 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.propertydetails.PropertyDetailsActivity"
+            android:exported="false"
+            android:label="@string/title_property_details"
+            android:theme="@style/Theme.RentEase" />
     </application>
 
 </manifest>
