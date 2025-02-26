@@ -11,6 +11,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.auth.UserType
 import com.example.rentease.databinding.ActivityLoginBinding
+import com.example.rentease.di.RepositoryProvider
 import com.example.rentease.ui.properties.PropertyListActivity
 import com.example.rentease.ui.register.RegisterActivity
 import com.google.android.material.snackbar.Snackbar
@@ -18,7 +19,9 @@ import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: LoginViewModel by viewModels { 
+        LoginViewModel.Factory(RepositoryProvider.provideAuthRepository(this))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

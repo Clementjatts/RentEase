@@ -11,6 +11,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.rentease.R
 import com.example.rentease.auth.UserType
 import com.example.rentease.databinding.ActivityRegisterBinding
+import com.example.rentease.di.RepositoryProvider
 import com.example.rentease.ui.login.LoginActivity
 import com.example.rentease.ui.properties.PropertyListActivity
 import com.example.rentease.ui.register.RegisterUiState
@@ -20,7 +21,9 @@ import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
-    private val viewModel: RegisterViewModel by viewModels()
+    private val viewModel: RegisterViewModel by viewModels {
+        RegisterViewModel.Factory(RepositoryProvider.provideAuthRepository(this))
+    }
     private var selectedUserType = UserType.LANDLORD
 
     override fun onCreate(savedInstanceState: Bundle?) {

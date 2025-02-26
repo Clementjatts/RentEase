@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.rentease.data.local.Converters
 import com.example.rentease.data.model.Landlord
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.model.UserRequest
