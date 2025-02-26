@@ -1,5 +1,6 @@
 package com.example.rentease.data.repository
 
+import android.content.Context
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.auth.UserType
 import com.example.rentease.data.api.RentEaseApi
@@ -9,8 +10,11 @@ import kotlinx.coroutines.withContext
 
 class AuthRepository(
     private val api: RentEaseApi,
-    private val authManager: AuthManager
+    private val authManager: AuthManager,
+    private val context: Context
 ) : BaseRepository() {
+    
+    private val userRepository by lazy { UserRepository(api, context) }
 
     suspend fun login(
         username: String,
@@ -30,8 +34,11 @@ class AuthRepository(
                 authManager.login(
                     username = loginResponse.user.username,
                     userType = userType,
-                    authToken = loginResponse.token
+                    authToken = loginResponse.token,
+                    userId = loginResponse.user.id
                 )
+                // Cache user data
+                userRepository.saveUser(loginResponse.user)
                 Result.success(loginResponse.user)
             } else {
                 Result.failure(handleApiError(response))
@@ -65,8 +72,11 @@ class AuthRepository(
                 authManager.login(
                     username = loginResponse.user.username,
                     userType = userType,
-                    authToken = loginResponse.token
+                    authToken = loginResponse.token,
+                    userId = loginResponse.user.id
                 )
+                // Cache user data
+                userRepository.saveUser(loginResponse.user)
                 Result.success(loginResponse.user)
             } else {
                 Result.failure(handleApiError(response))
@@ -74,6 +84,14 @@ class AuthRepository(
         } catch (e: Exception) {
             Result.failure(handleException(e))
         }
+    }
+
+    suspend fun getCurrentUser(): Result<User> = withContext(Dispatchers.IO) {
+        if (!authManager.isLoggedIn) {
+            return@withContext Result.failure(Exception("User not logged in"))
+        }
+        
+        return@withContext userRepository.getUser(authManager.userId ?: -1)
     }
 
     suspend fun changePassword(
@@ -97,20 +115,11 @@ class AuthRepository(
         }
     }
 
-    suspend fun getCurrentUser(): Result<User> = withContext(Dispatchers.IO) {
-        try {
-            val response = api.getCurrentUser()
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(handleApiError(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(handleException(e))
-        }
-    }
-
     fun logout() {
         authManager.logout()
+        // Clear cached user data
+        kotlinx.coroutines.runBlocking {
+            userRepository.clearUserData()
+        }
     }
 }

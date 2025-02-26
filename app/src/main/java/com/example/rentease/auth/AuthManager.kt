@@ -49,11 +49,22 @@ class AuthManager private constructor(context: Context) {
     var authToken: String?
         get() = prefs.getString(KEY_AUTH_TOKEN, null)
         private set(value) = prefs.edit { putString(KEY_AUTH_TOKEN, value) }
+        
+    var userId: Int?
+        get() = prefs.getInt(KEY_USER_ID, -1).takeIf { it != -1 }
+        private set(value) = prefs.edit { 
+            if (value != null) {
+                putInt(KEY_USER_ID, value)
+            } else {
+                remove(KEY_USER_ID)
+            }
+        }
 
-    fun login(username: String, userType: UserType, authToken: String) {
+    fun login(username: String, userType: UserType, authToken: String, userId: Int? = null) {
         this.username = username
         this.userType = userType
         this.authToken = authToken
+        this.userId = userId
         this.isLoggedIn = true
     }
 
@@ -70,6 +81,7 @@ class AuthManager private constructor(context: Context) {
         private const val KEY_USER_TYPE = "user_type"
         private const val KEY_USERNAME = "username"
         private const val KEY_AUTH_TOKEN = "auth_token"
+        private const val KEY_USER_ID = "user_id"
 
         @Volatile
         private var instance: AuthManager? = null
@@ -84,5 +96,6 @@ class AuthManager private constructor(context: Context) {
 
 enum class UserType {
     ADMIN,
-    LANDLORD
+    LANDLORD,
+    TENANT
 }

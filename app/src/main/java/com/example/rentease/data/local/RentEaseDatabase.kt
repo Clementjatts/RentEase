@@ -6,13 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.rentease.data.local.Converters
+import com.example.rentease.data.local.DatabaseMigrations
 import com.example.rentease.data.model.Landlord
 import com.example.rentease.data.model.Property
+import com.example.rentease.data.model.UserEntity
 import com.example.rentease.data.model.UserRequest
 
 @Database(
-    entities = [Landlord::class, Property::class, UserRequest::class],
-    version = 1,
+    entities = [Landlord::class, Property::class, UserRequest::class, UserEntity::class],
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -20,6 +22,7 @@ abstract class RentEaseDatabase : RoomDatabase() {
     abstract fun landlordDao(): LandlordDao
     abstract fun propertyDao(): PropertyDao
     abstract fun userRequestDao(): UserRequestDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
@@ -32,7 +35,8 @@ abstract class RentEaseDatabase : RoomDatabase() {
                     RentEaseDatabase::class.java,
                     "rentease_database"
                 )
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration() // This will destroy data if migration fails
+                .addMigrations(DatabaseMigrations.MIGRATION_1_2) // Add migration path
                 .build()
                 INSTANCE = instance
                 instance

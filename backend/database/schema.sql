@@ -5,6 +5,18 @@ CREATE TABLE IF NOT EXISTS admins (
     password TEXT NOT NULL
 );
 
+-- Create users table
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    email TEXT,
+    user_type TEXT NOT NULL,
+    full_name TEXT,
+    phone TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create landlords table
 CREATE TABLE IF NOT EXISTS landlords (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,3 +47,7 @@ CREATE TABLE IF NOT EXISTS user_requests (
 
 -- Insert default admin account
 INSERT OR IGNORE INTO admins (username, password) VALUES ('admin', 'pass');
+
+-- Insert default user (same as admin)
+INSERT OR IGNORE INTO users (username, password, email, user_type, full_name, phone) 
+VALUES ('admin', 'pass', 'admin@rentease.com', 'ADMIN', 'Admin User', '+1234567890');

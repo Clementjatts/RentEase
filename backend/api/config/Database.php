@@ -4,12 +4,25 @@ class Database {
 
     public function __construct() {
         try {
-            $this->db = new PDO('sqlite:/var/www/database/rentease.db');
+            // Determine the correct database path based on environment
+            // For Docker, the path is /var/www/database/rentease.db
+            // For local development, use a relative path
+            $db_path = getenv('SQLITE_DATABASE');
+            if (!$db_path) {
+                $db_path = dirname(dirname(dirname(__FILE__))) . '/database/rentease.db';
+            }
+            
+            // Check if directory exists and is writable
+            $dir = dirname($db_path);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            
+            $this->db = new PDO('sqlite:' . $db_path);
             $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             
-            // Create tables if they don't exist
-            $schema = file_get_contents('/var/www/database/schema.sql');
-            $this->db->exec($schema);
+            // Note: We don't execute the schema here anymore
+            // Use the init_db.php script to initialize the database properly
         } catch(PDOException $e) {
             echo "Connection Error: " . $e->getMessage();
         }
