@@ -40,6 +40,7 @@
     <string name="sort_nearest">Nearest to Me</string>
     
     <!-- Login -->
+    <string name="title_login">Login</string>
     <string name="login_title">Welcome Back</string>
     <string name="login_email_hint">Email</string>
     <string name="login_password_hint">Password</string>
@@ -55,6 +56,7 @@
     <string name="button_login">Login</string>
     
     <!-- Register -->
+    <string name="title_register">Register</string>
     <string name="register_title">Create Account</string>
     <string name="register_name_hint">Full Name</string>
     <string name="register_email_hint">Email</string>
@@ -91,6 +93,7 @@
     <string name="title_change_password">Change Password</string>
     
     <!-- Property List -->
+    <string name="title_properties">Properties</string>
     <string name="property_list_title">Available Properties</string>
     <string name="property_list_empty">No properties found</string>
     <string name="property_list_error">Error loading properties</string>
@@ -122,6 +125,7 @@
     <string name="property_price_format">$%.2f/month</string>
     
     <!-- Contact Form -->
+    <string name="title_contact">Contact</string>
     <string name="contact_form_title">Contact Landlord</string>
     <string name="contact_form_name_hint">Your Name</string>
     <string name="contact_form_email_hint">Your Email</string>
