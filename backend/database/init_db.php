@@ -4,7 +4,7 @@
  * Run this script to create or update the database schema
  */
 
-require_once '../api/config/Database.php';
+require_once '/var/www/html/config/Database.php';
 
 try {
     $db_file = __DIR__ . '/rentease.db';

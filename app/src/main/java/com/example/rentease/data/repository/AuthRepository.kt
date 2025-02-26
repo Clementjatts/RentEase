@@ -61,6 +61,7 @@ class AuthRepository(
                 username = username,
                 password = password,
                 email = email,
+                // Ensure user_type is "ADMIN" or "LANDLORD" as expected by backend
                 userType = userType.name,
                 fullName = fullName,
                 phone = phone

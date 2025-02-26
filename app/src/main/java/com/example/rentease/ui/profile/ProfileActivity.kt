@@ -29,7 +29,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private val viewModel: ProfileViewModel by viewModels {
         val authManager = AuthManager.getInstance(applicationContext)
-        val repository = AuthRepository(ApiClient.api, authManager)
+        val repository = AuthRepository(ApiClient.api, authManager, applicationContext)
         ProfileViewModel.Factory(repository)
     }
 

@@ -74,7 +74,7 @@ curl -X POST -H "Content-Type: application/json" \
 
 echo "\n\n15. Testing register endpoint..."
 curl -X POST -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"testpass","email":"test@example.com","user_type":"TENANT","full_name":"Test User","phone":"+1234567890"}' \
+  -d '{"username":"testuser","password":"testpass","email":"test@example.com","user_type":"LANDLORD","full_name":"Test User","phone":"+1234567890"}' \
   $BASE_URL/auth/register.php
 
 echo "\n\n==================================="

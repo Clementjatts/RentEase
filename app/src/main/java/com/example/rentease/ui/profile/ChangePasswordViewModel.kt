@@ -75,7 +75,7 @@ class ChangePasswordViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ChangePasswordViewModel::class.java)) {
                 val authManager = AuthManager.getInstance(application)
-                val repository = AuthRepository(ApiClient.api, authManager)
+                val repository = AuthRepository(ApiClient.api, authManager, application)
                 return ChangePasswordViewModel(repository) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
