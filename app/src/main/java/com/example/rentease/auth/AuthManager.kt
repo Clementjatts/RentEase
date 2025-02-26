@@ -7,8 +7,8 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
 class AuthManager private constructor(context: Context) {
-    private lateinit var masterKey: MasterKey
-    private lateinit var prefs: SharedPreferences
+    private var masterKey: MasterKey
+    private var prefs: SharedPreferences
 
     init {
         try {

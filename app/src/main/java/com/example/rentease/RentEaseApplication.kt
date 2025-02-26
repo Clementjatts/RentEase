@@ -28,7 +28,8 @@ class RentEaseApplication : Application() {
             
             // Initialize database
             try {
-                val db = RentEaseDatabase.getDatabase(this)
+                // Initialize database without assigning to an unused variable
+                RentEaseDatabase.getDatabase(this)
                 Log.d(TAG, "Database initialized successfully")
             } catch (e: Exception) {
                 Log.e(TAG, "Error initializing database", e)

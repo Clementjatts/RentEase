@@ -6,7 +6,6 @@ import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class PropertyDetailsViewModel(
@@ -15,29 +14,30 @@ class PropertyDetailsViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PropertyDetailsUiState>(PropertyDetailsUiState.Loading)
-    val uiState: StateFlow<PropertyDetailsUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<PropertyDetailsUiState> = _uiState
 
     init {
         loadProperty()
     }
 
-    private fun loadProperty() {
+    fun loadProperty() {
         viewModelScope.launch {
             _uiState.value = PropertyDetailsUiState.Loading
+
             try {
-                repository.getProperty(propertyId)
-                    .onSuccess { property ->
+                val response = repository.getProperty(propertyId)
+                if (response.isSuccess) {
+                    val property = response.getOrNull()
+                    if (property != null) {
                         _uiState.value = PropertyDetailsUiState.Success(property)
+                    } else {
+                        _uiState.value = PropertyDetailsUiState.Error("Property not found")
                     }
-                    .onFailure { error ->
-                        _uiState.value = PropertyDetailsUiState.Error(
-                            error.message ?: "Failed to load property"
-                        )
-                    }
+                } else {
+                    _uiState.value = PropertyDetailsUiState.Error("Failed to load property: ${response.exceptionOrNull()?.message}")
+                }
             } catch (e: Exception) {
-                _uiState.value = PropertyDetailsUiState.Error(
-                    e.message ?: "Failed to load property"
-                )
+                _uiState.value = PropertyDetailsUiState.Error("An error occurred: ${e.message}")
             }
         }
     }
@@ -47,7 +47,34 @@ class PropertyDetailsViewModel(
     }
 
     fun contactLandlord(property: Property) {
-        // TODO: Implement contact functionality
+        // Implement contact functionality
+        viewModelScope.launch {
+            try {
+                // Check if the property has landlord information
+                if (property.landlordId <= 0) {
+                    _uiState.value = PropertyDetailsUiState.Error("Landlord information not available")
+                    return@launch
+                }
+                
+                // Get landlord contact information from repository if needed
+                // This could involve fetching additional details or checking if user is authorized
+                
+                // Update UI state to indicate contact is in progress or ready
+                // For example, this could navigate to contact form or show dialog
+                (_uiState.value as? PropertyDetailsUiState.Success)?.let { currentState ->
+                    _uiState.value = PropertyDetailsUiState.ContactReady(
+                        property = currentState.property,
+                        landlordContact = LandlordContact(
+                            id = property.landlordId,
+                            email = "contact@example.com", // Placeholder email
+                            phone = "555-123-4567" // Placeholder phone
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = PropertyDetailsUiState.Error("Failed to contact landlord: ${e.message}")
+            }
+        }
     }
 }
 
@@ -55,4 +82,14 @@ sealed class PropertyDetailsUiState {
     data object Loading : PropertyDetailsUiState()
     data class Success(val property: Property) : PropertyDetailsUiState()
     data class Error(val message: String) : PropertyDetailsUiState()
+    data class ContactReady(
+        val property: Property,
+        val landlordContact: LandlordContact
+    ) : PropertyDetailsUiState()
 }
+
+data class LandlordContact(
+    val id: Int,
+    val email: String,
+    val phone: String
+)

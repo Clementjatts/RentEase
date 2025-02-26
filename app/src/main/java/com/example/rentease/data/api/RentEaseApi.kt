@@ -23,16 +23,16 @@ interface RentEaseApi {
     suspend fun deleteLandlord(@Query("id") id: Int): Response<ApiResponse>
 
     // Auth endpoints
-    @POST("auth/login")
+    @POST("auth/login.php")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
-    @POST("auth/register")
+    @POST("auth/register.php")
     suspend fun register(@Body request: RegisterRequest): Response<LoginResponse>
 
-    @POST("auth/change-password")
+    @POST("auth/change-password.php")
     suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Unit>
 
-    @GET("auth/user")
+    @GET("auth/user.php")
     suspend fun getCurrentUser(): Response<User>
 
     // Property endpoints
@@ -67,6 +67,12 @@ interface RentEaseApi {
 
     @GET("request/read.php")
     suspend fun getUserRequests(@Query("user_id") userId: String): Response<ApiResponse>
+
+    @POST("requests")
+    suspend fun createRequestNew(@Body request: UserRequest): Response<ApiResponse>
+    
+    @GET("requests/user/{userId}")
+    suspend fun getUserRequestsNew(@Path("userId") userId: String): Response<ApiResponse>
 }
 
 data class ApiResponse(

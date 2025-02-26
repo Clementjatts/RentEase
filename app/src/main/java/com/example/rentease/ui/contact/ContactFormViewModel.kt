@@ -4,23 +4,33 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.rentease.data.api.ApiClient
 import com.example.rentease.data.model.UserRequest
-import com.example.rentease.data.repository.PropertyRepository
+import com.example.rentease.data.repository.UserRequestRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.app.Application
+import android.util.Patterns
 
 class ContactFormViewModel(
-    private val propertyId: Int,
-    private val repository: PropertyRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val repository: UserRequestRepository,
+    private val application: Application,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
+    
     private val _uiState = MutableStateFlow<ContactFormUiState>(ContactFormUiState.Initial)
     val uiState: StateFlow<ContactFormUiState> = _uiState
+    
+    private var propertyId: Int = -1
+
+    init {
+        // Get propertyId from savedStateHandle
+        propertyId = savedStateHandle.get<Int>("propertyId") ?: -1
+    }
 
     fun submitRequest(name: String, email: String, message: String) {
         if (!validateInput(name, email, message)) {
@@ -40,11 +50,16 @@ class ContactFormViewModel(
                         .format(Date())
                 )
 
-                // TODO: Create UserRequestRepository and implement this
-                // repository.createRequest(request)
-                _uiState.value = ContactFormUiState.Success
+                // Call the repository to create the request
+                val result = repository.createRequest(request)
+                
+                if (result.isSuccess) {
+                    _uiState.value = ContactFormUiState.Success
+                } else {
+                    _uiState.value = ContactFormUiState.Error("Failed to submit request: ${result.exceptionOrNull()?.message ?: "Unknown error"}")
+                }
             } catch (e: Exception) {
-                _uiState.value = ContactFormUiState.Error(e.message ?: "Failed to submit request")
+                _uiState.value = ContactFormUiState.Error("An error occurred: ${e.message}")
             }
         }
     }
@@ -54,24 +69,21 @@ class ContactFormViewModel(
             _uiState.value = ContactFormUiState.Error("All fields are required")
             return false
         }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _uiState.value = ContactFormUiState.Error("Please enter a valid email address")
             return false
         }
-
+        
         return true
     }
 
-    class Factory(
-        private val propertyId: Int,
-        private val repository: PropertyRepository,
-        private val savedStateHandle: SavedStateHandle
-    ) : ViewModelProvider.Factory {
+    class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ContactFormViewModel::class.java)) {
-                return ContactFormViewModel(propertyId, repository, savedStateHandle) as T
+                val repository = UserRequestRepository(ApiClient.api, application)
+                return ContactFormViewModel(repository, application, SavedStateHandle()) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

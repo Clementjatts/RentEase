@@ -12,6 +12,9 @@ interface UserRequestDao {
     @Query("SELECT * FROM user_requests WHERE userId = :userId")
     fun getRequestsByUser(userId: String): Flow<List<UserRequest>>
 
+    @Query("SELECT * FROM user_requests WHERE userId = :userId")
+    suspend fun getUserRequests(userId: String): List<UserRequest>
+
     @Query("SELECT * FROM user_requests WHERE propertyId = :propertyId")
     fun getRequestsByProperty(propertyId: Int): Flow<List<UserRequest>>
 
@@ -19,14 +22,14 @@ interface UserRequestDao {
     suspend fun insertRequest(request: UserRequest)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllRequests(requests: List<UserRequest>)
+    suspend fun insert(request: UserRequest): Long
 
     @Update
-    suspend fun updateRequest(request: UserRequest)
+    suspend fun update(request: UserRequest)
 
     @Delete
-    suspend fun deleteRequest(request: UserRequest)
+    suspend fun delete(request: UserRequest)
 
-    @Query("DELETE FROM user_requests")
-    suspend fun deleteAllRequests()
+    @Query("DELETE FROM user_requests WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

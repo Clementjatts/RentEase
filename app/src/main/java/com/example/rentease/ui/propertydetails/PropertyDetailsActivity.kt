@@ -16,6 +16,7 @@ import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
 import com.example.rentease.databinding.ActivityPropertyDetailsBinding
 import com.example.rentease.ui.contact.ContactFormActivity
+import com.example.rentease.ui.propertydetails.FullScreenImageActivity
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
@@ -53,7 +54,25 @@ class PropertyDetailsActivity : AppCompatActivity() {
 
     private fun setupImageGallery() {
         imageAdapter = PropertyImageAdapter { imageUrl ->
-            // TODO: Show full-screen image gallery
+            // Show full-screen image gallery when an image is clicked
+            val allImageUrls = viewModel.uiState.value.let { state ->
+                if (state is PropertyDetailsUiState.Success) {
+                    state.property.images ?: emptyList()
+                } else {
+                    emptyList()
+                }
+            }
+            
+            // Get the position of the clicked image
+            val position = allImageUrls.indexOf(imageUrl).coerceAtLeast(0)
+            
+            // Launch the full-screen gallery
+            val intent = FullScreenImageActivity.createIntent(
+                this, 
+                ArrayList(allImageUrls),
+                position
+            )
+            startActivity(intent)
         }
         binding.imageViewPager.adapter = imageAdapter
         // Connect the TabLayout dots indicator with the ViewPager
@@ -65,15 +84,10 @@ class PropertyDetailsActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     when (state) {
-                        is PropertyDetailsUiState.Loading -> {
-                            showLoadingState()
-                        }
-                        is PropertyDetailsUiState.Success -> {
-                            showSuccessState(state.property)
-                        }
-                        is PropertyDetailsUiState.Error -> {
-                            showErrorState(state.message)
-                        }
+                        is PropertyDetailsUiState.Loading -> showLoadingState()
+                        is PropertyDetailsUiState.Success -> showSuccessState(state.property)
+                        is PropertyDetailsUiState.Error -> showErrorState(state.message)
+                        is PropertyDetailsUiState.ContactReady -> handleContactReady(state)
                     }
                 }
             }
@@ -118,6 +132,15 @@ class PropertyDetailsActivity : AppCompatActivity() {
     
     private fun showErrorState(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun handleContactReady(state: PropertyDetailsUiState.ContactReady) {
+        // Show contact form or dialog with landlord contact information
+        val intent = ContactFormActivity.createIntent(
+            this,
+            state.property.id
+        )
+        startActivity(intent)
     }
 
     companion object {

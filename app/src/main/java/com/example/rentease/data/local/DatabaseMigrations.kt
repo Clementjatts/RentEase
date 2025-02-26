@@ -13,9 +13,9 @@ object DatabaseMigrations {
      * - Adds users table
      */
     val MIGRATION_1_2 = object : Migration(1, 2) {
-        override fun migrate(database: SupportSQLiteDatabase) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             // Create the users table with column names that match Java/Kotlin fields
-            database.execSQL(
+            db.execSQL(
                 """
                 CREATE TABLE IF NOT EXISTS `users` (
                     `id` INTEGER NOT NULL,

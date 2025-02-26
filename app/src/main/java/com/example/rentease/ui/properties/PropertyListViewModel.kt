@@ -1,11 +1,11 @@
 package com.example.rentease.ui.properties
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.R
-import com.example.rentease.auth.AuthManager
 import com.example.rentease.data.api.ApiClient
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
@@ -20,6 +20,8 @@ class PropertyListViewModel(
     private val repository: PropertyRepository,
     private val application: Application
 ) : ViewModel() {
+
+    private val TAG = "PropertyListViewModel"
 
     private val _uiState = MutableStateFlow<PropertyListUiState>(PropertyListUiState.Loading)
     val uiState: StateFlow<PropertyListUiState> = _uiState
@@ -107,6 +109,8 @@ class PropertyListViewModel(
     fun getCurrentSortOption() = _sortOption.value
 
     private fun handleApiError(exception: Throwable): PropertyListUiState {
+        // Log the exception for debugging purposes
+        Log.e(TAG, "API Error", exception)
         return PropertyListUiState.Error(
             application.getString(R.string.error_unknown)
         )
@@ -136,6 +140,20 @@ class PropertyListViewModel(
     }
 
     private fun handleLoadPropertiesError(exception: Exception) {
+        // Log the exception for debugging purposes
+        Log.e(TAG, "Load Properties Error", exception)
+        viewModelScope.launch {
+            _uiState.emit(
+                PropertyListUiState.Error(
+                    application.getString(R.string.error_unknown)
+                )
+            )
+        }
+    }
+
+    private fun handleDeleteError(exception: Exception) {
+        // Log the exception for debugging purposes
+        Log.e(TAG, "Delete Property Error", exception)
         viewModelScope.launch {
             _uiState.emit(
                 PropertyListUiState.Error(
@@ -169,16 +187,6 @@ class PropertyListViewModel(
         }
     }
 
-    private fun handleDeleteError(exception: Exception) {
-        viewModelScope.launch {
-            _uiState.emit(
-                PropertyListUiState.Error(
-                    application.getString(R.string.error_unknown)
-                )
-            )
-        }
-    }
-
     fun deleteProperty(propertyId: Int) {
         viewModelScope.launch {
             try {
@@ -199,7 +207,6 @@ class PropertyListViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PropertyListViewModel::class.java)) {
-                val authManager = AuthManager.getInstance(application)
                 val repository = PropertyRepository(ApiClient.api, application)
                 return PropertyListViewModel(repository, application) as T
             }

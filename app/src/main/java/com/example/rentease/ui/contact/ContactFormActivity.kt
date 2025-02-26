@@ -8,12 +8,8 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.rentease.data.api.ApiClient
-import com.example.rentease.data.local.RentEaseDatabase
-import com.example.rentease.data.repository.PropertyRepository
 import com.example.rentease.databinding.ActivityContactFormBinding
 import kotlinx.coroutines.launch
 
@@ -21,11 +17,7 @@ class ContactFormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityContactFormBinding
 
     private val viewModel: ContactFormViewModel by viewModels {
-        ContactFormViewModel.Factory(
-            propertyId = intent.getIntExtra(EXTRA_PROPERTY_ID, -1),
-            repository = PropertyRepository(ApiClient.api, applicationContext),
-            savedStateHandle = SavedStateHandle()
-        )
+        ContactFormViewModel.Factory(application)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +34,7 @@ class ContactFormActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
-            onBackPressed()
+            finish()
         }
     }
 
