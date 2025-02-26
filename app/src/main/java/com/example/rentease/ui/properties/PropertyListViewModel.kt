@@ -44,14 +44,14 @@ class PropertyListViewModel(
             when (filter) {
                 PropertyFilter.ALL -> {
                     property.title.contains(query, ignoreCase = true) ||
-                    property.description.contains(query, ignoreCase = true) ||
+                    property.description?.contains(query, ignoreCase = true) ?: false ||
                     property.address.contains(query, ignoreCase = true)
                 }
                 PropertyFilter.PRICE -> {
                     try {
                         val queryPrice = BigDecimal(query)
                         property.price <= queryPrice
-                    } catch (e: NumberFormatException) {
+                    } catch (e: Exception) {
                         false
                     }
                 }
@@ -106,6 +106,12 @@ class PropertyListViewModel(
 
     fun getCurrentSortOption() = _sortOption.value
 
+    private fun handleApiError(exception: Throwable): PropertyListUiState {
+        return PropertyListUiState.Error(
+            application.getString(R.string.error_unknown)
+        )
+    }
+
     fun loadProperties() {
         viewModelScope.launch {
             _uiState.value = PropertyListUiState.Loading
@@ -121,15 +127,21 @@ class PropertyListViewModel(
                         }
                     }
                     .onFailure { error ->
-                        _uiState.value = PropertyListUiState.Error(
-                            error.message ?: application.getString(R.string.error_loading_properties)
-                        )
+                        _uiState.value = handleApiError(error)
                     }
-            } catch (e: Exception) {
-                _uiState.value = PropertyListUiState.Error(
-                    e.message ?: application.getString(R.string.error_unknown)
-                )
+            } catch (e: Throwable) {
+                _uiState.value = handleApiError(e)
             }
+        }
+    }
+
+    private fun handleLoadPropertiesError(exception: Exception) {
+        viewModelScope.launch {
+            _uiState.emit(
+                PropertyListUiState.Error(
+                    application.getString(R.string.error_unknown)
+                )
+            )
         }
     }
 
@@ -147,17 +159,23 @@ class PropertyListViewModel(
                         }
                     }
                     .onFailure { error ->
-                        _uiState.value = PropertyListUiState.Error(
-                            error.message ?: application.getString(R.string.error_loading_properties)
-                        )
+                        _uiState.value = handleApiError(error)
                     }
-            } catch (e: Exception) {
-                _uiState.value = PropertyListUiState.Error(
-                    e.message ?: application.getString(R.string.error_unknown)
-                )
+            } catch (e: Throwable) {
+                _uiState.value = handleApiError(e)
             } finally {
                 _isRefreshing.value = false
             }
+        }
+    }
+
+    private fun handleDeleteError(exception: Exception) {
+        viewModelScope.launch {
+            _uiState.emit(
+                PropertyListUiState.Error(
+                    application.getString(R.string.error_unknown)
+                )
+            )
         }
     }
 
@@ -169,14 +187,10 @@ class PropertyListViewModel(
                         loadProperties()
                     }
                     .onFailure { error ->
-                        _uiState.value = PropertyListUiState.Error(
-                            error.message ?: application.getString(R.string.error_delete_property)
-                        )
+                        _uiState.value = handleApiError(error)
                     }
-            } catch (e: Exception) {
-                _uiState.value = PropertyListUiState.Error(
-                    e.message ?: application.getString(R.string.error_unknown)
-                )
+            } catch (e: Throwable) {
+                _uiState.value = handleApiError(e)
             }
         }
     }

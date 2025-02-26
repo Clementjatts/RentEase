@@ -85,6 +85,10 @@
     <string name="title_account_info">Account Information</string>
     <string name="button_change_password">Change Password</string>
     <string name="button_logout">Logout</string>
+    <string name="title_logout_confirmation">Logout</string>
+    <string name="message_logout_confirmation">Are you sure you want to logout?</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="title_change_password">Change Password</string>
     
     <!-- Property List -->
     <string name="property_list_title">Available Properties</string>
@@ -99,6 +103,7 @@
     <string name="filter_location">Location</string>
     <string name="no_properties_found">No properties found</string>
     <string name="add_property">Add Property</string>
+    <string name="price_format">$%s</string>
     
     <!-- Property Details -->
     <string name="property_details_title">Property Details</string>
@@ -136,7 +141,6 @@
     <string name="change_password_confirm">Confirm New Password</string>
     <string name="change_password_submit">Update Password</string>
     <string name="change_password_success">Password updated successfully</string>
-    <string name="title_change_password">Change Password</string>
     <string name="hint_current_password">Current Password</string>
     <string name="hint_new_password">New Password</string>
     

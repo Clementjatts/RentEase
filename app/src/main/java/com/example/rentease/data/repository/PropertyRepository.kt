@@ -2,11 +2,14 @@ package com.example.rentease.data.repository
 
 import android.content.Context
 import android.net.Uri
+import com.example.rentease.data.api.ApiResponse
 import com.example.rentease.data.api.RentEaseApi
 import com.example.rentease.data.local.PropertyDao
+import com.example.rentease.data.local.RentEaseDatabase
 import com.example.rentease.data.model.Property
 import com.example.rentease.utils.ImageUploader
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 class PropertyRepository(
@@ -21,7 +24,7 @@ class PropertyRepository(
         try {
             // If not forcing refresh and we have cached data, return it
             if (!forceRefresh) {
-                val cachedProperties = propertyDao.getAll()
+                val cachedProperties = propertyDao.getAllProperties().first()
                 if (cachedProperties.isNotEmpty()) {
                     return@withContext Result.success(cachedProperties)
                 }
@@ -30,14 +33,26 @@ class PropertyRepository(
             // Fetch from network
             val response = api.getProperties()
             if (response.isSuccessful) {
-                val properties = response.body()!!
-                // Update cache
-                propertyDao.deleteAll()
-                propertyDao.insertAll(properties)
-                Result.success(properties)
+                val body = response.body()
+                if (body != null && body.status == "success") {
+                    @Suppress("UNCHECKED_CAST")
+                    val properties = body.data as List<Property>
+                    // Update cache
+                    propertyDao.deleteAllProperties()
+                    propertyDao.insertAllProperties(properties)
+                    Result.success(properties)
+                } else {
+                    // If network call fails and we have cached data, return it
+                    val cachedProperties = propertyDao.getAllProperties().first()
+                    if (cachedProperties.isNotEmpty()) {
+                        Result.success(cachedProperties)
+                    } else {
+                        Result.failure(Exception(body?.message ?: "Failed to get properties"))
+                    }
+                }
             } else {
                 // If network call fails and we have cached data, return it
-                val cachedProperties = propertyDao.getAll()
+                val cachedProperties = propertyDao.getAllProperties().first()
                 if (cachedProperties.isNotEmpty()) {
                     Result.success(cachedProperties)
                 } else {
@@ -46,7 +61,7 @@ class PropertyRepository(
             }
         } catch (e: Exception) {
             // On network error, try to load from cache
-            val cachedProperties = propertyDao.getAll()
+            val cachedProperties = propertyDao.getAllProperties().first()
             if (cachedProperties.isNotEmpty()) {
                 Result.success(cachedProperties)
             } else {
@@ -59,12 +74,24 @@ class PropertyRepository(
         try {
             val response = api.getProperty(id)
             if (response.isSuccessful) {
-                val property = response.body()!!
-                propertyDao.insert(property)
-                Result.success(property)
+                val body = response.body()
+                if (body != null && body.status == "success") {
+                    @Suppress("UNCHECKED_CAST")
+                    val property = body.data as Property
+                    propertyDao.insertProperty(property)
+                    Result.success(property)
+                } else {
+                    // Try to load from cache
+                    val cachedProperty = propertyDao.getPropertyById(id)
+                    if (cachedProperty != null) {
+                        Result.success(cachedProperty)
+                    } else {
+                        Result.failure(Exception(body?.message ?: "Failed to get property"))
+                    }
+                }
             } else {
                 // Try to load from cache
-                val cachedProperty = propertyDao.getById(id)
+                val cachedProperty = propertyDao.getPropertyById(id)
                 if (cachedProperty != null) {
                     Result.success(cachedProperty)
                 } else {
@@ -73,7 +100,7 @@ class PropertyRepository(
             }
         } catch (e: Exception) {
             // Try to load from cache
-            val cachedProperty = propertyDao.getById(id)
+            val cachedProperty = propertyDao.getPropertyById(id)
             if (cachedProperty != null) {
                 Result.success(cachedProperty)
             } else {
@@ -86,15 +113,21 @@ class PropertyRepository(
         try {
             val response = api.createProperty(property)
             if (response.isSuccessful) {
-                val createdProperty = response.body()!!
-                propertyDao.insert(createdProperty)
+                val body = response.body()
+                if (body != null && body.status == "success") {
+                    @Suppress("UNCHECKED_CAST")
+                    val createdProperty = body.data as Property
+                    propertyDao.insertProperty(createdProperty)
 
-                // Upload images if any
-                if (images.isNotEmpty()) {
-                    uploadPropertyImages(createdProperty.id, images)
+                    // Upload images if any
+                    if (images.isNotEmpty()) {
+                        uploadPropertyImages(createdProperty.id, images)
+                    }
+
+                    Result.success(createdProperty)
+                } else {
+                    Result.failure(Exception(body?.message ?: "Failed to create property"))
                 }
-
-                Result.success(createdProperty)
             } else {
                 Result.failure(handleApiError(response))
             }
@@ -105,17 +138,23 @@ class PropertyRepository(
 
     suspend fun updateProperty(property: Property, images: List<Uri> = emptyList()): Result<Property> = withContext(Dispatchers.IO) {
         try {
-            val response = api.updateProperty(property.id, property)
+            val response = api.updateProperty(property)
             if (response.isSuccessful) {
-                val updatedProperty = response.body()!!
-                propertyDao.update(updatedProperty)
+                val body = response.body()
+                if (body != null && body.status == "success") {
+                    @Suppress("UNCHECKED_CAST")
+                    val updatedProperty = body.data as Property
+                    propertyDao.updateProperty(updatedProperty)
 
-                // Upload images if any
-                if (images.isNotEmpty()) {
-                    uploadPropertyImages(updatedProperty.id, images)
+                    // Upload images if any
+                    if (images.isNotEmpty()) {
+                        uploadPropertyImages(updatedProperty.id, images)
+                    }
+
+                    Result.success(updatedProperty)
+                } else {
+                    Result.failure(Exception(body?.message ?: "Failed to update property"))
                 }
-
-                Result.success(updatedProperty)
             } else {
                 Result.failure(handleApiError(response))
             }
@@ -128,7 +167,7 @@ class PropertyRepository(
         try {
             val response = api.deleteProperty(id)
             if (response.isSuccessful) {
-                propertyDao.deleteById(id)
+                propertyDao.deletePropertyById(id)
                 Result.success(Unit)
             } else {
                 Result.failure(handleApiError(response))

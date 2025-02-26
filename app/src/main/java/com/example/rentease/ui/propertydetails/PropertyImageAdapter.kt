@@ -7,11 +7,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rentease.databinding.ItemPropertyImageBinding
-import com.example.rentease.data.model.PropertyImage
 
 class PropertyImageAdapter(
-    private val onImageClick: (PropertyImage) -> Unit
-) : ListAdapter<PropertyImage, PropertyImageAdapter.ImageViewHolder>(ImageDiffCallback()) {
+    private val onImageClick: (String) -> Unit
+) : ListAdapter<String, PropertyImageAdapter.ImageViewHolder>(ImageDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val binding = ItemPropertyImageBinding.inflate(
@@ -32,27 +31,27 @@ class PropertyImageAdapter(
 
         init {
             binding.root.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onImageClick(getItem(position))
                 }
             }
         }
 
-        fun bind(image: PropertyImage) {
+        fun bind(imageUrl: String) {
             Glide.with(binding.root)
-                .load(image.url)
+                .load(imageUrl)
                 .centerCrop()
                 .into(binding.propertyImage)
         }
     }
 
-    private class ImageDiffCallback : DiffUtil.ItemCallback<PropertyImage>() {
-        override fun areItemsTheSame(oldItem: PropertyImage, newItem: PropertyImage): Boolean {
-            return oldItem.id == newItem.id
+    private class ImageDiffCallback : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: PropertyImage, newItem: PropertyImage): Boolean {
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
             return oldItem == newItem
         }
     }

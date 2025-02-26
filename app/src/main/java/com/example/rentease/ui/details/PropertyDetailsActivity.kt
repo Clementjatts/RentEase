@@ -11,11 +11,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.rentease.R
 import com.example.rentease.data.api.ApiClient
-import com.example.rentease.data.local.RentEaseDatabase
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
 import com.example.rentease.databinding.ActivityPropertyDetailsBinding
@@ -26,11 +26,10 @@ class PropertyDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPropertyDetailsBinding
 
     private val viewModel: PropertyDetailsViewModel by viewModels {
-        val database = RentEaseDatabase.getDatabase(applicationContext)
         PropertyDetailsViewModel.Factory(
             propertyId = intent.getIntExtra(EXTRA_PROPERTY_ID, -1),
-            repository = PropertyRepository(ApiClient.api, database.propertyDao()),
-            savedStateHandle = defaultViewModelCreationExtras.createSavedStateHandle()
+            repository = PropertyRepository(ApiClient.api, applicationContext),
+            savedStateHandle = SavedStateHandle()
         )
     }
 

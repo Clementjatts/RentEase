@@ -25,6 +25,8 @@ class ChangePasswordDialog : DialogFragment() {
         ChangePasswordViewModel.Factory(requireActivity().application)
     }
 
+    private var positiveButton: Button? = null
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogChangePasswordBinding.inflate(LayoutInflater.from(context))
 
@@ -36,8 +38,8 @@ class ChangePasswordDialog : DialogFragment() {
             .create()
 
         dialog.setOnShowListener { dialogInterface ->
-            val positiveButton = (dialogInterface as Dialog).getButton(DialogInterface.BUTTON_POSITIVE)
-            setupPositiveButton(positiveButton)
+            positiveButton = (dialogInterface as androidx.appcompat.app.AlertDialog).getButton(DialogInterface.BUTTON_POSITIVE)
+            setupPositiveButton(positiveButton!!)
             observeViewModel()
         }
 
@@ -90,18 +92,18 @@ class ChangePasswordDialog : DialogFragment() {
         binding.currentPasswordInput.isEnabled = enabled
         binding.newPasswordInput.isEnabled = enabled
         binding.confirmNewPasswordInput.isEnabled = enabled
-        dialog?.getButton(DialogInterface.BUTTON_POSITIVE)?.isEnabled = enabled
+        positiveButton?.isEnabled = enabled
     }
 
     private fun showError(message: String) {
-        binding.errorText.apply {
-            text = message
-            isVisible = true
-        }
+        binding.errorText.text = message
+        binding.errorText.isVisible = true
+        positiveButton?.isEnabled = true
     }
 
     private fun hideError() {
         binding.errorText.isVisible = false
+        positiveButton?.isEnabled = true
     }
 
     private fun showSuccessMessage() {

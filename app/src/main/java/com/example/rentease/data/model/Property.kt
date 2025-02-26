@@ -2,7 +2,10 @@ package com.example.rentease.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.math.BigDecimal
+import java.util.Date
 
 @Entity(
     tableName = "properties",
@@ -13,6 +16,9 @@ import androidx.room.PrimaryKey
             childColumns = ["landlordId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["landlordId"])
     ]
 )
 data class Property(
@@ -20,7 +26,11 @@ data class Property(
     val title: String,
     val description: String?,
     val landlordId: Int,
+    val price: BigDecimal,
+    val address: String,
+    val dateAdded: Date = Date(),
     // Additional fields for the UI
     var landlordName: String? = null,
-    var landlordContact: String? = null
+    var landlordContact: String? = null,
+    var images: List<String>? = null
 )

@@ -53,6 +53,15 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
     
+    // Moshi for JSON parsing
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+    ksp(libs.moshi.kotlin.codegen)
+    implementation(libs.converter.moshi)
+    
+    // Security Crypto for EncryptedSharedPreferences
+    implementation(libs.androidx.security.crypto)
+    
     // Room for local database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

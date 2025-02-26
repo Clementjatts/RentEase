@@ -26,6 +26,9 @@ interface PropertyDao {
 
     @Delete
     suspend fun deleteProperty(property: Property)
+    
+    @Query("DELETE FROM properties WHERE id = :id")
+    suspend fun deletePropertyById(id: Int)
 
     @Query("DELETE FROM properties")
     suspend fun deleteAllProperties()

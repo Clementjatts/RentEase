@@ -39,7 +39,7 @@ class PropertyImagesAdapter(
                 binding.propertyImage.setImageURI(uri)
             }
 
-            binding.removeButton.setOnClickListener {
+            binding.deleteButton.setOnClickListener {
                 onRemoveClick(uri)
             }
         }

@@ -3,6 +3,7 @@ package com.example.rentease.ui.profile
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.rentease.R
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.data.api.ApiClient
 import com.example.rentease.data.model.User
@@ -54,10 +56,7 @@ class ProfileActivity : AppCompatActivity() {
             showChangePasswordDialog()
         }
 
-        binding.logoutButton.setOnClickListener {
-            showLogoutConfirmation()
-        }
-
+        // Add logout functionality to the toolbar menu instead
         binding.saveButton.setOnClickListener {
             val fullName = binding.fullNameInput.text.toString()
             val email = binding.emailInput.text.toString()
@@ -73,14 +72,14 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun showLogoutConfirmation() {
         MaterialAlertDialogBuilder(this)
-            .setTitle("Logout")
-            .setMessage("Are you sure you want to logout?")
-            .setPositiveButton("Logout") { _, _ ->
+            .setTitle(getString(R.string.title_logout_confirmation))
+            .setMessage(getString(R.string.message_logout_confirmation))
+            .setPositiveButton(getString(R.string.button_logout)) { _, _ ->
                 viewModel.logout()
                 startActivity(LoginActivity.createIntent(this))
                 finishAffinity()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.button_cancel), null)
             .show()
     }
 
@@ -131,14 +130,19 @@ class ProfileActivity : AppCompatActivity() {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_profile, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
             R.id.action_logout -> {
                 showLogoutConfirmation()
+                true
+            }
+            android.R.id.home -> {
+                finish()
                 true
             }
             else -> super.onOptionsItemSelected(item)

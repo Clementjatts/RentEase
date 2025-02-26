@@ -51,29 +51,11 @@ interface RentEaseApi {
     @DELETE("property/delete.php")
     suspend fun deleteProperty(@Query("id") id: Int): Response<ApiResponse>
 
-    @GET("properties")
-    suspend fun getPropertiesList(): Response<List<Property>>
-
-    @GET("properties/{id}")
-    suspend fun getPropertyPath(@Path("id") id: Int): Response<Property>
-
-    @POST("properties")
-    suspend fun createPropertyPath(@Body property: Property): Response<Property>
-
-    @PUT("properties/{id}")
-    suspend fun updatePropertyPath(
-        @Path("id") id: Int,
-        @Body property: Property
-    ): Response<Property>
-
-    @DELETE("properties/{id}")
-    suspend fun deletePropertyPath(@Path("id") id: Int): Response<Unit>
-
     @Multipart
-    @POST("properties/{id}/images")
+    @POST("property/upload_image.php")
     suspend fun uploadPropertyImage(
-        @Path("id") propertyId: Int,
-        @Part("image") image: okhttp3.MultipartBody.Part
+        @Query("property_id") propertyId: Int,
+        @Part image: MultipartBody.Part
     ): Response<String>
 
     // User request endpoints

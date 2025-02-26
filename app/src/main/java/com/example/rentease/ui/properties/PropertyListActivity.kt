@@ -14,7 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentease.R
+import com.example.rentease.data.model.Property
 import com.example.rentease.databinding.ActivityPropertyListBinding
+import com.example.rentease.ui.contact.ContactFormActivity
+import com.example.rentease.ui.details.PropertyDetailsActivity
 import com.example.rentease.ui.login.LoginActivity
 import com.example.rentease.ui.profile.ProfileActivity
 import com.example.rentease.ui.propertyform.PropertyFormActivity
@@ -27,7 +30,7 @@ import kotlinx.coroutines.launch
 @OptIn(FlowPreview::class)
 class PropertyListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPropertyListBinding
-    private lateinit var adapter: PropertyListAdapter
+    private lateinit var adapter: PropertyAdapter
 
     private val viewModel: PropertyListViewModel by viewModels {
         PropertyListViewModel.Factory(application)
@@ -53,12 +56,12 @@ class PropertyListActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = PropertyListAdapter(
+        adapter = PropertyAdapter(
             onItemClick = { property ->
-                startActivity(PropertyFormActivity.createIntent(this, property.id))
+                startActivity(PropertyDetailsActivity.createIntent(this, property.id))
             },
-            onDeleteClick = { property ->
-                viewModel.deleteProperty(property.id)
+            onContactClick = { property ->
+                startActivity(ContactFormActivity.createIntent(this, property.id))
             }
         )
 

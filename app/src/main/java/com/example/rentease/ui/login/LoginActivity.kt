@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.rentease.auth.AuthManager
+import com.example.rentease.auth.UserType
 import com.example.rentease.databinding.ActivityLoginBinding
 import com.example.rentease.ui.properties.PropertyListActivity
 import com.example.rentease.ui.register.RegisterActivity
@@ -35,14 +37,14 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupLoginButton() {
         binding.loginButton.setOnClickListener {
-            val email = binding.emailInput.text.toString()
+            val username = binding.usernameInput.text.toString()
             val password = binding.passwordInput.text.toString()
-            viewModel.login(email, password)
+            viewModel.login(username, password, UserType.LANDLORD)
         }
     }
 
     private fun setupRegisterButton() {
-        binding.registerButton.setOnClickListener {
+        binding.registerLink.setOnClickListener {
             startActivity(RegisterActivity.createIntent(this))
         }
     }
@@ -50,12 +52,12 @@ class LoginActivity : AppCompatActivity() {
     private fun observeViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.loginState.collect { state ->
+                viewModel.uiState.collect { state ->
                     when (state) {
-                        LoginState.Initial -> Unit
-                        LoginState.Loading -> showLoading()
-                        LoginState.Success -> navigateToPropertyList()
-                        is LoginState.Error -> showError(state.message)
+                        LoginUiState.Initial -> Unit
+                        LoginUiState.Loading -> showLoading()
+                        is LoginUiState.Success -> navigateToPropertyList()
+                        is LoginUiState.Error -> showError(state.message)
                     }
                 }
             }
@@ -64,7 +66,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showLoading() {
         binding.loginButton.isEnabled = false
-        binding.registerButton.isEnabled = false
+        binding.registerLink.isEnabled = false
         // Show loading indicator if needed
     }
 
@@ -75,7 +77,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showError(message: String) {
         binding.loginButton.isEnabled = true
-        binding.registerButton.isEnabled = true
+        binding.registerLink.isEnabled = true
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 

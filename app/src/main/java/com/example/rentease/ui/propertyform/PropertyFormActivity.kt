@@ -16,7 +16,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.data.api.ApiClient
-import com.example.rentease.data.local.RentEaseDatabase
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
 import com.example.rentease.databinding.ActivityPropertyFormBinding
@@ -27,12 +26,10 @@ class PropertyFormActivity : AppCompatActivity() {
     private lateinit var imagesAdapter: PropertyImagesAdapter
 
     private val viewModel: PropertyFormViewModel by viewModels {
-        val database = RentEaseDatabase.getDatabase(applicationContext)
         PropertyFormViewModel.Factory(
             propertyId = intent.getIntExtra(EXTRA_PROPERTY_ID, -1).takeIf { it != -1 },
-            repository = PropertyRepository(ApiClient.api, database.propertyDao()),
-            authManager = AuthManager.getInstance(applicationContext),
-            savedStateHandle = defaultViewModelCreationExtras.createSavedStateHandle()
+            repository = PropertyRepository(ApiClient.api, applicationContext),
+            authManager = AuthManager.getInstance(applicationContext)
         )
     }
 
@@ -65,7 +62,7 @@ class PropertyFormActivity : AppCompatActivity() {
 
     private fun setupImagesRecyclerView() {
         imagesAdapter = PropertyImagesAdapter(
-            onDeleteClick = { uri -> viewModel.removeImage(uri) }
+            onRemoveClick = { uri -> viewModel.removeImage(uri) }
         )
         binding.imagesRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@PropertyFormActivity, LinearLayoutManager.HORIZONTAL, false)
@@ -74,17 +71,17 @@ class PropertyFormActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        binding.addImagesButton.setOnClickListener {
-            pickImage.launch("image/*")
-        }
-
         binding.saveButton.setOnClickListener {
-            val title = binding.titleInput.text.toString()
-            val description = binding.descriptionInput.text.toString()
-            val address = binding.addressInput.text.toString()
-            val price = binding.priceInput.text.toString()
-
-            viewModel.saveProperty(title, description, address, price)
+            viewModel.saveProperty(
+                title = binding.titleInput.text.toString(),
+                description = binding.descriptionInput.text.toString(),
+                address = binding.addressInput.text.toString(),
+                price = binding.priceInput.text.toString()
+            )
+        }
+        
+        binding.addImageButton.setOnClickListener {
+            pickImage.launch("image/*")
         }
     }
 

@@ -90,15 +90,15 @@ class PropertyFormViewModel(
     }
 
     fun addImage(uri: Uri) {
-        val currentList = _selectedImages.value.toMutableList()
-        currentList.add(uri)
-        _selectedImages.value = currentList
+        val currentImages = _selectedImages.value.toMutableList()
+        currentImages.add(uri)
+        _selectedImages.value = currentImages
     }
 
     fun removeImage(uri: Uri) {
-        val currentList = _selectedImages.value.toMutableList()
-        currentList.remove(uri)
-        _selectedImages.value = currentList
+        val currentImages = _selectedImages.value.toMutableList()
+        currentImages.remove(uri)
+        _selectedImages.value = currentImages
     }
 
     private fun validateInput(
@@ -126,7 +126,7 @@ class PropertyFormViewModel(
         private val propertyId: Int?,
         private val repository: PropertyRepository,
         private val authManager: AuthManager,
-        private val savedStateHandle: SavedStateHandle
+        private val savedStateHandle: SavedStateHandle = SavedStateHandle()
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

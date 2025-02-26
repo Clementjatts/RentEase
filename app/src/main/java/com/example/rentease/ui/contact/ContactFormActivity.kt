@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.rentease.data.api.ApiClient
@@ -20,11 +21,10 @@ class ContactFormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityContactFormBinding
 
     private val viewModel: ContactFormViewModel by viewModels {
-        val database = RentEaseDatabase.getDatabase(applicationContext)
         ContactFormViewModel.Factory(
             propertyId = intent.getIntExtra(EXTRA_PROPERTY_ID, -1),
-            repository = PropertyRepository(ApiClient.api, database.propertyDao()),
-            savedStateHandle = defaultViewModelCreationExtras.createSavedStateHandle()
+            repository = PropertyRepository(ApiClient.api, applicationContext),
+            savedStateHandle = SavedStateHandle()
         )
     }
 

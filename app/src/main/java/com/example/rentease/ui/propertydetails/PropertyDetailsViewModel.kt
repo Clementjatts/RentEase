@@ -1,8 +1,6 @@
 package com.example.rentease.ui.propertydetails
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
@@ -12,12 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class PropertyDetailsViewModel(
-    application: Application,
-    private val savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application) {
-
-    private val propertyRepository = PropertyRepository(application)
-    private val propertyId: String = checkNotNull(savedStateHandle["property_id"])
+    private val repository: PropertyRepository,
+    private val propertyId: Int
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PropertyDetailsUiState>(PropertyDetailsUiState.Loading)
     val uiState: StateFlow<PropertyDetailsUiState> = _uiState.asStateFlow()
@@ -28,11 +23,21 @@ class PropertyDetailsViewModel(
 
     private fun loadProperty() {
         viewModelScope.launch {
+            _uiState.value = PropertyDetailsUiState.Loading
             try {
-                val property = propertyRepository.getProperty(propertyId)
-                _uiState.value = PropertyDetailsUiState.Success(property)
+                repository.getProperty(propertyId)
+                    .onSuccess { property ->
+                        _uiState.value = PropertyDetailsUiState.Success(property)
+                    }
+                    .onFailure { error ->
+                        _uiState.value = PropertyDetailsUiState.Error(
+                            error.message ?: "Failed to load property"
+                        )
+                    }
             } catch (e: Exception) {
-                _uiState.value = PropertyDetailsUiState.Error(e.message ?: "Failed to load property")
+                _uiState.value = PropertyDetailsUiState.Error(
+                    e.message ?: "Failed to load property"
+                )
             }
         }
     }

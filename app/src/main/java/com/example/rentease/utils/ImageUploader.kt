@@ -19,7 +19,7 @@ class ImageUploader(
     private val context: Context,
     private val api: RentEaseApi
 ) {
-    suspend fun uploadImage(uri: Uri, propertyId: Int): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun uploadImage(propertyId: Int, uri: Uri): Result<String> = withContext(Dispatchers.IO) {
         try {
             // Convert Uri to File
             val file = createTempImageFile(uri)
