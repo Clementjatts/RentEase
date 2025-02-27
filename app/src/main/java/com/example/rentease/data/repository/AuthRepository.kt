@@ -18,19 +18,20 @@ class AuthRepository(
 
     suspend fun login(
         username: String,
-        password: String,
-        userType: UserType
+        password: String
     ): Result<User> = withContext(Dispatchers.IO) {
         try {
             val request = LoginRequest(
                 username = username,
-                password = password,
-                userType = userType.name
+                password = password
             )
 
             val response = api.login(request)
             if (response.isSuccessful) {
                 val loginResponse = response.body()!!
+                // Get user type from response
+                val userType = UserType.valueOf(loginResponse.user.userType)
+                
                 authManager.login(
                     username = loginResponse.user.username,
                     userType = userType,

@@ -4,7 +4,7 @@
  * Run this script to create or update the database schema
  */
 
-require_once '/var/www/html/config/Database.php';
+require_once __DIR__ . '/../api/config/Database.php';
 
 try {
     $db_file = __DIR__ . '/rentease.db';
@@ -32,18 +32,43 @@ try {
     foreach ($statements as $statement) {
         $statement = trim($statement);
         if (!empty($statement)) {
-            try {
-                $pdo->exec($statement);
-            } catch (PDOException $e) {
-                echo "Warning: " . $e->getMessage() . "\n";
-                // Continue with next statement even if this one fails
-            }
+            $pdo->exec($statement);
+            echo "Executed: " . substr($statement, 0, 50) . "...\n";
         }
     }
     
-    echo "Database initialization completed successfully!\n";
-    echo "Database location: $db_file\n";
+    echo "Database initialized successfully!\n";
+    echo "Checking tables...\n";
     
-} catch (Exception $e) {
-    die("Error: " . $e->getMessage() . "\n");
+    // List all tables
+    $tables_query = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
+    $tables_stmt = $pdo->query($tables_query);
+    $tables = $tables_stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    echo "Tables in database:\n";
+    foreach ($tables as $table) {
+        echo "- $table\n";
+        
+        // Get table structure
+        $struct_query = "PRAGMA table_info($table)";
+        $struct_stmt = $pdo->query($struct_query);
+        $columns = $struct_stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo "  Columns:\n";
+        foreach ($columns as $column) {
+            echo "  - {$column['name']} ({$column['type']})\n";
+        }
+        
+        // Count rows
+        $count_query = "SELECT COUNT(*) FROM $table";
+        $count_stmt = $pdo->query($count_query);
+        $count = $count_stmt->fetchColumn();
+        
+        echo "  Rows: $count\n";
+    }
+    
+    echo "\nDatabase ready for use.\n";
+    
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage() . "\n");
 }

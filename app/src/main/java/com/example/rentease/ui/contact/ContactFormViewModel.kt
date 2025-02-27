@@ -1,98 +1,117 @@
 package com.example.rentease.ui.contact
 
-import androidx.lifecycle.SavedStateHandle
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.rentease.data.api.ApiClient
-import com.example.rentease.data.model.UserRequest
-import com.example.rentease.data.repository.UserRequestRepository
+import com.example.rentease.auth.AuthManager
+import com.example.rentease.data.repository.PropertyRepository
+import com.example.rentease.data.repository.RequestRepository
+import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import android.app.Application
-import android.util.Patterns
 
+/**
+ * ContactFormViewModel handles the business logic for the contact form screen.
+ */
 class ContactFormViewModel(
-    private val repository: UserRequestRepository,
-    private val application: Application,
-    savedStateHandle: SavedStateHandle
-) : ViewModel() {
+    application: Application,
+    private val propertyId: Int
+) : AndroidViewModel(application) {
+    
+    private val requestRepository = RepositoryProvider.provideRequestRepository(application)
+    private val propertyRepository = RepositoryProvider.providePropertyRepository(application)
+    private val authManager = AuthManager.getInstance(application)
     
     private val _uiState = MutableStateFlow<ContactFormUiState>(ContactFormUiState.Initial)
     val uiState: StateFlow<ContactFormUiState> = _uiState
     
-    private var propertyId: Int = -1
-
-    init {
-        // Get propertyId from savedStateHandle
-        propertyId = savedStateHandle.get<Int>("propertyId") ?: -1
-    }
-
-    fun submitRequest(name: String, email: String, message: String) {
-        if (!validateInput(name, email, message)) {
-            return
-        }
-
+    /**
+     * Submit the contact form to the repository.
+     */
+    fun submitContactForm(
+        name: String,
+        email: String,
+        subject: String,
+        message: String
+    ) {
+        _uiState.value = ContactFormUiState.Loading
+        
         viewModelScope.launch {
-            _uiState.value = ContactFormUiState.Loading
-
             try {
-                val request = UserRequest(
-                    id = 0, // Will be assigned by the server
-                    userId = email, // Using email as user ID for simplicity
-                    propertyId = propertyId,
-                    message = message,
-                    createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                        .format(Date())
-                )
-
-                // Call the repository to create the request
-                val result = repository.createRequest(request)
+                val userId = authManager.getUserId()
+                
+                // If propertyId is valid, this is a property inquiry
+                val result = if (propertyId != -1) {
+                    // Get property details to include landlord information
+                    val propertyResult = propertyRepository.getProperty(propertyId)
+                    
+                    if (!propertyResult.isSuccess) {
+                        _uiState.value = ContactFormUiState.Error(
+                            propertyResult.errorMessage ?: "Failed to get property details"
+                        )
+                        return@launch
+                    }
+                    
+                    val property = propertyResult.property
+                    
+                    // Submit property inquiry
+                    requestRepository.submitPropertyInquiry(
+                        userId = userId,
+                        propertyId = propertyId,
+                        landlordId = property.landlordId,
+                        name = name,
+                        email = email,
+                        subject = subject,
+                        message = message
+                    )
+                } else {
+                    // Submit general contact form
+                    requestRepository.submitContactForm(
+                        userId = userId,
+                        name = name,
+                        email = email,
+                        subject = subject,
+                        message = message
+                    )
+                }
                 
                 if (result.isSuccess) {
                     _uiState.value = ContactFormUiState.Success
                 } else {
-                    _uiState.value = ContactFormUiState.Error("Failed to submit request: ${result.exceptionOrNull()?.message ?: "Unknown error"}")
+                    _uiState.value = ContactFormUiState.Error(result.errorMessage ?: "Failed to submit form")
                 }
             } catch (e: Exception) {
-                _uiState.value = ContactFormUiState.Error("An error occurred: ${e.message}")
+                _uiState.value = ContactFormUiState.Error(e.message ?: "An error occurred")
             }
         }
     }
-
-    private fun validateInput(name: String, email: String, message: String): Boolean {
-        if (name.isBlank() || email.isBlank() || message.isBlank()) {
-            _uiState.value = ContactFormUiState.Error("All fields are required")
-            return false
-        }
-        
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _uiState.value = ContactFormUiState.Error("Please enter a valid email address")
-            return false
-        }
-        
-        return true
-    }
-
-    class Factory(private val application: Application) : ViewModelProvider.Factory {
+    
+    /**
+     * Factory for creating ContactFormViewModel instances.
+     */
+    class Factory(
+        private val application: Application,
+        private val propertyId: Int
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ContactFormViewModel::class.java)) {
-                val repository = UserRequestRepository(ApiClient.api, application)
-                return ContactFormViewModel(repository, application, SavedStateHandle()) as T
+                return ContactFormViewModel(application, propertyId) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
 
+/**
+ * Represents the UI state for the contact form screen.
+ */
 sealed class ContactFormUiState {
-    data object Initial : ContactFormUiState()
-    data object Loading : ContactFormUiState()
-    data object Success : ContactFormUiState()
+    object Initial : ContactFormUiState()
+    object Loading : ContactFormUiState()
+    object Success : ContactFormUiState()
     data class Error(val message: String) : ContactFormUiState()
 }

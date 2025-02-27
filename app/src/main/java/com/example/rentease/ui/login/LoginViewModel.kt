@@ -1,66 +1,90 @@
 package com.example.rentease.ui.login
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.rentease.auth.UserType
-import com.example.rentease.data.model.User
+import com.example.rentease.auth.AuthManager
 import com.example.rentease.data.repository.AuthRepository
+import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * LoginViewModel handles the business logic for the login screen.
+ */
 class LoginViewModel(
-    private val repository: AuthRepository
-) : ViewModel() {
-
+    application: Application
+) : AndroidViewModel(application) {
+    
+    private val authRepository = RepositoryProvider.provideAuthRepository(application)
+    private val authManager = AuthManager.getInstance(application)
+    
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Initial)
     val uiState: StateFlow<LoginUiState> = _uiState
-
-    fun login(username: String, password: String, userType: UserType) {
-        if (!validateInput(username, password)) {
+    
+    /**
+     * Attempt to log in with the provided credentials.
+     */
+    fun login(email: String, password: String) {
+        if (email.isBlank() || password.isBlank()) {
+            _uiState.value = LoginUiState.Error("Email and password cannot be empty")
             return
         }
-
+        
+        _uiState.value = LoginUiState.Loading
+        
         viewModelScope.launch {
-            _uiState.value = LoginUiState.Loading
-
             try {
-                repository.login(username, password, userType)
-                    .onSuccess { user ->
-                        _uiState.value = LoginUiState.Success(user)
-                    }
-                    .onFailure { error ->
-                        _uiState.value = LoginUiState.Error(error.message ?: "Login failed")
-                    }
+                val result = authRepository.login(email, password)
+                if (result.isSuccess) {
+                    // Store auth token and user info
+                    authManager.setAuthToken(result.token)
+                    authManager.setUserType(result.userType)
+                    _uiState.value = LoginUiState.Success
+                } else {
+                    _uiState.value = LoginUiState.Error(result.errorMessage ?: "Login failed")
+                }
             } catch (e: Exception) {
-                _uiState.value = LoginUiState.Error(e.message ?: "Unknown error occurred")
+                _uiState.value = LoginUiState.Error(e.message ?: "An error occurred")
             }
         }
     }
-
-    private fun validateInput(username: String, password: String): Boolean {
-        if (username.isBlank() || password.isBlank()) {
-            _uiState.value = LoginUiState.Error("Username and password are required")
-            return false
-        }
-        return true
+    
+    /**
+     * Reset the UI state to initial.
+     */
+    fun resetState() {
+        _uiState.value = LoginUiState.Initial
     }
-
-    class Factory(private val repository: AuthRepository) : ViewModelProvider.Factory {
+    
+    /**
+     * Get the user type from the AuthManager.
+     */
+    fun getUserType() = authManager.userType
+    
+    /**
+     * Factory for creating LoginViewModel instances.
+     */
+    class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-                return LoginViewModel(repository) as T
+                return LoginViewModel(application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
 
+/**
+ * Represents the UI state for the login screen.
+ */
 sealed class LoginUiState {
-    data object Initial : LoginUiState()
-    data object Loading : LoginUiState()
-    data class Success(val user: User) : LoginUiState()
+    object Initial : LoginUiState()
+    object Loading : LoginUiState()
+    object Success : LoginUiState()
     data class Error(val message: String) : LoginUiState()
 }

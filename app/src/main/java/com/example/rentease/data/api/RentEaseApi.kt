@@ -1,6 +1,14 @@
 package com.example.rentease.data.api
 
-import com.example.rentease.data.model.*
+import com.example.rentease.data.model.ApiResponse
+import com.example.rentease.data.model.ChangePasswordRequest
+import com.example.rentease.data.model.Landlord
+import com.example.rentease.data.model.LoginRequest
+import com.example.rentease.data.model.LoginResponse
+import com.example.rentease.data.model.Property
+import com.example.rentease.data.model.RegisterRequest
+import com.example.rentease.data.model.User
+import com.example.rentease.data.model.UserRequest
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -58,7 +66,7 @@ interface RentEaseApi {
         @Part image: MultipartBody.Part
     ): Response<String>
 
-    // User request endpoints
+    // User request endpoints - Legacy paths
     @POST("request/create.php")
     suspend fun createRequest(@Body request: UserRequest): Response<ApiResponse>
 
@@ -68,11 +76,20 @@ interface RentEaseApi {
     @GET("request/read.php")
     suspend fun getUserRequests(@Query("user_id") userId: String): Response<ApiResponse>
 
+    // User request endpoints - RESTful paths
     @POST("requests")
     suspend fun createRequestNew(@Body request: UserRequest): Response<ApiResponse>
     
     @GET("requests/user/{userId}")
     suspend fun getUserRequestsNew(@Path("userId") userId: String): Response<ApiResponse>
+    
+    @PUT("requests/{id}")
+    suspend fun updateRequest(@Path("id") id: Int, @Body request: UserRequest): Response<ApiResponse>
+    
+    @DELETE("requests/{id}")
+    suspend fun deleteRequest(@Path("id") id: Int): Response<ApiResponse>
+    
+    // Favorite property endpoints removed as they are no longer needed
 }
 
 data class ApiResponse(

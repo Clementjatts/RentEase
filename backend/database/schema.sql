@@ -45,6 +45,16 @@ CREATE TABLE IF NOT EXISTS user_requests (
     FOREIGN KEY (property_id) REFERENCES properties(id)
 );
 
+-- Create favorites table
+CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    property_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (property_id) REFERENCES properties(id),
+    UNIQUE(user_id, property_id)
+);
+
 -- Insert default admin account
 INSERT OR IGNORE INTO admins (username, password) VALUES ('admin', 'pass');
 

@@ -1,6 +1,12 @@
 <?php
+/**
+ * Database Connection Class
+ * 
+ * Handles database connection and initialization
+ */
 class Database {
     private $db;
+    private $dbPath;
 
     public function __construct() {
         try {
@@ -11,6 +17,8 @@ class Database {
             if (!$db_path) {
                 $db_path = dirname(dirname(dirname(__FILE__))) . '/database/rentease.db';
             }
+            
+            $this->dbPath = $db_path;
             
             // Check if directory exists and is writable
             $dir = dirname($db_path);
@@ -24,11 +32,22 @@ class Database {
             // Note: We don't execute the schema here anymore
             // Use the init_db.php script to initialize the database properly
         } catch(PDOException $e) {
-            echo "Connection Error: " . $e->getMessage();
+            // Log error but don't expose details to client
+            error_log("Database Connection Error: " . $e->getMessage());
+            throw new Exception("Database connection error");
         }
     }
 
     public function getConnection() {
         return $this->db;
+    }
+    
+    // Added method to get DSN for debugging
+    public function getDatabaseInfo() {
+        return [
+            'path' => $this->dbPath,
+            'exists' => file_exists($this->dbPath),
+            'size' => file_exists($this->dbPath) ? filesize($this->dbPath) : 0
+        ];
     }
 }

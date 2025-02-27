@@ -2,15 +2,25 @@ package com.example.rentease.ui.propertydetails
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.example.rentease.R
 import com.example.rentease.databinding.ItemPropertyImageBinding
 
+/**
+ * Adapter for displaying property images in a ViewPager
+ */
 class PropertyImageAdapter(
     private val onImageClick: (String) -> Unit
-) : ListAdapter<String, PropertyImageAdapter.ImageViewHolder>(ImageDiffCallback()) {
+) : RecyclerView.Adapter<PropertyImageAdapter.ImageViewHolder>() {
+    
+    private var imageUrls: List<String> = emptyList()
+    
+    fun submitList(list: List<String>) {
+        imageUrls = list
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val binding = ItemPropertyImageBinding.inflate(
@@ -22,8 +32,10 @@ class PropertyImageAdapter(
     }
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(imageUrls[position])
     }
+
+    override fun getItemCount(): Int = imageUrls.size
 
     inner class ImageViewHolder(
         private val binding: ItemPropertyImageBinding
@@ -31,28 +43,19 @@ class PropertyImageAdapter(
 
         init {
             binding.root.setOnClickListener {
-                val position = adapterPosition
+                val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    onImageClick(getItem(position))
+                    onImageClick(imageUrls[position])
                 }
             }
         }
 
         fun bind(imageUrl: String) {
-            Glide.with(binding.root)
+            Glide.with(binding.root.context)
                 .load(imageUrl)
-                .centerCrop()
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .error(R.drawable.placeholder_image)
                 .into(binding.propertyImage)
-        }
-    }
-
-    private class ImageDiffCallback : DiffUtil.ItemCallback<String>() {
-        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-            return oldItem == newItem
-        }
-
-        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-            return oldItem == newItem
         }
     }
 }

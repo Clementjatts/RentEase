@@ -1,14 +1,43 @@
 version: '3.8'
 
 services:
-  web:
+  # Web service for API
+  api:
     build:
       context: ..
       dockerfile: docker/Dockerfile
     ports:
-      - "8080:80"
+      - "8000:80"
     volumes:
       - ../api:/var/www/html
+      - ../api/.env.docker:/var/www/html/.env
+      - ../api/tests/bootstrap.php.docker:/var/www/html/tests/bootstrap.php
+      - ../api/tests/.env.docker:/var/www/html/tests/.env.test
       - ../database:/var/www/database
     environment:
+      - DB_HOST=db
+      - DB_NAME=rentease
+      - DB_USER=rentease
+      - DB_PASS=rentease_password
+      - API_URL=http://localhost:8000
+      - JWT_SECRET=your_jwt_secret_key
       - SQLITE_DATABASE=/var/www/database/rentease.db
+    depends_on:
+      - db
+
+  # Database service
+  db:
+    image: mysql:8.0
+    ports:
+      - "3308:3306"
+    environment:
+      - MYSQL_DATABASE=rentease
+      - MYSQL_USER=rentease
+      - MYSQL_PASSWORD=rentease_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../api/tests/fixtures:/docker-entrypoint-initdb.d
+
+volumes:
+  mysql_data:

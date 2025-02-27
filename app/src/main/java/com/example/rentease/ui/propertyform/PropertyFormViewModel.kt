@@ -1,147 +1,164 @@
 package com.example.rentease.ui.propertyform
 
+import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.auth.AuthManager
-import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
+import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 
+/**
+ * PropertyFormViewModel handles the business logic for the property form screen.
+ */
 class PropertyFormViewModel(
-    private val propertyId: Int?,
-    private val repository: PropertyRepository,
-    private val authManager: AuthManager,
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
-
+    application: Application,
+    private val propertyId: Int
+) : AndroidViewModel(application) {
+    
+    private val propertyRepository = RepositoryProvider.providePropertyRepository(application)
+    private val authManager = AuthManager.getInstance(application)
+    
     private val _uiState = MutableStateFlow<PropertyFormUiState>(PropertyFormUiState.Initial)
     val uiState: StateFlow<PropertyFormUiState> = _uiState
-
-    private val _selectedImages = MutableStateFlow<List<Uri>>(emptyList())
-    val selectedImages: StateFlow<List<Uri>> = _selectedImages
-
-    init {
-        if (propertyId != null) {
-            loadProperty()
-        }
-    }
-
-    private fun loadProperty() {
+    
+    private val _images = MutableStateFlow<List<Uri>>(emptyList())
+    val images: StateFlow<List<Uri>> = _images
+    
+    /**
+     * Load the property data from the repository.
+     */
+    fun loadProperty() {
+        if (propertyId == -1) return
+        
+        _uiState.value = PropertyFormUiState.Loading
+        
         viewModelScope.launch {
-            _uiState.value = PropertyFormUiState.Loading
             try {
-                repository.getProperty(propertyId!!).onSuccess { property ->
-                    _uiState.value = PropertyFormUiState.Success(property)
-                }.onFailure { error ->
-                    _uiState.value = PropertyFormUiState.Error(error.message ?: "Failed to load property")
+                val result = propertyRepository.getProperty(propertyId)
+                
+                if (result.isSuccess) {
+                    val property = result.property
+                    _uiState.value = PropertyFormUiState.PropertyData(
+                        title = property.title,
+                        description = property.description,
+                        address = property.address,
+                        price = property.price
+                    )
+                    
+                    // Load images
+                    _images.value = property.images.map { Uri.parse(it) }
+                } else {
+                    _uiState.value = PropertyFormUiState.Error(result.errorMessage ?: "Failed to load property")
                 }
             } catch (e: Exception) {
-                _uiState.value = PropertyFormUiState.Error(e.message ?: "Unknown error occurred")
+                _uiState.value = PropertyFormUiState.Error(e.message ?: "An error occurred")
             }
         }
     }
-
+    
+    /**
+     * Save the property to the repository.
+     */
     fun saveProperty(
         title: String,
         description: String,
         address: String,
-        price: String
+        price: Double
     ) {
-        if (!validateInput(title, description, address, price)) {
-            return
-        }
-
+        _uiState.value = PropertyFormUiState.Loading
+        
         viewModelScope.launch {
-            _uiState.value = PropertyFormUiState.Loading
             try {
-                val property = Property(
-                    id = propertyId ?: 0,
-                    title = title,
-                    description = description,
-                    address = address,
-                    price = BigDecimal(price),
-                    landlordId = 1, // TODO: Get from AuthManager
-                    landlordName = null,
-                    landlordContact = null,
-                    images = emptyList() // Images will be uploaded separately
-                )
-
-                val result = if (propertyId == null) {
-                    repository.createProperty(property, _selectedImages.value)
+                val landlordId = authManager.getUserId()
+                
+                val result = if (propertyId == -1) {
+                    // Create new property
+                    propertyRepository.createProperty(
+                        title = title,
+                        description = description,
+                        address = address,
+                        price = price,
+                        landlordId = landlordId,
+                        images = _images.value.map { it.toString() }
+                    )
                 } else {
-                    repository.updateProperty(property, _selectedImages.value)
+                    // Update existing property
+                    propertyRepository.updateProperty(
+                        propertyId = propertyId,
+                        title = title,
+                        description = description,
+                        address = address,
+                        price = price,
+                        images = _images.value.map { it.toString() }
+                    )
                 }
-
-                result.onSuccess {
-                    _uiState.value = PropertyFormUiState.Saved
-                }.onFailure { error ->
-                    _uiState.value = PropertyFormUiState.Error(error.message ?: "Failed to save property")
+                
+                if (result.isSuccess) {
+                    _uiState.value = PropertyFormUiState.Success
+                } else {
+                    _uiState.value = PropertyFormUiState.Error(result.errorMessage ?: "Failed to save property")
                 }
             } catch (e: Exception) {
-                _uiState.value = PropertyFormUiState.Error(e.message ?: "Unknown error occurred")
+                _uiState.value = PropertyFormUiState.Error(e.message ?: "An error occurred")
             }
         }
     }
-
+    
+    /**
+     * Add an image to the property.
+     */
     fun addImage(uri: Uri) {
-        val currentImages = _selectedImages.value.toMutableList()
+        val currentImages = _images.value.toMutableList()
         currentImages.add(uri)
-        _selectedImages.value = currentImages
+        _images.value = currentImages
     }
-
-    fun removeImage(uri: Uri) {
-        val currentImages = _selectedImages.value.toMutableList()
-        currentImages.remove(uri)
-        _selectedImages.value = currentImages
-    }
-
-    private fun validateInput(
-        title: String,
-        description: String,
-        address: String,
-        price: String
-    ): Boolean {
-        if (title.isBlank() || description.isBlank() || address.isBlank() || price.isBlank()) {
-            _uiState.value = PropertyFormUiState.Error("All fields are required")
-            return false
+    
+    /**
+     * Remove an image from the property.
+     */
+    fun removeImage(position: Int) {
+        val currentImages = _images.value.toMutableList()
+        if (position in currentImages.indices) {
+            currentImages.removeAt(position)
+            _images.value = currentImages
         }
-
-        try {
-            BigDecimal(price)
-        } catch (e: NumberFormatException) {
-            _uiState.value = PropertyFormUiState.Error("Please enter a valid price")
-            return false
-        }
-
-        return true
     }
-
+    
+    /**
+     * Factory for creating PropertyFormViewModel instances.
+     */
     class Factory(
-        private val propertyId: Int?,
-        private val repository: PropertyRepository,
-        private val authManager: AuthManager,
-        private val savedStateHandle: SavedStateHandle = SavedStateHandle()
+        private val application: Application,
+        private val propertyId: Int
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PropertyFormViewModel::class.java)) {
-                return PropertyFormViewModel(propertyId, repository, authManager, savedStateHandle) as T
+                return PropertyFormViewModel(application, propertyId) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
 
+/**
+ * Represents the UI state for the property form screen.
+ */
 sealed class PropertyFormUiState {
-    data object Initial : PropertyFormUiState()
-    data object Loading : PropertyFormUiState()
-    data class Success(val property: Property) : PropertyFormUiState()
-    data object Saved : PropertyFormUiState()
+    object Initial : PropertyFormUiState()
+    object Loading : PropertyFormUiState()
+    object Success : PropertyFormUiState()
     data class Error(val message: String) : PropertyFormUiState()
+    data class PropertyData(
+        val title: String,
+        val description: String,
+        val address: String,
+        val price: Double
+    ) : PropertyFormUiState()
 }

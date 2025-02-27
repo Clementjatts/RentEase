@@ -1,115 +1,135 @@
 package com.example.rentease.ui.register
 
-import android.util.Patterns
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.auth.UserType
-import com.example.rentease.data.model.User
 import com.example.rentease.data.repository.AuthRepository
+import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * RegisterViewModel handles the business logic for the registration screen.
+ */
 class RegisterViewModel(
-    private val repository: AuthRepository
-) : ViewModel() {
-
+    application: Application
+) : AndroidViewModel(application) {
+    
+    private val authRepository = RepositoryProvider.provideAuthRepository(application)
+    
     private val _uiState = MutableStateFlow<RegisterUiState>(RegisterUiState.Initial)
     val uiState: StateFlow<RegisterUiState> = _uiState
-
+    
+    /**
+     * Attempt to register a new user with the provided information.
+     */
     fun register(
         username: String,
+        fullName: String,
+        email: String,
+        phone: String,
         password: String,
         confirmPassword: String,
-        email: String,
-        fullName: String,
-        phone: String,
         userType: UserType
     ) {
-        if (!validateInput(username, password, confirmPassword, email, fullName, phone)) {
+        // Validate input
+        val validationError = validateInput(
+            username, fullName, email, phone, password, confirmPassword
+        )
+        
+        if (validationError != null) {
+            _uiState.value = RegisterUiState.Error(validationError)
             return
         }
-
+        
+        _uiState.value = RegisterUiState.Loading
+        
         viewModelScope.launch {
-            _uiState.value = RegisterUiState.Loading
-
             try {
-                repository.register(
+                val result = authRepository.register(
                     username = username,
-                    password = password,
-                    email = email,
                     fullName = fullName,
+                    email = email,
                     phone = phone,
+                    password = password,
                     userType = userType
-                ).onSuccess { user ->
-                    _uiState.value = RegisterUiState.Success(user)
-                }.onFailure { error ->
-                    _uiState.value = RegisterUiState.Error(error.message ?: "Registration failed")
+                )
+                
+                if (result.isSuccess) {
+                    _uiState.value = RegisterUiState.Success
+                } else {
+                    _uiState.value = RegisterUiState.Error(result.errorMessage ?: "Registration failed")
                 }
             } catch (e: Exception) {
-                _uiState.value = RegisterUiState.Error(e.message ?: "Unknown error occurred")
+                _uiState.value = RegisterUiState.Error(e.message ?: "An error occurred")
             }
         }
     }
-
+    
+    /**
+     * Validate the user input.
+     * 
+     * @return An error message if validation fails, null otherwise.
+     */
     private fun validateInput(
         username: String,
-        password: String,
-        confirmPassword: String,
-        email: String,
         fullName: String,
-        phone: String
-    ): Boolean {
-        if (username.isBlank() || password.isBlank() || confirmPassword.isBlank() ||
-            email.isBlank() || fullName.isBlank() || phone.isBlank()
-        ) {
-            _uiState.value = RegisterUiState.Error("All fields are required")
-            return false
+        email: String,
+        phone: String,
+        password: String,
+        confirmPassword: String
+    ): String? {
+        if (username.isBlank() || fullName.isBlank() || email.isBlank() || 
+            phone.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+            return "All fields are required"
         }
-
-        if (username.length < 3) {
-            _uiState.value = RegisterUiState.Error("Username must be at least 3 characters long")
-            return false
-        }
-
-        if (password.length < 6) {
-            _uiState.value = RegisterUiState.Error("Password must be at least 6 characters long")
-            return false
-        }
-
+        
         if (password != confirmPassword) {
-            _uiState.value = RegisterUiState.Error("Passwords do not match")
-            return false
+            return "Passwords do not match"
         }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _uiState.value = RegisterUiState.Error("Please enter a valid email address")
-            return false
+        
+        if (password.length < 6) {
+            return "Password must be at least 6 characters"
         }
-
-        if (!Patterns.PHONE.matcher(phone).matches()) {
-            _uiState.value = RegisterUiState.Error("Please enter a valid phone number")
-            return false
+        
+        if (!email.contains("@") || !email.contains(".")) {
+            return "Invalid email address"
         }
-
-        return true
+        
+        return null
     }
-
-    class Factory(private val repository: AuthRepository) : ViewModelProvider.Factory {
+    
+    /**
+     * Reset the UI state to initial.
+     */
+    fun resetState() {
+        _uiState.value = RegisterUiState.Initial
+    }
+    
+    /**
+     * Factory for creating RegisterViewModel instances.
+     */
+    class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
-                return RegisterViewModel(repository) as T
+                return RegisterViewModel(application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
 
+/**
+ * Represents the UI state for the registration screen.
+ */
 sealed class RegisterUiState {
-    data object Initial : RegisterUiState()
-    data object Loading : RegisterUiState()
-    data class Success(val user: User) : RegisterUiState()
+    object Initial : RegisterUiState()
+    object Loading : RegisterUiState()
+    object Success : RegisterUiState()
     data class Error(val message: String) : RegisterUiState()
 }

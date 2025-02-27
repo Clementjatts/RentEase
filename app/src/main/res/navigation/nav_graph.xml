@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <!-- Login Fragment -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.rentease.ui.login.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_propertyListFragment"
+            app:destination="@id/propertyListFragment" />
+    </fragment>
+
+    <!-- Register Fragment -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.rentease.ui.register.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_registerFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Profile Fragment -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.rentease.ui.profile.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Property List Fragment -->
+    <fragment
+        android:id="@+id/propertyListFragment"
+        android:name="com.example.rentease.ui.properties.PropertyListFragment"
+        android:label="Property List"
+        tools:layout="@layout/fragment_property_list">
+        <action
+            android:id="@+id/action_propertyListFragment_to_propertyDetailsFragment"
+            app:destination="@id/propertyDetailsFragment" />
+        <action
+            android:id="@+id/action_propertyListFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_propertyListFragment_to_propertyFormFragment"
+            app:destination="@id/propertyFormFragment" />
+    </fragment>
+
+    <!-- Property Details Fragment -->
+    <fragment
+        android:id="@+id/propertyDetailsFragment"
+        android:name="com.example.rentease.ui.details.PropertyDetailsFragment"
+        android:label="Property Details"
+        tools:layout="@layout/fragment_property_details">
+        <argument
+            android:name="propertyId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_propertyDetailsFragment_to_contactFormFragment"
+            app:destination="@id/contactFormFragment" />
+        <action
+            android:id="@+id/action_propertyDetailsFragment_to_requestFormFragment"
+            app:destination="@id/requestFormFragment" />
+        <action
+            android:id="@+id/action_propertyDetailsFragment_to_fullScreenImageFragment"
+            app:destination="@id/fullScreenImageFragment" />
+    </fragment>
+
+    <!-- Property Form Fragment -->
+    <fragment
+        android:id="@+id/propertyFormFragment"
+        android:name="com.example.rentease.ui.propertyform.PropertyFormFragment"
+        android:label="Property Form"
+        tools:layout="@layout/fragment_property_form">
+        <argument
+            android:name="propertyId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <!-- Contact Form Fragment -->
+    <fragment
+        android:id="@+id/contactFormFragment"
+        android:name="com.example.rentease.ui.contact.ContactFormFragment"
+        android:label="Contact Form"
+        tools:layout="@layout/fragment_contact_form">
+        <argument
+            android:name="propertyId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <!-- Landlord Dashboard Fragment -->
+    <fragment
+        android:id="@+id/landlordDashboardFragment"
+        android:name="com.example.rentease.ui.landlord.LandlordDashboardFragment"
+        android:label="Landlord Dashboard"
+        tools:layout="@layout/fragment_landlord_dashboard">
+        <action
+            android:id="@+id/action_landlordDashboardFragment_to_propertyManagementFragment"
+            app:destination="@id/propertyManagementFragment" />
+        <action
+            android:id="@+id/action_landlordDashboardFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+
+    <!-- Property Management Fragment -->
+    <fragment
+        android:id="@+id/propertyManagementFragment"
+        android:name="com.example.rentease.ui.landlord.PropertyManagementFragment"
+        android:label="Property Management"
+        tools:layout="@layout/fragment_property_management">
+        <action
+            android:id="@+id/action_propertyManagementFragment_to_propertyFormFragment"
+            app:destination="@id/propertyFormFragment" />
+    </fragment>
+
+    <!-- Admin Dashboard Fragment -->
+    <fragment
+        android:id="@+id/adminDashboardFragment"
+        android:name="com.example.rentease.ui.admin.AdminDashboardFragment"
+        android:label="Admin Dashboard"
+        tools:layout="@layout/fragment_admin_dashboard">
+        <action
+            android:id="@+id/action_adminDashboardFragment_to_userManagementFragment"
+            app:destination="@id/userManagementFragment" />
+        <action
+            android:id="@+id/action_adminDashboardFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+
+    <!-- User Management Fragment -->
+    <fragment
+        android:id="@+id/userManagementFragment"
+        android:name="com.example.rentease.ui.admin.UserManagementFragment"
+        android:label="User Management"
+        tools:layout="@layout/fragment_user_management" />
+        
+    <!-- Request Form Fragment -->
+    <fragment
+        android:id="@+id/requestFormFragment"
+        android:name="com.example.rentease.ui.request.RequestFormFragment"
+        android:label="Request Form"
+        tools:layout="@layout/fragment_request_form">
+        <argument
+            android:name="propertyId"
+            app:argType="integer" />
+        <argument
+            android:name="landlordId"
+            app:argType="integer" />
+    </fragment>
+    
+    <!-- Full Screen Image Fragment -->
+    <fragment
+        android:id="@+id/fullScreenImageFragment"
+        android:name="com.example.rentease.ui.propertydetails.FullScreenImageFragment"
+        android:label="Property Gallery"
+        tools:layout="@layout/fragment_full_screen_image">
+        <argument
+            android:name="imageUrls"
+            app:argType="string[]" />
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
+
+</navigation>
