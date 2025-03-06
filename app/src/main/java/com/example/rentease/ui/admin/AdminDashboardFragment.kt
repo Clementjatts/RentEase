@@ -78,31 +78,18 @@ class AdminDashboardFragment : BaseFragment<FragmentAdminDashboardBinding>() {
     }
     
     private fun setupButtons() {
-        // Manage Users Button - Make sure all buttons have the same size
+        // Manage Users Button - Navigate to user management - this shows all users from all roles
         binding.manageUsersButton.setOnClickListener {
             NavigationHelper.navigateToUserManagement(findNavController())
         }
         
-        // Manage Properties Button - Navigate to property management
+        // Manage Properties Button - Navigate to property management - this shows all properties from all landlords
         binding.managePropertiesButton.setOnClickListener {
-            // Navigate to property management screen for admin
-            // This shows all properties from all landlords
             NavigationHelper.navigateToPropertyManagement(findNavController())
         }
         
-        // Statistics section removed as per requirements
     }
-    
-    private fun showNotImplementedDialog(feature: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Feature Not Implemented")
-            .setMessage("The $feature feature is not implemented yet.")
-            .setPositiveButton("OK", null)
-            .show()
-    }
-    
-    // Deprecated menu methods removed and replaced with MenuProvider in setupMenu()
-    
+
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.title_logout)

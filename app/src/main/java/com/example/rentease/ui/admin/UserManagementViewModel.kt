@@ -31,9 +31,7 @@ class UserManagementViewModel(
         
         viewModelScope.launch {
             try {
-                val result = userRepository.getLandlords()
-                
-                when (result) {
+                when (val result = userRepository.getLandlords()) {
                     is com.example.rentease.data.model.Result.Success -> {
                         _uiState.value = UserManagementUiState.Success(result.data)
                     }
@@ -53,9 +51,7 @@ class UserManagementViewModel(
     fun approveLandlord(landlordId: Int) {
         viewModelScope.launch {
             try {
-                val result = userRepository.approveLandlord(landlordId)
-                
-                when (result) {
+                when (val result = userRepository.approveLandlord(landlordId)) {
                     is com.example.rentease.data.model.Result.Success -> {
                         // Reload landlords after approval
                         loadLandlords()
@@ -76,9 +72,7 @@ class UserManagementViewModel(
     fun rejectLandlord(landlordId: Int) {
         viewModelScope.launch {
             try {
-                val result = userRepository.rejectLandlord(landlordId)
-                
-                when (result) {
+                when (val result = userRepository.rejectLandlord(landlordId)) {
                     is com.example.rentease.data.model.Result.Success -> {
                         // Reload landlords after rejection
                         loadLandlords()
@@ -111,7 +105,7 @@ class UserManagementViewModel(
  * Represents the UI state for the user management screen.
  */
 sealed class UserManagementUiState {
-    object Loading : UserManagementUiState()
+    data object Loading : UserManagementUiState()
     data class Success(val landlords: List<Landlord>) : UserManagementUiState()
     data class Error(val message: String) : UserManagementUiState()
 }

@@ -38,7 +38,7 @@ class UserRequestRepository(
 
     suspend fun getUserRequests(userId: String): Result<List<UserRequest>> = withContext(Dispatchers.IO) {
         try {
-            // Get from API
+            // Try to get from API first
             val response = api.getUserRequests(userId)
             if (response.isSuccessful) {
                 val apiResponse = response.body()
@@ -51,16 +51,24 @@ class UserRequestRepository(
                             .map { mapToUserRequest(it) }
                         Result.success(processedRequests)
                     } else {
-                        Result.success(emptyList())
+                        // Fallback to local database
+                        Result.success(userRequestDao.getUserRequests(userId))
                     }
                 } else {
-                    Result.success(emptyList())
+                    // Fallback to local database
+                    Result.success(userRequestDao.getUserRequests(userId))
                 }
             } else {
-                Result.failure(handleApiError(response))
+                // Fallback to local database
+                Result.success(userRequestDao.getUserRequests(userId))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            // Fallback to local database on network error
+            try {
+                Result.success(userRequestDao.getUserRequests(userId))
+            } catch (dbError: Exception) {
+                Result.failure(dbError)
+            }
         }
     }
 

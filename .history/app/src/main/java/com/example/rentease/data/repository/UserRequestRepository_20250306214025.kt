@@ -12,33 +12,37 @@ class UserRequestRepository(
     private val context: Context
 ) : BaseRepository() {
 
-    // No local database access
+    private val userRequestDao = RentEaseDatabase.getDatabase(context).userRequestDao()
 
     suspend fun createRequest(request: UserRequest): Result<UserRequest> = withContext(Dispatchers.IO) {
         try {
-            // Send to backend
+            // Save to local database first
+            val localId = userRequestDao.insert(request)
+            val localRequest = request.copy(id = localId.toInt())
+            
+            // Then send to backend
             val response = api.createRequest(request)
             if (response.isSuccessful) {
+                // Update local record with server ID if needed
                 val apiResponse = response.body()
                 if (apiResponse != null && apiResponse.data != null) {
-                    // If server returns updated data
-                    @Suppress("UNCHECKED_CAST")
-                    val serverRequest = apiResponse.data as UserRequest
-                    Result.success(serverRequest)
-                } else {
-                    Result.success(request)
+                    // If server returns updated data, update local database
+                    userRequestDao.update(localRequest)
                 }
+                Result.success(localRequest)
             } else {
+                // Keep the local record but return error from API
                 Result.failure(handleApiError(response))
             }
         } catch (e: Exception) {
+            // If network call fails, we still have the local record
             Result.failure(handleException(e))
         }
     }
 
     suspend fun getUserRequests(userId: String): Result<List<UserRequest>> = withContext(Dispatchers.IO) {
         try {
-            // Get from API
+            // Try to get from API first
             val response = api.getUserRequests(userId)
             if (response.isSuccessful) {
                 val apiResponse = response.body()
@@ -51,16 +55,24 @@ class UserRequestRepository(
                             .map { mapToUserRequest(it) }
                         Result.success(processedRequests)
                     } else {
-                        Result.success(emptyList())
+                        // Fallback to local database
+                        Result.success(userRequestDao.getUserRequests(userId))
                     }
                 } else {
-                    Result.success(emptyList())
+                    // Fallback to local database
+                    Result.success(userRequestDao.getUserRequests(userId))
                 }
             } else {
-                Result.failure(handleApiError(response))
+                // Fallback to local database
+                Result.success(userRequestDao.getUserRequests(userId))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            // Fallback to local database on network error
+            try {
+                Result.success(userRequestDao.getUserRequests(userId))
+            } catch (dbError: Exception) {
+                Result.failure(dbError)
+            }
         }
     }
 

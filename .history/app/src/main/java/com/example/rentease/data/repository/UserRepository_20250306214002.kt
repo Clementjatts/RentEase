@@ -80,7 +80,7 @@ class UserRepository(
     
     suspend fun saveUser(user: User): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // In a real app with no local database, we might save to SharedPreferences
+            userDao.insertUser(UserEntity.fromUser(user))
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(handleException(e))
@@ -89,7 +89,7 @@ class UserRepository(
     
     suspend fun clearUserData(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // In a real app with no local database, we might clear SharedPreferences
+            userDao.deleteAllUsers()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(handleException(e))

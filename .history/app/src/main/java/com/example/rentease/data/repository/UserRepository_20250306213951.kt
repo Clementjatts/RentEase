@@ -51,7 +51,9 @@ class UserRepository(
     
     suspend fun updateUserProfile(user: User): com.example.rentease.data.model.Result<User> = withContext(Dispatchers.IO) {
         try {
-            // Mock implementation - in a real app, this would call the API
+            // Since updateCurrentUser is not available, we'll use a mock implementation
+            // Instead, we'll just update the local database
+            userDao.insertUser(UserEntity.fromUser(user))
             return@withContext com.example.rentease.data.model.Result.Success(user)
         } catch (e: Exception) {
             return@withContext com.example.rentease.data.model.Result.Error("Error updating user profile: ${e.message}")
@@ -80,7 +82,7 @@ class UserRepository(
     
     suspend fun saveUser(user: User): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // In a real app with no local database, we might save to SharedPreferences
+            userDao.insertUser(UserEntity.fromUser(user))
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(handleException(e))
@@ -89,7 +91,7 @@ class UserRepository(
     
     suspend fun clearUserData(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // In a real app with no local database, we might clear SharedPreferences
+            userDao.deleteAllUsers()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(handleException(e))

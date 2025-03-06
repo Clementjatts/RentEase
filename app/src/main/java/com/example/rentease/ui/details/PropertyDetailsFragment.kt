@@ -15,7 +15,6 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -39,8 +38,7 @@ class PropertyDetailsFragment : BaseFragment<FragmentPropertyDetailsBinding>() {
     private val viewModel: PropertyDetailsViewModel by viewModels {
         PropertyDetailsViewModel.Factory(
             propertyId = propertyId,
-            repository = PropertyRepository(ApiClient.api, requireContext()),
-            savedStateHandle = SavedStateHandle()
+            repository = PropertyRepository(ApiClient.api, requireContext())
         )
     }
 
