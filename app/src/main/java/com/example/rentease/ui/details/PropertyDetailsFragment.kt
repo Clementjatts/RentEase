@@ -8,8 +8,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
@@ -43,7 +46,46 @@ class PropertyDetailsFragment : BaseFragment<FragmentPropertyDetailsBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true) // Enable options menu in this fragment
+    }
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupMenu()
+        setupBackNavigation()
+    }
+    
+    private fun setupMenu() {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_property_details, menu)
+            }
+            
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_edit -> {
+                        // TODO: Navigate to edit screen
+                        true
+                    }
+                    R.id.action_delete -> {
+                        confirmDelete()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+    
+    private fun setupBackNavigation() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().navigateUp()
+                }
+            }
+        )
     }
 
     override fun inflateBinding(
@@ -89,7 +131,7 @@ class PropertyDetailsFragment : BaseFragment<FragmentPropertyDetailsBinding>() {
         appCompatActivity.setSupportActionBar(binding.toolbar)
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            findNavController().navigateUp()
         }
     }
 
@@ -101,7 +143,7 @@ class PropertyDetailsFragment : BaseFragment<FragmentPropertyDetailsBinding>() {
                 com.example.rentease.ui.navigation.NavigationHelper.navigateToRequestForm(
                     findNavController(),
                     propertyId = it.id,
-                    landlordId = it.landlordId ?: 0
+                    landlordId = it.landlordId
                 )
             }
         }
@@ -195,24 +237,7 @@ class PropertyDetailsFragment : BaseFragment<FragmentPropertyDetailsBinding>() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_property_details, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_edit -> {
-                // TODO: Navigate to edit screen
-                true
-            }
-            R.id.action_delete -> {
-                confirmDelete()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+    // Deprecated menu methods removed and replaced with MenuProvider in setupMenu()
 
     private fun confirmDelete() {
         AlertDialog.Builder(requireContext())
@@ -221,7 +246,7 @@ class PropertyDetailsFragment : BaseFragment<FragmentPropertyDetailsBinding>() {
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.deleteProperty {
                     // Navigate back
-                    requireActivity().onBackPressed()
+                    findNavController().navigateUp()
                 }
             }
             .setNegativeButton("Cancel", null)

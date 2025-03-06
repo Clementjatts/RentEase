@@ -28,10 +28,13 @@ class PropertyDetailsViewModel(
             _uiState.value = PropertyDetailsUiState.Loading
             try {
                 val result = repository.getProperty(propertyId)
-                result.onSuccess { property ->
-                    _uiState.value = PropertyDetailsUiState.Success(property)
-                }.onFailure { error ->
-                    _uiState.value = PropertyDetailsUiState.Error(error.message ?: "Failed to load property")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        _uiState.value = PropertyDetailsUiState.Success(result.data)
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = PropertyDetailsUiState.Error(result.errorMessage ?: "Failed to load property")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PropertyDetailsUiState.Error(e.message ?: "Unknown error occurred")
@@ -43,10 +46,14 @@ class PropertyDetailsViewModel(
         viewModelScope.launch {
             _uiState.value = PropertyDetailsUiState.Loading
             try {
-                repository.deleteProperty(propertyId).onSuccess {
-                    onSuccess()
-                }.onFailure { error ->
-                    _uiState.value = PropertyDetailsUiState.Error(error.message ?: "Failed to delete property")
+                val result = repository.deleteProperty(propertyId)
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        onSuccess()
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = PropertyDetailsUiState.Error(result.errorMessage ?: "Failed to delete property")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PropertyDetailsUiState.Error(e.message ?: "Unknown error occurred")

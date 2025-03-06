@@ -40,12 +40,15 @@ class LoginViewModel(
             try {
                 val result = authRepository.login(email, password)
                 if (result.isSuccess) {
-                    // Store auth token and user info
-                    authManager.setAuthToken(result.token)
-                    authManager.setUserType(result.userType)
+                    // The user is already logged in by the repository
                     _uiState.value = LoginUiState.Success
                 } else {
-                    _uiState.value = LoginUiState.Error(result.errorMessage ?: "Login failed")
+                    _uiState.value = LoginUiState.Error(
+                        when (result) {
+                            is com.example.rentease.data.model.Result.Error -> result.errorMessage ?: "Login failed"
+                            else -> "Login failed"
+                        }
+                    )
                 }
             } catch (e: Exception) {
                 _uiState.value = LoginUiState.Error(e.message ?: "An error occurred")

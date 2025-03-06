@@ -56,15 +56,6 @@ The API will be available at:
 - `PUT /properties/{id}` - Update a property
 - `DELETE /properties/{id}` - Delete a property
 
-#### Favorites
-
-- `GET /favorites` - Get all favorites
-- `GET /favorites/{id}` - Get a specific favorite
-- `GET /favorites/user` - Get favorites for the current user
-- `POST /favorites` - Add a property to favorites
-- `DELETE /favorites/{id}` - Remove a favorite by ID
-- `DELETE /favorites?property_id=X` - Remove a specific property from user's favorites
-
 #### Requests
 
 - `GET /requests` - Get all requests

@@ -7,5 +7,11 @@
         android:icon="@android:drawable/ic_menu_manage"
         android:title="@string/action_login"
         app:showAsAction="ifRoom" />
+        
+    <item
+        android:id="@+id/action_register"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/action_register"
+        app:showAsAction="ifRoom" />
 
 </menu>

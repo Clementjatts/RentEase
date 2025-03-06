@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp")
+    alias(libs.plugins.navigation.safeargs)
 }
 
 android {
@@ -44,6 +45,10 @@ dependencies {
     implementation(libs.androidx.appcompat.v170)
     implementation(libs.material.v1120)
     implementation(libs.androidx.constraintlayout.v220)
+    
+    // Navigation Component
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     
     // SwipeRefreshLayout
     implementation(libs.androidx.swiperefreshlayout)

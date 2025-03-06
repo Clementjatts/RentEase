@@ -65,7 +65,7 @@ class PropertyFormFragment : BaseFragment<FragmentPropertyFormBinding>() {
         appCompatActivity.setSupportActionBar(binding.toolbar)
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            findNavController().navigateUp()
         }
         
         // Set title based on whether we're creating or editing
@@ -109,8 +109,8 @@ class PropertyFormFragment : BaseFragment<FragmentPropertyFormBinding>() {
                 return@setOnClickListener
             }
             
-            val price = priceText.toDoubleOrNull()
-            if (price == null || price <= 0) {
+            val price = priceText
+            if (priceText.toDoubleOrNull() == null || priceText.toDoubleOrNull()!! <= 0) {
                 Toast.makeText(requireContext(), R.string.error_invalid_price, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
@@ -149,7 +149,7 @@ class PropertyFormFragment : BaseFragment<FragmentPropertyFormBinding>() {
         
         // Load property data if editing
         if (propertyId != -1) {
-            viewModel.loadProperty()
+            viewModel.loadPropertyDetails()
         }
     }
     

@@ -29,6 +29,7 @@ data class Property(
     val price: BigDecimal,
     val address: String,
     val dateAdded: Date = Date(),
+    val type: String? = null,
     // Additional fields for the UI
     var landlordName: String? = null,
     var landlordContact: String? = null,

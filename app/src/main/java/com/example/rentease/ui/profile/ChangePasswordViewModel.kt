@@ -30,15 +30,21 @@ class ChangePasswordViewModel(
         viewModelScope.launch {
             _uiState.value = ChangePasswordUiState.Loading
 
-            repository.changePassword(currentPassword, newPassword)
-                .onSuccess {
+            try {
+                val result = repository.changePassword(currentPassword, newPassword)
+                
+                if (result is com.example.rentease.data.model.Result.Success) {
                     _uiState.value = ChangePasswordUiState.Success
-                }
-                .onFailure { error ->
+                } else if (result is com.example.rentease.data.model.Result.Error) {
                     _uiState.value = ChangePasswordUiState.Error(
-                        error.message ?: "Failed to change password"
+                        result.errorMessage ?: "Failed to change password"
                     )
                 }
+            } catch (e: Exception) {
+                _uiState.value = ChangePasswordUiState.Error(
+                    e.message ?: "An error occurred"
+                )
+            }
         }
     }
 

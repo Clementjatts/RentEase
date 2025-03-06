@@ -9,6 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.rentease.R
 import com.example.rentease.auth.AuthManager
@@ -26,8 +29,35 @@ class LandlordDashboardFragment : BaseFragment<FragmentLandlordDashboardBinding>
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         authManager = AuthManager.getInstance(requireContext())
+    }
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupMenu()
+    }
+    
+    private fun setupMenu() {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_landlord_dashboard, menu)
+            }
+            
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_logout -> {
+                        showLogoutConfirmation()
+                        true
+                    }
+                    R.id.action_profile -> {
+                        NavigationHelper.navigateToProfile(findNavController())
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
     
     override fun inflateBinding(
@@ -64,24 +94,7 @@ class LandlordDashboardFragment : BaseFragment<FragmentLandlordDashboardBinding>
         }
     }
     
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_landlord_dashboard, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-    
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_logout -> {
-                showLogoutConfirmation()
-                true
-            }
-            R.id.action_profile -> {
-                NavigationHelper.navigateToProfile(findNavController())
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+    // Deprecated menu methods removed and replaced with MenuProvider in setupMenu()
     
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(requireContext())

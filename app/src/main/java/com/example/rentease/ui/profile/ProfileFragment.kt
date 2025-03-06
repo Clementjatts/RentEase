@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,7 +44,30 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+    }
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupMenu()
+    }
+    
+    private fun setupMenu() {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_profile, menu)
+            }
+            
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_logout -> {
+                        logout()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
     
     override fun setupUI() {
@@ -56,7 +81,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
         appCompatActivity.setSupportActionBar(binding.toolbar)
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            findNavController().navigateUp()
         }
     }
     
@@ -89,7 +114,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
             .setPositiveButton(R.string.button_save) { _, _ ->
                 val currentPassword = dialogBinding.currentPasswordInput.text.toString()
                 val newPassword = dialogBinding.newPasswordInput.text.toString()
-                val confirmPassword = dialogBinding.confirmPasswordInput.text.toString()
+                val confirmPassword = dialogBinding.confirmNewPasswordInput.text.toString()
                 
                 if (newPassword != confirmPassword) {
                     Toast.makeText(
@@ -165,29 +190,21 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>() {
         
         binding.usernameText.text = getString(R.string.profile_username, state.username)
         
-        val userTypeString = when (state.userType) {
-            UserType.ADMIN -> getString(R.string.user_type_admin)
-            UserType.LANDLORD -> getString(R.string.user_type_landlord)
-            UserType.TENANT -> getString(R.string.user_type_tenant)
+        // Convert data model UserType to auth UserType for comparison
+        val authUserType = when (state.userType.name) {
+            "ADMIN" -> com.example.rentease.auth.UserType.ADMIN
+            "LANDLORD" -> com.example.rentease.auth.UserType.LANDLORD
+            else -> null
+        }
+        
+        val userTypeString = when (authUserType) {
+            com.example.rentease.auth.UserType.ADMIN -> getString(R.string.user_type_admin)
+            com.example.rentease.auth.UserType.LANDLORD -> getString(R.string.user_type_landlord)
+            null -> "Unknown"
         }
         binding.userTypeText.text = getString(R.string.profile_user_type, userTypeString)
         
         binding.joinDateText.text = getString(R.string.profile_join_date, state.joinDate)
-    }
-    
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_profile, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-    
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_logout -> {
-                logout()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
     
     private fun logout() {

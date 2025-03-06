@@ -34,10 +34,13 @@ class UserManagementViewModel(
             try {
                 val result = userRepository.getLandlords()
                 
-                if (result.isSuccess) {
-                    _uiState.value = UserManagementUiState.Success(result.landlords)
-                } else {
-                    _uiState.value = UserManagementUiState.Error(result.errorMessage ?: "Failed to load landlords")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        _uiState.value = UserManagementUiState.Success(result.data)
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = UserManagementUiState.Error(result.errorMessage ?: "Failed to load landlords")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = UserManagementUiState.Error(e.message ?: "An error occurred")
@@ -53,11 +56,14 @@ class UserManagementViewModel(
             try {
                 val result = userRepository.approveLandlord(landlordId)
                 
-                if (result.isSuccess) {
-                    // Reload landlords after approval
-                    loadLandlords()
-                } else {
-                    _uiState.value = UserManagementUiState.Error(result.errorMessage ?: "Failed to approve landlord")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        // Reload landlords after approval
+                        loadLandlords()
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = UserManagementUiState.Error(result.errorMessage ?: "Failed to approve landlord")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = UserManagementUiState.Error(e.message ?: "An error occurred")
@@ -73,11 +79,14 @@ class UserManagementViewModel(
             try {
                 val result = userRepository.rejectLandlord(landlordId)
                 
-                if (result.isSuccess) {
-                    // Reload landlords after rejection
-                    loadLandlords()
-                } else {
-                    _uiState.value = UserManagementUiState.Error(result.errorMessage ?: "Failed to reject landlord")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        // Reload landlords after rejection
+                        loadLandlords()
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = UserManagementUiState.Error(result.errorMessage ?: "Failed to reject landlord")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = UserManagementUiState.Error(e.message ?: "An error occurred")

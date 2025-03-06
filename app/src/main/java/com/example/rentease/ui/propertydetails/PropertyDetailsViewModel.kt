@@ -25,16 +25,15 @@ class PropertyDetailsViewModel(
             _uiState.value = PropertyDetailsUiState.Loading
 
             try {
-                val response = repository.getProperty(propertyId)
-                if (response.isSuccess) {
-                    val property = response.getOrNull()
-                    if (property != null) {
+                val result = repository.getProperty(propertyId)
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        val property = result.data
                         _uiState.value = PropertyDetailsUiState.Success(property)
-                    } else {
-                        _uiState.value = PropertyDetailsUiState.Error("Property not found")
                     }
-                } else {
-                    _uiState.value = PropertyDetailsUiState.Error("Failed to load property: ${response.exceptionOrNull()?.message}")
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = PropertyDetailsUiState.Error("Failed to load property: ${result.errorMessage}")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PropertyDetailsUiState.Error("An error occurred: ${e.message}")

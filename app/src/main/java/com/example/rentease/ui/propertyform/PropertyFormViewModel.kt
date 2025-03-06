@@ -7,8 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.auth.AuthManager
+import com.example.rentease.data.api.ApiClient
+import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
-import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,7 +22,7 @@ class PropertyFormViewModel(
     private val propertyId: Int
 ) : AndroidViewModel(application) {
     
-    private val propertyRepository = RepositoryProvider.providePropertyRepository(application)
+    private val propertyRepository = PropertyRepository.getInstance(application)
     private val authManager = AuthManager.getInstance(application)
     
     private val _uiState = MutableStateFlow<PropertyFormUiState>(PropertyFormUiState.Initial)
@@ -33,28 +34,31 @@ class PropertyFormViewModel(
     /**
      * Load the property data from the repository.
      */
-    fun loadProperty() {
-        if (propertyId == -1) return
-        
-        _uiState.value = PropertyFormUiState.Loading
+    fun loadPropertyDetails() {
+        if (propertyId == -1) return // New property, don't load anything
         
         viewModelScope.launch {
             try {
-                val result = propertyRepository.getProperty(propertyId)
+                val result = propertyRepository.getPropertyById(propertyId)
                 
-                if (result.isSuccess) {
-                    val property = result.property
-                    _uiState.value = PropertyFormUiState.PropertyData(
-                        title = property.title,
-                        description = property.description,
-                        address = property.address,
-                        price = property.price
-                    )
-                    
-                    // Load images
-                    _images.value = property.images.map { Uri.parse(it) }
-                } else {
-                    _uiState.value = PropertyFormUiState.Error(result.errorMessage ?: "Failed to load property")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        val property = result.data
+                        _uiState.value = PropertyFormUiState.PropertyData(
+                            title = property.title,
+                            description = property.description ?: "",
+                            address = property.address,
+                            price = property.price.toString()
+                        )
+                        
+                        // Load images
+                        property.images?.let { imageUrls ->
+                            _images.value = imageUrls.mapNotNull { Uri.parse(it) }
+                        }
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = PropertyFormUiState.Error(result.errorMessage ?: "Failed to load property")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PropertyFormUiState.Error(e.message ?: "An error occurred")
@@ -65,44 +69,53 @@ class PropertyFormViewModel(
     /**
      * Save the property to the repository.
      */
-    fun saveProperty(
-        title: String,
-        description: String,
-        address: String,
-        price: Double
-    ) {
+    fun saveProperty(title: String, description: String, address: String, price: String) {
+        if (title.isBlank() || description.isBlank() || address.isBlank() || price.isBlank()) {
+            _uiState.value = PropertyFormUiState.Error("All fields are required")
+            return
+        }
+        
         _uiState.value = PropertyFormUiState.Loading
         
         viewModelScope.launch {
             try {
-                val landlordId = authManager.getUserId()
+                val landlordId = authManager.getUserId().toInt()
                 
-                val result = if (propertyId == -1) {
+                var result: com.example.rentease.data.model.Result<Property>
+                
+                if (propertyId == -1) {
                     // Create new property
-                    propertyRepository.createProperty(
+                    val newProperty = Property(
+                        id = 0,
                         title = title,
                         description = description,
                         address = address,
-                        price = price,
+                        price = java.math.BigDecimal(price),
                         landlordId = landlordId,
                         images = _images.value.map { it.toString() }
                     )
+                    result = propertyRepository.createProperty(newProperty)
                 } else {
                     // Update existing property
-                    propertyRepository.updateProperty(
-                        propertyId = propertyId,
+                    val updatedProperty = Property(
+                        id = propertyId,
                         title = title,
                         description = description,
                         address = address,
-                        price = price,
+                        price = java.math.BigDecimal(price),
+                        landlordId = landlordId,
                         images = _images.value.map { it.toString() }
                     )
+                    result = propertyRepository.updateProperty(updatedProperty)
                 }
                 
-                if (result.isSuccess) {
-                    _uiState.value = PropertyFormUiState.Success
-                } else {
-                    _uiState.value = PropertyFormUiState.Error(result.errorMessage ?: "Failed to save property")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        _uiState.value = PropertyFormUiState.Success
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = PropertyFormUiState.Error(result.errorMessage ?: "Failed to save property")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PropertyFormUiState.Error(e.message ?: "An error occurred")
@@ -159,6 +172,6 @@ sealed class PropertyFormUiState {
         val title: String,
         val description: String,
         val address: String,
-        val price: Double
+        val price: String
     ) : PropertyFormUiState()
 }

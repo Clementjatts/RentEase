@@ -91,9 +91,3 @@ interface RentEaseApi {
     
     // Favorite property endpoints removed as they are no longer needed
 }
-
-data class ApiResponse(
-    val status: String,
-    val message: String?,
-    val data: Any?
-)

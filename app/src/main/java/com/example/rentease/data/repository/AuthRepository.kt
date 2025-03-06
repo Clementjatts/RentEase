@@ -40,12 +40,12 @@ class AuthRepository(
                 )
                 // Cache user data
                 userRepository.saveUser(loginResponse.user)
-                Result.success(loginResponse.user)
+                Result.Success(loginResponse.user)
             } else {
-                Result.failure(handleApiError(response))
+                Result.Error(handleApiError(response).message)
             }
         } catch (e: Exception) {
-            Result.failure(handleException(e))
+            Result.Error(handleException(e).message)
         }
     }
 
@@ -79,22 +79,27 @@ class AuthRepository(
                 )
                 // Cache user data
                 userRepository.saveUser(loginResponse.user)
-                Result.success(loginResponse.user)
+                Result.Success(loginResponse.user)
             } else {
-                Result.failure(handleApiError(response))
+                Result.Error(handleApiError(response).message)
             }
         } catch (e: Exception) {
-            Result.failure(handleException(e))
+            Result.Error(handleException(e).message)
         }
     }
 
-    suspend fun getCurrentUser(): Result<User> = withContext(Dispatchers.IO) {
-        if (!authManager.isLoggedIn) {
-            return@withContext Result.failure(Exception("User not logged in"))
+    suspend fun getCurrentUser(): com.example.rentease.data.model.Result<User> = withContext(Dispatchers.IO) {
+            if (!authManager.isLoggedIn) {
+                return@withContext com.example.rentease.data.model.Result.Error(Exception("User not logged in").message)
+            }
+            
+            val result = userRepository.getUser(authManager.userId ?: -1)
+            if (result.isSuccess) {
+                return@withContext com.example.rentease.data.model.Result.Success(result.getOrNull()!!)
+            } else {
+                return@withContext com.example.rentease.data.model.Result.Error(result.exceptionOrNull()?.message)
+            }
         }
-        
-        return@withContext userRepository.getUser(authManager.userId ?: -1)
-    }
 
     suspend fun changePassword(
         currentPassword: String,
@@ -108,12 +113,12 @@ class AuthRepository(
 
             val response = api.changePassword(request)
             if (response.isSuccessful) {
-                Result.success(Unit)
+                Result.Success(Unit)
             } else {
-                Result.failure(handleApiError(response))
+                Result.Error(handleApiError(response).message)
             }
         } catch (e: Exception) {
-            Result.failure(handleException(e))
+            Result.Error(handleException(e).message)
         }
     }
 

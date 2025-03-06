@@ -9,7 +9,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.rentease.R
-import com.example.rentease.ui.landlord.LandlordDashboardActivity
+import com.example.rentease.MainActivity
 
 /**
  * Service to handle notifications in the app
@@ -52,10 +52,13 @@ class NotificationService(private val context: Context) {
     
     /**
      * Send a notification to a landlord about a new contact request
+     * @param landlordId The ID of the landlord to notify
      */
     fun notifyLandlordAboutRequest(landlordId: Int, propertyTitle: String, requesterName: String) {
-        val intent = Intent(context, LandlordDashboardActivity::class.java).apply {
+        val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", "landlord_requests")
+            putExtra("landlord_id", landlordId)
         }
         
         val pendingIntent = PendingIntent.getActivity(
@@ -75,16 +78,24 @@ class NotificationService(private val context: Context) {
             .build()
         
         with(NotificationManagerCompat.from(context)) {
-            notify(REQUEST_NOTIFICATION_ID, notification)
+            try {
+                notify(REQUEST_NOTIFICATION_ID, notification)
+            } catch (e: SecurityException) {
+                // Handle missing notification permission
+                // This would be better handled with a permissions check before attempting notification
+            }
         }
     }
     
     /**
      * Send a notification to a landlord about a property update
+     * @param landlordId The ID of the landlord to notify
      */
     fun notifyLandlordAboutPropertyUpdate(landlordId: Int, propertyTitle: String, updateType: String) {
-        val intent = Intent(context, LandlordDashboardActivity::class.java).apply {
+        val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", "landlord_properties")
+            putExtra("landlord_id", landlordId)
         }
         
         val pendingIntent = PendingIntent.getActivity(
@@ -97,14 +108,53 @@ class NotificationService(private val context: Context) {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Property Update")
-            .setContentText("Your property '$propertyTitle' has been $updateType")
+            .setContentText("Your property $propertyTitle has been $updateType")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
         
         with(NotificationManagerCompat.from(context)) {
-            notify(PROPERTY_NOTIFICATION_ID, notification)
+            try {
+                notify(PROPERTY_NOTIFICATION_ID, notification)
+            } catch (e: SecurityException) {
+                // Handle missing notification permission
+                // This would be better handled with a permissions check before attempting notification
+            }
+        }
+    }
+    
+    /**
+     * Show a notification that a request has been submitted
+     */
+    fun showRequestSubmittedNotification() {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", "propertyListFragment")
+        }
+        
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle("Request Submitted")
+            .setContentText("Your request has been submitted successfully")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+        
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(REQUEST_NOTIFICATION_ID, notification)
+            } catch (e: SecurityException) {
+                // Handle missing notification permission
+            }
         }
     }
 }

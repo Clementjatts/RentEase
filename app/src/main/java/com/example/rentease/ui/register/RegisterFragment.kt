@@ -47,14 +47,14 @@ class RegisterFragment : BaseFragment<FragmentRegisterBinding>() {
         appCompatActivity.setSupportActionBar(binding.toolbar)
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            findNavController().navigateUp()
         }
     }
     
     private fun setupUserTypeDropdown() {
         val userTypes = arrayOf(
-            getString(R.string.user_type_tenant),
-            getString(R.string.user_type_landlord)
+            getString(R.string.user_type_landlord),
+            getString(R.string.user_type_admin)
         )
         
         val adapter = ArrayAdapter(
@@ -91,8 +91,8 @@ class RegisterFragment : BaseFragment<FragmentRegisterBinding>() {
     
     private fun getUserTypeFromDropdown(): UserType {
         return when (binding.userTypeDropdown.text.toString()) {
-            getString(R.string.user_type_landlord) -> UserType.LANDLORD
-            else -> UserType.TENANT
+            getString(R.string.user_type_admin) -> UserType.ADMIN
+            else -> UserType.LANDLORD // Default to LANDLORD
         }
     }
     
@@ -140,8 +140,9 @@ class RegisterFragment : BaseFragment<FragmentRegisterBinding>() {
             Toast.LENGTH_LONG
         ).show()
         
-        // Navigate to the login screen
-        findNavController().popBackStack()
+        // Navigate to the login screen using NavigationHelper
+        // This will properly handle the back stack
+        com.example.rentease.ui.navigation.NavigationHelper.navigateToLogin(findNavController())
         
         // Reset the state so we don't navigate again if we come back to this fragment
         viewModel.resetState()

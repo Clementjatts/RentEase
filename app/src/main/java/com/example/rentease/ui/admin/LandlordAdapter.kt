@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rentease.data.model.Landlord
 import com.example.rentease.databinding.ItemLandlordBinding
+import java.util.Locale
 
 /**
  * LandlordAdapter is a RecyclerView adapter for displaying landlords in the user management screen.
@@ -46,7 +47,9 @@ class LandlordAdapter(
                 } else {
                     approveButton.visibility = android.view.View.GONE
                     rejectButton.visibility = android.view.View.GONE
-                    statusTextView.text = "Status: ${landlord.status.capitalize()}"
+                    statusTextView.text = "Status: ${landlord.status.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                    }}"
                 }
                 
                 approveButton.setOnClickListener {

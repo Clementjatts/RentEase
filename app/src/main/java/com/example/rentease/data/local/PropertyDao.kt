@@ -10,10 +10,16 @@ interface PropertyDao {
     fun getAllProperties(): Flow<List<Property>>
 
     @Query("SELECT * FROM properties WHERE id = :id")
+    fun getPropertyByIdFlow(id: Int): Flow<Property?>
+    
+    @Query("SELECT * FROM properties WHERE id = :id")
     suspend fun getPropertyById(id: Int): Property?
 
     @Query("SELECT * FROM properties WHERE landlordId = :landlordId")
     fun getPropertiesByLandlord(landlordId: Int): Flow<List<Property>>
+    
+    @Query("SELECT * FROM properties WHERE landlordId = :landlordId")
+    suspend fun getPropertiesByLandlordId(landlordId: Int): List<Property>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProperty(property: Property)

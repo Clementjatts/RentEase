@@ -62,7 +62,8 @@ class RegisterViewModel(
                 if (result.isSuccess) {
                     _uiState.value = RegisterUiState.Success
                 } else {
-                    _uiState.value = RegisterUiState.Error(result.errorMessage ?: "Registration failed")
+                    val errorMsg = (result as? com.example.rentease.data.model.Result.Error)?.errorMessage ?: "Registration failed"
+                    _uiState.value = RegisterUiState.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 _uiState.value = RegisterUiState.Error(e.message ?: "An error occurred")

@@ -1,11 +1,8 @@
 package com.example.rentease.ui.propertydetails
 
-import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
@@ -46,8 +43,9 @@ class FullScreenImageFragment : BaseFragment<FragmentFullScreenImageBinding>() {
     }
     
     private fun setupImageGallery() {
+        // Get the array of image URLs from arguments
         val imageUrls = args.imageUrls.toList()
-        val currentPosition = args.position
+        val currentPosition = args.position.coerceIn(0, maxOf(0, imageUrls.size - 1))
         
         adapter = FullScreenImageAdapter(imageUrls)
         binding.viewPager.adapter = adapter
@@ -57,8 +55,8 @@ class FullScreenImageFragment : BaseFragment<FragmentFullScreenImageBinding>() {
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 binding.counter.text = getString(
-                    R.string.image_counter, 
-                    position + 1, 
+                    R.string.image_counter,
+                    position + 1,
                     imageUrls.size
                 )
             }
@@ -66,8 +64,8 @@ class FullScreenImageFragment : BaseFragment<FragmentFullScreenImageBinding>() {
         
         // Set initial counter text
         binding.counter.text = getString(
-            R.string.image_counter, 
-            currentPosition + 1, 
+            R.string.image_counter,
+            currentPosition + 1,
             imageUrls.size
         )
     }

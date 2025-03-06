@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.data.api.ApiClient
 import com.example.rentease.data.model.Property
-import com.example.rentease.data.model.Request
 import com.example.rentease.data.repository.PropertyRepository
 import com.example.rentease.data.repository.RequestRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,12 +36,14 @@ class RequestFormViewModel(
             try {
                 _uiState.value = RequestFormUiState.Loading
                 
-                val property = propertyRepository.getPropertyById(propertyId)
+                val propertyResult = propertyRepository.getPropertyById(propertyId)
                 
-                if (property != null) {
+                if (propertyResult.isSuccess) {
+                    val property = (propertyResult as com.example.rentease.data.model.Result.Success<Property>).data
                     _uiState.value = RequestFormUiState.PropertyLoaded(property)
                 } else {
-                    _uiState.value = RequestFormUiState.Error("Property not found")
+                    val errorMsg = (propertyResult as? com.example.rentease.data.model.Result.Error)?.errorMessage ?: "Property not found"
+                    _uiState.value = RequestFormUiState.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 _uiState.value = RequestFormUiState.Error(e.message ?: "Failed to load property details")
@@ -52,30 +53,48 @@ class RequestFormViewModel(
     
     /**
      * Submit a contact request for the property.
+     * This forwards the request directly to the landlord's email.
      */
     fun submitRequest(name: String, email: String, phone: String, message: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = RequestFormUiState.Loading
                 
-                val request = Request(
-                    id = 0, // Will be assigned by the server
+                // Get property details for the email subject
+                val propertyResult = propertyRepository.getPropertyById(propertyId)
+                val propertyTitle = if (propertyResult.isSuccess) {
+                    val property = (propertyResult as com.example.rentease.data.model.Result.Success<Property>).data
+                    property.title
+                } else {
+                    "Property #$propertyId"
+                }
+                
+                // Format the message to include all user details
+                val formattedMessage = """
+                    |Name: $name
+                    |Email: $email
+                    |Phone: $phone
+                    |
+                    |Message:
+                    |$message
+                """.trimMargin()
+                
+                // Submit the inquiry via email
+                val result = requestRepository.submitPropertyInquiry(
+                    userId = "user123", // This would come from auth in a real app
                     propertyId = propertyId,
-                    landlordId = landlordId,
+                    landlordId = landlordId.toString(),
                     name = name,
                     email = email,
-                    phone = phone,
-                    message = message,
-                    status = "pending",
-                    createdAt = System.currentTimeMillis()
+                    subject = "Inquiry about $propertyTitle",
+                    message = formattedMessage
                 )
                 
-                val result = requestRepository.submitRequest(request)
-                
-                if (result.isSuccess) {
+                if (result is com.example.rentease.data.model.Result.Success) {
                     _uiState.value = RequestFormUiState.Success
                 } else {
-                    _uiState.value = RequestFormUiState.Error(result.errorMessage ?: "Failed to submit request")
+                    val errorMsg = (result as? com.example.rentease.data.model.Result.Error)?.errorMessage ?: "Failed to submit request"
+                    _uiState.value = RequestFormUiState.Error(errorMsg)
                 }
             } catch (e: Exception) {
                 _uiState.value = RequestFormUiState.Error(e.message ?: "Failed to submit request")

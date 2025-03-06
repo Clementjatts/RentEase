@@ -43,7 +43,7 @@ class PropertyImageAdapter(
 
         init {
             binding.root.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onImageClick(imageUrls[position])
                 }

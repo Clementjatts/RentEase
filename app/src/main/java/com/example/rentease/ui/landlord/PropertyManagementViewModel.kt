@@ -37,10 +37,13 @@ class PropertyManagementViewModel(
                 val landlordId = authManager.getUserId()
                 val result = propertyRepository.getLandlordProperties(landlordId)
                 
-                if (result.isSuccess) {
-                    _uiState.value = PropertyManagementUiState.Success(result.properties)
-                } else {
-                    _uiState.value = PropertyManagementUiState.Error(result.errorMessage ?: "Failed to load properties")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        _uiState.value = PropertyManagementUiState.Success(result.data)
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = PropertyManagementUiState.Error(result.errorMessage ?: "Failed to load properties")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PropertyManagementUiState.Error(e.message ?: "An error occurred")
@@ -56,11 +59,14 @@ class PropertyManagementViewModel(
             try {
                 val result = propertyRepository.deleteProperty(propertyId)
                 
-                if (result.isSuccess) {
-                    // Reload properties after deletion
-                    loadProperties()
-                } else {
-                    _uiState.value = PropertyManagementUiState.Error(result.errorMessage ?: "Failed to delete property")
+                when (result) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        // Reload properties after deletion
+                        loadProperties()
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = PropertyManagementUiState.Error(result.errorMessage ?: "Failed to delete property")
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PropertyManagementUiState.Error(e.message ?: "An error occurred")

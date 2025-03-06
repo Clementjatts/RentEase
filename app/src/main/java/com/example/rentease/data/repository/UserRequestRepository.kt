@@ -2,7 +2,7 @@ package com.example.rentease.data.repository
 
 import android.content.Context
 import com.example.rentease.data.api.RentEaseApi
-import com.example.rentease.data.api.ApiResponse
+import com.example.rentease.data.model.ApiResponse
 import com.example.rentease.data.local.RentEaseDatabase
 import com.example.rentease.data.model.UserRequest
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +26,7 @@ class UserRequestRepository(
             if (response.isSuccessful) {
                 // Update local record with server ID if needed
                 val apiResponse = response.body()
-                if (apiResponse?.status == "success" && apiResponse.data != null) {
+                if (apiResponse != null && apiResponse.data != null) {
                     // If server returns updated data, update local database
                     userRequestDao.update(localRequest)
                 }
@@ -47,10 +47,10 @@ class UserRequestRepository(
             val response = api.getUserRequests(userId)
             if (response.isSuccessful) {
                 val apiResponse = response.body()
-                if (apiResponse?.status == "success") {
+                if (apiResponse != null) {
                     // Parse data and return
-                    val requests = apiResponse.data as? List<*>
-                    if (requests != null) {
+                    val requests = apiResponse.data as List<*>
+                    if (requests.isNotEmpty()) {
                         // Process the list (simplified for now)
                         val processedRequests = requests.mapNotNull { it as? Map<*, *> }
                             .map { mapToUserRequest(it) }

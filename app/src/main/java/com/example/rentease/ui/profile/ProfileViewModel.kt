@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.auth.UserType
-import com.example.rentease.data.repository.UserRepository
+import com.example.rentease.data.model.User
 import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,20 +40,25 @@ class ProfileViewModel(
                 val userId = authManager.getUserId()
                 val result = userRepository.getUserProfile(userId)
                 
-                if (result.isSuccess) {
-                    val user = result.user
+                if (result is com.example.rentease.data.model.Result.Success) {
+                    val user = result.data
                     val joinDateFormatted = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                        .format(Date(user.joinDate))
+                        .format(Date(System.currentTimeMillis()))
+                    
+                    // If createdAt is available, use it instead
+                    val formattedDate = user.createdAt.ifEmpty {
+                        joinDateFormatted
+                    }
                     
                     _uiState.value = ProfileUiState.UserData(
                         username = user.username,
-                        fullName = user.fullName,
-                        email = user.email,
-                        phone = user.phone,
-                        userType = user.userType,
-                        joinDate = joinDateFormatted
+                        fullName = user.fullName ?: "",
+                        email = user.email ?: "",
+                        phone = user.phone.toString(),
+                        userType = UserType.fromString(user.userType),
+                        joinDate = formattedDate
                     )
-                } else {
+                } else if (result is com.example.rentease.data.model.Result.Error) {
                     _uiState.value = ProfileUiState.Error(result.errorMessage ?: "Failed to load user data")
                 }
             } catch (e: Exception) {
@@ -81,17 +86,22 @@ class ProfileViewModel(
             try {
                 val userId = authManager.getUserId()
                 val result = userRepository.updateUserProfile(
-                    userId = userId,
-                    fullName = fullName,
-                    email = email,
-                    phone = phone
+                    User(
+                        id = userId.toInt(),
+                        username = "", // Keep existing username
+                        fullName = fullName,
+                        email = email,
+                        phone = phone,
+                        userType = "", // Keep existing userType
+                        createdAt = "" // Keep existing createdAt
+                    )
                 )
                 
-                if (result.isSuccess) {
+                if (result is com.example.rentease.data.model.Result.Success) {
                     _uiState.value = ProfileUiState.Success("Profile updated successfully")
                     // Reload user data to reflect changes
                     loadUserData()
-                } else {
+                } else if (result is com.example.rentease.data.model.Result.Error) {
                     _uiState.value = ProfileUiState.Error(result.errorMessage ?: "Failed to update profile")
                 }
             } catch (e: Exception) {
@@ -121,16 +131,15 @@ class ProfileViewModel(
         
         viewModelScope.launch {
             try {
-                val userId = authManager.getUserId()
+                // Get the user ID for logging purposes if needed
                 val result = userRepository.changePassword(
-                    userId = userId,
-                    currentPassword = currentPassword,
+                    oldPassword = currentPassword,
                     newPassword = newPassword
                 )
                 
-                if (result.isSuccess) {
+                if (result is com.example.rentease.data.model.Result.Success) {
                     _uiState.value = ProfileUiState.Success("Password changed successfully")
-                } else {
+                } else if (result is com.example.rentease.data.model.Result.Error) {
                     _uiState.value = ProfileUiState.Error(result.errorMessage ?: "Failed to change password")
                 }
             } catch (e: Exception) {
@@ -157,8 +166,8 @@ class ProfileViewModel(
  * Represents the UI state for the profile screen.
  */
 sealed class ProfileUiState {
-    object Initial : ProfileUiState()
-    object Loading : ProfileUiState()
+    data object Initial : ProfileUiState()
+    data object Loading : ProfileUiState()
     data class Success(val message: String) : ProfileUiState()
     data class Error(val message: String) : ProfileUiState()
     data class UserData(

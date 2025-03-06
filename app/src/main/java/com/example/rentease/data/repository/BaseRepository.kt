@@ -1,6 +1,6 @@
 package com.example.rentease.data.repository
 
-import com.example.rentease.data.api.ApiResponse
+import com.example.rentease.data.model.ApiResponse
 import retrofit2.Response
 import java.io.IOException
 

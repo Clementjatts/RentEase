@@ -79,6 +79,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
         val userType = viewModel.getUserType()
         
         // Navigate to the appropriate dashboard based on user type
+        // If userType is null, NavigationHelper will navigate to property list
         com.example.rentease.ui.navigation.NavigationHelper.navigateToDashboard(findNavController(), userType)
         
         // Reset the state so we don't navigate again if we come back to this fragment

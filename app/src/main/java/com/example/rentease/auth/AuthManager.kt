@@ -59,6 +59,14 @@ class AuthManager private constructor(context: Context) {
                 remove(KEY_USER_ID)
             }
         }
+        
+    /**
+     * Get the user ID as a string
+     * @return The user ID as a string, or an empty string if not available
+     */
+    fun getUserId(): String {
+        return userId?.toString() ?: ""
+    }
 
     fun login(username: String, userType: UserType, authToken: String, userId: Int? = null) {
         this.username = username
@@ -94,8 +102,22 @@ class AuthManager private constructor(context: Context) {
     }
 }
 
+/**
+ * Defines the types of users in the system
+ * Note: Only ADMIN and LANDLORD are supported as registered users.
+ * Regular users (previously TENANT) do not need to log in to view properties.
+ */
 enum class UserType {
     ADMIN,
-    LANDLORD,
-    TENANT
+    LANDLORD;
+    
+    companion object {
+        fun fromString(value: String): UserType {
+            return when (value.uppercase()) {
+                "ADMIN" -> ADMIN
+                "LANDLORD" -> LANDLORD
+                else -> LANDLORD // Default to LANDLORD for safety
+            }
+        }
+    }
 }

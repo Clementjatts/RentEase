@@ -7,7 +7,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -35,7 +38,42 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+    }
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupMenu()
+        setupBackNavigation()
+    }
+    
+    private fun setupMenu() {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_property_management, menu)
+            }
+            
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_refresh -> {
+                        viewModel.loadProperties()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+    
+    private fun setupBackNavigation() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().navigateUp()
+                }
+            }
+        )
     }
     
     override fun inflateBinding(
@@ -56,7 +94,7 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
         appCompatActivity.setSupportActionBar(binding.toolbar)
         appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            findNavController().navigateUp()
         }
     }
     
@@ -65,8 +103,9 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
             onItemClick = { property ->
                 NavigationHelper.navigateToPropertyForm(findNavController(), property.id)
             },
-            onDeleteClick = { property ->
-                viewModel.deleteProperty(property.id)
+            onContactClick = { _ ->
+                // This is required by the adapter but not used in this context
+                // We could navigate to property details or show contact info
             }
         )
         
@@ -125,20 +164,7 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
         binding.emptyView.text = message
     }
     
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_property_management, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-    
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_refresh -> {
-                viewModel.loadProperties()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+    // Deprecated menu methods removed and replaced with MenuProvider in setupMenu()
     
     companion object {
         fun newInstance() = PropertyManagementFragment()
