@@ -1,15 +1,12 @@
 package com.example.rentease.data.repository
 
-import android.content.Context
 import com.example.rentease.data.api.RentEaseApi
-import com.example.rentease.data.model.ApiResponse
 import com.example.rentease.data.model.UserRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class UserRequestRepository(
-    private val api: RentEaseApi,
-    private val context: Context
+    private val api: RentEaseApi
 ) : BaseRepository() {
 
     // No local database access
@@ -20,9 +17,8 @@ class UserRequestRepository(
             val response = api.createRequest(request)
             if (response.isSuccessful) {
                 val apiResponse = response.body()
-                if (apiResponse != null && apiResponse.data != null) {
+                if (apiResponse?.data != null) {
                     // If server returns updated data
-                    @Suppress("UNCHECKED_CAST")
                     val serverRequest = apiResponse.data as UserRequest
                     Result.success(serverRequest)
                 } else {
