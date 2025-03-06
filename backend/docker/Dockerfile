@@ -6,7 +6,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    && docker-php-ext-install pdo pdo_mysql zip mysqli
+    sqlite3 \
+    && docker-php-ext-install pdo zip \
+    && docker-php-ext-install pdo_sqlite
 
 # Configure PHP
 RUN echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-error-reporting.ini \
