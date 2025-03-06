@@ -12,7 +12,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Admin Dashboard"
+            app:title="@string/title_admin_dashboard"
             app:titleTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:gravity="center"
-                android:text="Admin Dashboard"
+                android:text="@string/title_admin_dashboard"
                 android:textAppearance="?attr/textAppearanceHeadline4" />
 
             <com.google.android.material.card.MaterialCardView
@@ -54,14 +54,14 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="User Management"
+                        android:text="@string/title_user_management"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Manage users, approve landlords, and handle user accounts"
+                        android:text="@string/desc_user_management"
                         android:textAppearance="?attr/textAppearanceBody2" />
 
                     <com.google.android.material.button.MaterialButton
@@ -70,7 +70,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:layout_marginTop="8dp"
-                        android:text="Manage Users" />
+                        android:text="@string/button_manage_users" />
 
                 </LinearLayout>
 
@@ -92,14 +92,14 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Property Management"
+                        android:text="@string/title_property_management"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Manage all properties, approve listings, and handle property-related issues"
+                        android:text="@string/desc_property_management"
                         android:textAppearance="?attr/textAppearanceBody2" />
 
                     <com.google.android.material.button.MaterialButton
@@ -108,13 +108,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:layout_marginTop="8dp"
-                        android:text="Manage Properties" />
+                        android:text="@string/button_manage_properties" />
 
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Statistics section removed as per requirements -->
 
         </LinearLayout>
 

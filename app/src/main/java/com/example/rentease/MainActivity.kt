@@ -2,16 +2,9 @@ package com.example.rentease
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
-import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 
 /**
  * MainActivity serves as the single activity container for all fragments in the app.
@@ -19,26 +12,15 @@ import androidx.navigation.ui.setupActionBarWithNavController
  */
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
-        // Set up the Toolbar as ActionBar
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        
         // Set up Navigation
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        
-        // Set up ActionBar with NavController
-        appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.propertyListFragment) // Set propertyListFragment as the top-level destination
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
         
         // Handle navigation from intent
         handleNavigationIntent(intent)
@@ -63,7 +45,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     navController.navigate(R.id.propertyFormFragment, bundle)
                 }
-                // "contact_form" handling removed as it's replaced by request_form
                 "request_form" -> {
                     val propertyId = intent.getIntExtra("property_id", -1)
                     val landlordId = intent.getIntExtra("landlord_id", 0)
@@ -86,11 +67,9 @@ class MainActivity : AppCompatActivity() {
                         navController.navigate(R.id.fullScreenImageFragment, bundle)
                     }
                 }
-                // Add other destinations as needed
             }
         }
         
-        // Handle property details navigation (direct property_id extra)
         if (intent.getStringExtra("navigate_to") == null) {
             intent.getIntExtra("property_id", -1).takeIf { it != -1 }?.let { propertyId ->
                 val bundle = Bundle().apply {
@@ -102,6 +81,6 @@ class MainActivity : AppCompatActivity() {
     }
     
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }

@@ -21,7 +21,7 @@ class PropertyListViewModel(
     private val application: Application
 ) : ViewModel() {
 
-    private val TAG = "PropertyListViewModel"
+    private val tag = "PropertyListViewModel"
 
     private val _uiState = MutableStateFlow<PropertyListUiState>(PropertyListUiState.Loading)
     val uiState: StateFlow<PropertyListUiState> = _uiState
@@ -42,7 +42,7 @@ class PropertyListViewModel(
         _sortOption
     ) { query, filter, properties, sortOption ->
         // Use a sequence for more efficient filtering
-        var filtered = properties.asSequence().filter { property ->
+        val filtered = properties.asSequence().filter { property ->
             if (query.isBlank()) return@filter true
 
             when (filter) {
@@ -59,33 +59,20 @@ class PropertyListViewModel(
                         false
                     }
                 }
-                PropertyFilter.LOCATION -> {
-                    property.address.contains(query, ignoreCase = true)
-                }
             }
         }
 
-        // Apply sorting - ensure all branches return List<Property>
-        val sortedList: List<Property> = when (sortOption) {
-            SortBottomSheetDialog.SortOption.PRICE_LOW_TO_HIGH -> {
+        // Apply sorting and return the result
+        when (sortOption) {
+            SortBottomSheetDialog.SortOption.PRICE_LOW_TO_HIGH ->
                 filtered.sortedBy { it.price }.toList()
-            }
-            SortBottomSheetDialog.SortOption.PRICE_HIGH_TO_LOW -> {
+            SortBottomSheetDialog.SortOption.PRICE_HIGH_TO_LOW ->
                 filtered.sortedByDescending { it.price }.toList()
-            }
-            SortBottomSheetDialog.SortOption.NEWEST -> {
+            SortBottomSheetDialog.SortOption.NEWEST ->
                 filtered.sortedByDescending { it.dateAdded }.toList()
-            }
-            SortBottomSheetDialog.SortOption.OLDEST -> {
+            else -> // SortBottomSheetDialog.SortOption.OLDEST
                 filtered.sortedBy { it.dateAdded }.toList()
-            }
-            SortBottomSheetDialog.SortOption.NEAREST -> {
-                // TODO: Implement location-based sorting when location services are added
-                filtered.toList()
-            }
         }
-
-        sortedList
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -112,7 +99,7 @@ class PropertyListViewModel(
 
     private fun handleApiError(exception: Throwable): PropertyListUiState {
         // Log the exception for debugging purposes
-        Log.e(TAG, "API Error", exception)
+        Log.e(tag, "API Error", exception)
         return PropertyListUiState.Error(
             application.getString(R.string.error_unknown)
         )
@@ -123,8 +110,7 @@ class PropertyListViewModel(
             _uiState.value = PropertyListUiState.Loading
 
             try {
-                val result = repository.getProperties()
-                when (result) {
+                when (val result = repository.getProperties()) {
                     is com.example.rentease.data.model.Result.Success -> {
                         val properties = result.data
                         _properties.value = properties
@@ -144,36 +130,12 @@ class PropertyListViewModel(
         }
     }
 
-    private fun handleLoadPropertiesError(exception: Exception) {
-        // Log the exception for debugging purposes
-        Log.e(TAG, "Load Properties Error", exception)
-        viewModelScope.launch {
-            _uiState.emit(
-                PropertyListUiState.Error(
-                    application.getString(R.string.error_unknown)
-                )
-            )
-        }
-    }
-
-    private fun handleDeleteError(exception: Exception) {
-        // Log the exception for debugging purposes
-        Log.e(TAG, "Delete Property Error", exception)
-        viewModelScope.launch {
-            _uiState.emit(
-                PropertyListUiState.Error(
-                    application.getString(R.string.error_unknown)
-                )
-            )
-        }
-    }
 
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
             try {
-                val result = repository.getProperties(forceRefresh = true)
-                when (result) {
+                when (val result = repository.getProperties(forceRefresh = true)) {
                     is com.example.rentease.data.model.Result.Success -> {
                         val properties = result.data
                         _properties.value = properties
@@ -198,8 +160,7 @@ class PropertyListViewModel(
     fun deleteProperty(propertyId: Int) {
         viewModelScope.launch {
             try {
-                val result = repository.deleteProperty(propertyId)
-                when (result) {
+                when (val result = repository.deleteProperty(propertyId)) {
                     is com.example.rentease.data.model.Result.Success -> {
                         loadProperties()
                     }
@@ -227,8 +188,7 @@ class PropertyListViewModel(
 
 enum class PropertyFilter {
     ALL,
-    PRICE,
-    LOCATION
+    PRICE
 }
 
 sealed class PropertyListUiState {
