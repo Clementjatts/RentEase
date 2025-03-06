@@ -9,6 +9,8 @@ import kotlinx.coroutines.SupervisorJob
 
 class RentEaseApplication : Application() {
     
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    
     override fun onCreate() {
         super.onCreate()
         

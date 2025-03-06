@@ -67,7 +67,10 @@ dependencies {
     // Security Crypto for EncryptedSharedPreferences
     implementation(libs.androidx.security.crypto)
     
-    // Room dependencies removed
+    // Room for local database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     
     // Coroutines for async operations
     implementation(libs.kotlinx.coroutines.android)

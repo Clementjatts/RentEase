@@ -123,6 +123,7 @@ class PropertyRepository(
                 if (body != null) {
                     @Suppress("UNCHECKED_CAST")
                     val createdProperty = body.data as Property
+                    propertyDao.insertProperty(createdProperty)
 
                     // Upload images if any
                     if (images.isNotEmpty()) {
@@ -149,6 +150,7 @@ class PropertyRepository(
                 if (body != null) {
                     @Suppress("UNCHECKED_CAST")
                     val updatedProperty = body.data as Property
+                    propertyDao.updateProperty(updatedProperty)
 
                     // Upload images if any
                     if (images.isNotEmpty()) {
@@ -171,6 +173,7 @@ class PropertyRepository(
         try {
             val response = api.deleteProperty(id)
             if (response.isSuccessful) {
+                propertyDao.deletePropertyById(id)
                 return@withContext com.example.rentease.data.model.Result.Success(Unit)
             } else {
                 return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)

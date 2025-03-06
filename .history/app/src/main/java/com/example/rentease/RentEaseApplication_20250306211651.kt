@@ -9,6 +9,8 @@ import kotlinx.coroutines.SupervisorJob
 
 class RentEaseApplication : Application() {
     
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    
     override fun onCreate() {
         super.onCreate()
         
@@ -27,7 +29,16 @@ class RentEaseApplication : Application() {
                 Log.e(TAG, "Error initializing AuthManager", e)
             }
             
-            // Database initialization removed - using API only
+            // Initialize database on a background thread
+            applicationScope.launch {
+                try {
+                    // Use the preload method to initialize the database
+                    RentEaseDatabase.preloadDatabase(this@RentEaseApplication)
+                    Log.d(TAG, "Database initialized successfully")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error initializing database", e)
+                }
+            }
             
             Log.d(TAG, "Application initialization completed")
         } catch (e: Exception) {

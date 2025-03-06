@@ -171,6 +171,7 @@ class PropertyRepository(
         try {
             val response = api.deleteProperty(id)
             if (response.isSuccessful) {
+                propertyDao.deletePropertyById(id)
                 return@withContext com.example.rentease.data.model.Result.Success(Unit)
             } else {
                 return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)

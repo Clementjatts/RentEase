@@ -92,7 +92,13 @@ class PropertyRepository(
      */
     suspend fun getLandlordProperties(landlordId: String): com.example.rentease.data.model.Result<List<Property>> = withContext(Dispatchers.IO) {
         try {
-            // Fetch from API
+            // First try to get from local database
+            val properties = propertyDao.getPropertiesByLandlordId(landlordId.toIntOrNull() ?: -1)
+            if (properties.isNotEmpty()) {
+                return@withContext com.example.rentease.data.model.Result.Success(properties)
+            }
+            
+            // If not in database or empty, fetch from API
             val response = api.getProperties()
             if (response.isSuccessful) {
                 val body = response.body()
@@ -102,6 +108,11 @@ class PropertyRepository(
                     // Filter properties by landlord ID
                     val landlordProperties = allProperties.filter {
                         it.landlordId.toString() == landlordId
+                    }
+                    
+                    // Cache the properties
+                    if (landlordProperties.isNotEmpty()) {
+                        propertyDao.insertAllProperties(landlordProperties)
                     }
                     
                     return@withContext com.example.rentease.data.model.Result.Success(landlordProperties)
@@ -123,6 +134,7 @@ class PropertyRepository(
                 if (body != null) {
                     @Suppress("UNCHECKED_CAST")
                     val createdProperty = body.data as Property
+                    propertyDao.insertProperty(createdProperty)
 
                     // Upload images if any
                     if (images.isNotEmpty()) {
@@ -149,6 +161,7 @@ class PropertyRepository(
                 if (body != null) {
                     @Suppress("UNCHECKED_CAST")
                     val updatedProperty = body.data as Property
+                    propertyDao.updateProperty(updatedProperty)
 
                     // Upload images if any
                     if (images.isNotEmpty()) {
@@ -171,6 +184,7 @@ class PropertyRepository(
         try {
             val response = api.deleteProperty(id)
             if (response.isSuccessful) {
+                propertyDao.deletePropertyById(id)
                 return@withContext com.example.rentease.data.model.Result.Success(Unit)
             } else {
                 return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)

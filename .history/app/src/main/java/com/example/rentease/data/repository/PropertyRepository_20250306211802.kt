@@ -45,15 +45,34 @@ class PropertyRepository(
                 if (body != null) {
                     @Suppress("UNCHECKED_CAST")
                     val property = body.data as Property
+                    propertyDao.insertProperty(property)
                     return@withContext com.example.rentease.data.model.Result.Success(property)
                 } else {
-                    return@withContext com.example.rentease.data.model.Result.Error(Exception(body?.message ?: "Failed to get property").message)
+                    // Try to load from cache
+                    val cachedProperty = propertyDao.getPropertyById(id)
+                    if (cachedProperty != null) {
+                        return@withContext com.example.rentease.data.model.Result.Success(cachedProperty)
+                    } else {
+                        return@withContext com.example.rentease.data.model.Result.Error(Exception(body?.message ?: "Failed to get property").message)
+                    }
                 }
             } else {
-                return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)
+                // Try to load from cache
+                val cachedProperty = propertyDao.getPropertyById(id)
+                if (cachedProperty != null) {
+                    return@withContext com.example.rentease.data.model.Result.Success(cachedProperty)
+                } else {
+                    return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)
+                }
             }
         } catch (e: Exception) {
-            return@withContext com.example.rentease.data.model.Result.Error(handleException(e).message)
+            // Try to load from cache
+            val cachedProperty = propertyDao.getPropertyById(id)
+            if (cachedProperty != null) {
+                return@withContext com.example.rentease.data.model.Result.Success(cachedProperty)
+            } else {
+                return@withContext com.example.rentease.data.model.Result.Error(handleException(e).message)
+            }
         }
     }
 
@@ -65,20 +84,15 @@ class PropertyRepository(
      */
     suspend fun getPropertyById(propertyId: Int): com.example.rentease.data.model.Result<Property> = withContext(Dispatchers.IO) {
         try {
-            // Fetch from API
-            val response = api.getProperty(propertyId)
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    @Suppress("UNCHECKED_CAST")
-                    val property = body.data as Property
-                    return@withContext com.example.rentease.data.model.Result.Success(property)
-                } else {
-                    return@withContext com.example.rentease.data.model.Result.Error("Property not found")
-                }
-            } else {
-                return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)
+            // Try to get from local database first
+            val property = propertyDao.getPropertyById(propertyId)
+            if (property != null) {
+                return@withContext com.example.rentease.data.model.Result.Success(property)
             }
+            
+            // If not in local database, fetch from API
+            // For now, returning a mock error since API implementation would be more complex
+            return@withContext com.example.rentease.data.model.Result.Error("Property not found")
         } catch (e: Exception) {
             return@withContext com.example.rentease.data.model.Result.Error("Error fetching property: ${e.message}")
         }
@@ -92,7 +106,13 @@ class PropertyRepository(
      */
     suspend fun getLandlordProperties(landlordId: String): com.example.rentease.data.model.Result<List<Property>> = withContext(Dispatchers.IO) {
         try {
-            // Fetch from API
+            // First try to get from local database
+            val properties = propertyDao.getPropertiesByLandlordId(landlordId.toIntOrNull() ?: -1)
+            if (properties.isNotEmpty()) {
+                return@withContext com.example.rentease.data.model.Result.Success(properties)
+            }
+            
+            // If not in database or empty, fetch from API
             val response = api.getProperties()
             if (response.isSuccessful) {
                 val body = response.body()
@@ -102,6 +122,11 @@ class PropertyRepository(
                     // Filter properties by landlord ID
                     val landlordProperties = allProperties.filter {
                         it.landlordId.toString() == landlordId
+                    }
+                    
+                    // Cache the properties
+                    if (landlordProperties.isNotEmpty()) {
+                        propertyDao.insertAllProperties(landlordProperties)
                     }
                     
                     return@withContext com.example.rentease.data.model.Result.Success(landlordProperties)
@@ -123,6 +148,7 @@ class PropertyRepository(
                 if (body != null) {
                     @Suppress("UNCHECKED_CAST")
                     val createdProperty = body.data as Property
+                    propertyDao.insertProperty(createdProperty)
 
                     // Upload images if any
                     if (images.isNotEmpty()) {
@@ -149,6 +175,7 @@ class PropertyRepository(
                 if (body != null) {
                     @Suppress("UNCHECKED_CAST")
                     val updatedProperty = body.data as Property
+                    propertyDao.updateProperty(updatedProperty)
 
                     // Upload images if any
                     if (images.isNotEmpty()) {
@@ -171,6 +198,7 @@ class PropertyRepository(
         try {
             val response = api.deleteProperty(id)
             if (response.isSuccessful) {
+                propertyDao.deletePropertyById(id)
                 return@withContext com.example.rentease.data.model.Result.Success(Unit)
             } else {
                 return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)
