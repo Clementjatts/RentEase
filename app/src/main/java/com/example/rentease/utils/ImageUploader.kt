@@ -26,6 +26,16 @@ data class PropertyImageData(
     val url: String
 )
 
+/**
+ * Data class representing a property image item for UI
+ */
+data class PropertyImageItem(
+    val uri: Uri,
+    val isExisting: Boolean = false,
+    val imageId: Int? = null,
+    val placeholder: Boolean = false
+)
+
 class ImageUploader(
     private val context: Context,
     private val api: RentEaseApi

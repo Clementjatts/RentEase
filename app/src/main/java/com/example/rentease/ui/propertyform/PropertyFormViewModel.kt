@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
+import com.example.rentease.utils.PropertyImageItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

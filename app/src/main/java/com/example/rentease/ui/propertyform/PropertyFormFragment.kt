@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.example.rentease.R
 import com.example.rentease.databinding.FragmentPropertyFormBinding
 import com.example.rentease.ui.utils.WindowInsetsHelper
+import com.example.rentease.utils.PropertyImageItem
 import kotlinx.coroutines.launch
 
 /**
