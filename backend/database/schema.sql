@@ -1,63 +1,31 @@
--- Create admins table
-CREATE TABLE IF NOT EXISTS admins (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
-);
-
--- Create users table
+-- SIMPLIFIED SCHEMA - ADMIN and LANDLORD only per CSYM030.md
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    email TEXT,
-    user_type TEXT NOT NULL,
-    full_name TEXT,
+    email TEXT NOT NULL,
     phone TEXT,
+    user_type TEXT NOT NULL CHECK (user_type IN ('ADMIN', 'LANDLORD')),
+    full_name TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create landlords table
-CREATE TABLE IF NOT EXISTS landlords (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    contact TEXT NOT NULL,
-    admin_id INTEGER,
-    FOREIGN KEY (admin_id) REFERENCES admins(id)
-);
-
--- Create properties table
 CREATE TABLE IF NOT EXISTS properties (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     description TEXT,
-    landlord_id INTEGER,
-    FOREIGN KEY (landlord_id) REFERENCES landlords(id)
-);
-
--- Create user_requests table
-CREATE TABLE IF NOT EXISTS user_requests (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    property_id INTEGER,
-    message TEXT,
+    price REAL NOT NULL,
+    bedroom_count INTEGER,
+    bathroom_count INTEGER,
+    furniture_type TEXT,
+    address TEXT,
+    landlord_id INTEGER NOT NULL, -- Direct reference to users table
+    image_url TEXT, -- Single image URL field
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (property_id) REFERENCES properties(id)
-);
-
--- Create favorites table
-CREATE TABLE IF NOT EXISTS favorites (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    property_id INTEGER NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (property_id) REFERENCES properties(id),
-    UNIQUE(user_id, property_id)
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (landlord_id) REFERENCES users(id)
 );
 
 -- Insert default admin account
-INSERT OR IGNORE INTO admins (username, password) VALUES ('admin', 'pass');
-
--- Insert default user (same as admin)
-INSERT OR IGNORE INTO users (username, password, email, user_type, full_name, phone) 
+INSERT OR IGNORE INTO users (username, password, email, user_type, full_name, phone)
 VALUES ('admin', 'pass', 'admin@rentease.com', 'ADMIN', 'Admin User', '+1234567890');

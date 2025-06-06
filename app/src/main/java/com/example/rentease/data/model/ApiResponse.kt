@@ -9,4 +9,7 @@ data class ApiResponse(
     @Json(name = "message") val message: String?,
     @Json(name = "data") val data: Any? = null,
     @Json(name = "error") val error: String? = null
-)
+) {
+    val success: Boolean
+        get() = status == "success"
+}

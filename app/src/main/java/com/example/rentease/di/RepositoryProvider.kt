@@ -13,23 +13,22 @@ import com.example.rentease.data.repository.UserRepository
 object RepositoryProvider {
     fun provideAuthRepository(context: Context): AuthRepository {
         return AuthRepository(
-            api = ApiClient.api,
-            authManager = AuthManager.getInstance(context),
-            context = context
+            api = ApiClient.getApi(context),
+            authManager = AuthManager.getInstance(context)
         )
     }
-    
+
     fun providePropertyRepository(context: Context): PropertyRepository {
         return PropertyRepository(
-            api = ApiClient.api,
+            api = ApiClient.getApi(context),
             context = context
         )
     }
-    
+
     fun provideUserRepository(context: Context): UserRepository {
         return UserRepository(
-            api = ApiClient.api,
-            context = context
+            api = ApiClient.getApi(context),
+            authManager = AuthManager.getInstance(context)
         )
     }
 

@@ -2,15 +2,11 @@ package com.example.rentease.ui.landlord
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,53 +14,51 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentease.R
+import com.example.rentease.data.model.Property
 import com.example.rentease.databinding.FragmentPropertyManagementBinding
-import com.example.rentease.ui.base.BaseFragment
-import com.example.rentease.ui.navigation.NavigationHelper
-import com.example.rentease.ui.properties.PropertyAdapter
+import com.example.rentease.ui.utils.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
 /**
  * PropertyManagementFragment displays the landlord's properties for management.
- * It replaces the PropertyManagementActivity in the fragment-based architecture.
+ * Simplified implementation without BaseFragment complexity.
  */
-class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBinding>() {
-    
+class PropertyManagementFragment : Fragment() {
+
+    private var _binding: FragmentPropertyManagementBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: PropertyManagementViewModel by viewModels {
         PropertyManagementViewModel.Factory(requireActivity().application)
     }
-    
-    private lateinit var propertyAdapter: PropertyAdapter
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    private lateinit var propertyAdapter: PropertyManagementAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPropertyManagementBinding.inflate(inflater, container, false)
+        return binding.root
     }
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Apply window insets for proper edge-to-edge display
+        WindowInsetsHelper.applyWindowInsets(binding.root, binding.appBarLayout)
+
+        setupUI()
+        setupObservers()
         setupMenu()
         setupBackNavigation()
     }
-    
+
     private fun setupMenu() {
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_property_management, menu)
-            }
-            
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.action_refresh -> {
-                        viewModel.loadProperties()
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        // Menu setup removed as refresh function is not needed
     }
-    
+
     private fun setupBackNavigation() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -75,20 +69,12 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
             }
         )
     }
-    
-    override fun inflateBinding(
-        inflater: LayoutInflater,
-        container: ViewGroup?
-    ): FragmentPropertyManagementBinding {
-        return FragmentPropertyManagementBinding.inflate(inflater, container, false)
-    }
-    
-    override fun setupUI() {
+
+    private fun setupUI() {
         setupToolbar()
         setupRecyclerView()
-        setupAddButton()
     }
-    
+
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -97,31 +83,39 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
             findNavController().navigateUp()
         }
     }
-    
+
     private fun setupRecyclerView() {
-        propertyAdapter = PropertyAdapter(
+        propertyAdapter = PropertyManagementAdapter(
             onItemClick = { property ->
-                NavigationHelper.navigateToPropertyForm(findNavController(), property.id)
+                // Direct navigation to PropertyFormFragment for editing
+                val bundle = Bundle().apply {
+                    putInt("propertyId", property.id)
+                }
+                findNavController().navigate(R.id.action_global_propertyFormFragment, bundle)
             },
-            onContactClick = { _ ->
-                // This is required by the adapter but not used in this context
-                // We could navigate to property details or show contact info
+            onDeleteClick = { property ->
+                showDeleteConfirmation(property)
             }
         )
-        
+
         binding.propertyRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = propertyAdapter
         }
     }
-    
-    private fun setupAddButton() {
-        binding.addPropertyButton.setOnClickListener {
-            NavigationHelper.navigateToPropertyForm(findNavController())
-        }
+
+    private fun showDeleteConfirmation(property: Property) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Delete Property")
+            .setMessage("Are you sure you want to delete '${property.title}'? This action cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteProperty(property.id)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
-    
-    override fun setupObservers() {
+
+    private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
@@ -133,20 +127,20 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
                 }
             }
         }
-        
+
         // Load properties when the fragment is created
         viewModel.loadProperties()
     }
-    
+
     private fun showLoading() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.propertyRecyclerView.visibility = View.GONE
         binding.emptyView.visibility = View.GONE
     }
-    
+
     private fun showProperties(state: PropertyManagementUiState.Success) {
         binding.loadingIndicator.visibility = View.GONE
-        
+
         if (state.properties.isEmpty()) {
             binding.propertyRecyclerView.visibility = View.GONE
             binding.emptyView.visibility = View.VISIBLE
@@ -156,16 +150,19 @@ class PropertyManagementFragment : BaseFragment<FragmentPropertyManagementBindin
             propertyAdapter.submitList(state.properties)
         }
     }
-    
+
     private fun showError(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.propertyRecyclerView.visibility = View.GONE
         binding.emptyView.visibility = View.VISIBLE
         binding.emptyView.text = message
     }
-    
-    // Deprecated menu methods removed and replaced with MenuProvider in setupMenu()
-    
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     companion object {
         fun newInstance() = PropertyManagementFragment()
     }

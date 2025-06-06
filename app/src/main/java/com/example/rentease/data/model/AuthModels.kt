@@ -11,9 +11,16 @@ data class LoginRequest(
 
 @JsonClass(generateAdapter = true)
 data class LoginResponse(
+    @Json(name = "status") val status: String,
+    @Json(name = "message") val message: String,
+    @Json(name = "success") val success: Boolean,
+    @Json(name = "data") val data: LoginResponseData
+)
+
+@JsonClass(generateAdapter = true)
+data class LoginResponseData(
     @Json(name = "token") val token: String,
-    @Json(name = "user") val user: User,
-    @Json(name = "message") val message: String
+    @Json(name = "user") val user: User
 )
 
 @JsonClass(generateAdapter = true)
@@ -24,7 +31,7 @@ data class User(
     @Json(name = "user_type") val userType: String,
     @Json(name = "full_name") val fullName: String?,
     @Json(name = "phone") val phone: String?,
-    @Json(name = "created_at") val createdAt: String
+    @Json(name = "created_at") val createdAt: String?
 )
 
 @JsonClass(generateAdapter = true)

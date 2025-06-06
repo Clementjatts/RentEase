@@ -5,8 +5,10 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="false">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -95,27 +97,104 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Bedroom Count Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/bedroomCountLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/title_bedroom_count">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/bedroomCountInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Bathroom Count Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/bathroomCountLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/title_bathroom_count">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/bathroomCountInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Furniture Type Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/furnitureTypeLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/title_furniture_type">
+
+                <AutoCompleteTextView
+                    android:id="@+id/furnitureTypeInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:focusable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/title_images"
+                android:text="@string/title_image"
                 android:textAppearance="?attr/textAppearanceSubtitle1" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/imagesRecyclerView"
+            <ImageView
+                android:id="@+id/propertyImageView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/rounded_background"
+                android:visibility="gone"
+                android:contentDescription="@string/title_image" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal" />
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addImageButton"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/button_add_image" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addImageButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/button_add_image" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/removeImageButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/button_remove_image"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveButton"

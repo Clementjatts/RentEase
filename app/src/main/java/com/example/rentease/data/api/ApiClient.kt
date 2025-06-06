@@ -1,47 +1,50 @@
 package com.example.rentease.data.api
 
+import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import okhttp3.Credentials
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    private const val BASE_URL = "http://10.0.2.2:8080/" // Android emulator localhost
-    
-    private val authInterceptor = Interceptor { chain ->
-        val credentials = Credentials.basic("admin", "pass")
-        val request = chain.request().newBuilder()
-            .header("Authorization", credentials)
+    // Backend URL - uses localhost with ADB reverse port forwarding
+    private const val BASE_URL = "http://localhost:8000/"
+
+    // Single client with conditional auth interceptor
+    private fun createClient(context: Context): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request()
+                val authManager = com.example.rentease.auth.AuthManager.getInstance(context)
+
+                // Add auth header if user is logged in and has token
+                if (authManager.isLoggedIn && !authManager.authToken.isNullOrEmpty()) {
+                    val newRequest = request.newBuilder()
+                        .header("Authorization", "Bearer ${authManager.authToken}")
+                        .build()
+                    chain.proceed(newRequest)
+                } else {
+                    chain.proceed(request)
+                }
+            }
             .build()
-        chain.proceed(request)
     }
-    
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-    
-    private val client = OkHttpClient.Builder()
-        .addInterceptor(authInterceptor)
-        .addInterceptor(loggingInterceptor)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .build()
-    
+
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
-    
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .client(client)
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .build()
-    
-    val api: RentEaseApi = retrofit.create(RentEaseApi::class.java)
+
+    private val moshiConverterFactory = MoshiConverterFactory.create(moshi)
+
+    // Single API instance that handles both authenticated and non-authenticated requests
+    fun getApi(context: Context): RentEaseApi {
+        val client = createClient(context)
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(moshiConverterFactory)
+            .build()
+        return retrofit.create(RentEaseApi::class.java)
+    }
 }

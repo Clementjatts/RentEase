@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            android:text="Landlord Name" />
+            android:text="@string/landlord_item_name" />
 
         <TextView
             android:id="@+id/emailTextView"
@@ -26,15 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textAppearance="?attr/textAppearanceBody2"
-            android:text="landlord@example.com" />
-
-        <TextView
-            android:id="@+id/statusTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="?attr/textAppearanceBody2"
-            android:text="Status: Pending Approval" />
+            android:text="@string/landlord_item_email" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,18 +36,20 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/rejectButton"
+                android:id="@+id/deleteButton"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Reject" />
+                android:text="@string/button_delete_landlord"
+                android:contentDescription="@string/content_description_delete_landlord" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/approveButton"
+                android:id="@+id/editButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Approve" />
+                android:text="@string/button_edit_landlord"
+                android:contentDescription="@string/content_description_edit_landlord" />
 
         </LinearLayout>
 

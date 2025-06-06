@@ -6,14 +6,16 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath(libs.com.google.devtools.ksp.gradle.plugin)
+        classpath(libs.androidx.navigation.safe.args.gradle.plugin)
     }
+
 }
 
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
-    id("com.google.devtools.ksp") version "1.9.22-1.0.16" apply false
+    alias(libs.plugins.ksp) apply false
+    id("androidx.navigation.safeargs.kotlin") version "2.9.0" apply false
 }
 
 allprojects {

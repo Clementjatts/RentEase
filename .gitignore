@@ -1,3 +1,4 @@
+# Android Studio / IntelliJ IDEA
 *.iml
 .gradle
 /local.properties
@@ -7,9 +8,113 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+/.idea/deploymentTargetDropDown.xml
+/.idea/misc.xml
+/.idea/compiler.xml
+/.idea/jarRepositories.xml
+/.idea/gradle.xml
+
+# Build files
+/build/
+/app/build/
+/captures/
+.externalNativeBuild/
+.cxx/
 local.properties
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Backend specific
+/backend/api/logs/*.log
+/backend/api/vendor/
+/backend/api/composer.lock
+/backend/uploads/*
+!/backend/uploads/.gitkeep
+
+# Editor specific files
+.vscode/
+.history/
+.roo/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Gradle files
+.gradle/
+gradle-app.setting
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Android Profiling
+*.hprof
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Keystore files
+*.jks
+*.keystore
+
+# Backup files
+*.bak
+*~
+
+# IDE specific
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Android specific
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+.navigation/
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Backend specific
+/backend/api/vendor/
+/backend/api/composer.lock
+/backend/api/logs/
+/backend/api/uploads/
+!/backend/api/uploads/.gitkeep
+/backend/api/.env
+/backend/api/.env.*
+!/backend/api/.env.example
+
+# Documentation
+*.md
+!README.md
+!CONTRIBUTING.md
+!LICENSE.md

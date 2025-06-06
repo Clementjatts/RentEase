@@ -20,36 +20,38 @@ import java.util.Locale
  * ProfileViewModel handles the business logic for the profile screen.
  */
 class ProfileViewModel(
-    application: Application
+    application: Application,
+    private val landlordId: Int? = null
 ) : AndroidViewModel(application) {
-    
+
     private val userRepository = RepositoryProvider.provideUserRepository(application)
     private val authManager = AuthManager.getInstance(application)
-    
+
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Initial)
     val uiState: StateFlow<ProfileUiState> = _uiState
-    
+
     /**
      * Load the user data from the repository.
      */
     fun loadUserData() {
         _uiState.value = ProfileUiState.Loading
-        
+
         viewModelScope.launch {
             try {
-                val userId = authManager.getUserId()
-                val result = userRepository.getUserProfile(userId)
-                
+
+                val result = userRepository.getUserProfile(landlordId)
+
                 if (result is com.example.rentease.data.model.Result.Success) {
                     val user = result.data
                     val joinDateFormatted = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
                         .format(Date(System.currentTimeMillis()))
-                    
-                    // If createdAt is available, use it instead
-                    val formattedDate = user.createdAt.ifEmpty {
+
+                    val formattedDate = if (user.createdAt.isNullOrEmpty()) {
                         joinDateFormatted
+                    } else {
+                        user.createdAt
                     }
-                    
+
                     _uiState.value = ProfileUiState.UserData(
                         username = user.username,
                         fullName = user.fullName ?: "",
@@ -66,7 +68,44 @@ class ProfileViewModel(
             }
         }
     }
-    
+
+    /**
+     * Reload user data without showing loading state.
+     * This is used after successful operations to refresh the data.
+     */
+    private fun reloadUserDataSilently() {
+        viewModelScope.launch {
+            try {
+
+                val result = userRepository.getUserProfile(landlordId)
+
+                if (result is com.example.rentease.data.model.Result.Success) {
+                    val user = result.data
+                    val joinDateFormatted = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                        .format(Date(System.currentTimeMillis()))
+
+                    val formattedDate = if (user.createdAt.isNullOrEmpty()) {
+                        joinDateFormatted
+                    } else {
+                        user.createdAt
+                    }
+
+                    _uiState.value = ProfileUiState.UserData(
+                        username = user.username,
+                        fullName = user.fullName ?: "",
+                        email = user.email ?: "",
+                        phone = user.phone.toString(),
+                        userType = UserType.fromString(user.userType),
+                        joinDate = formattedDate
+                    )
+                }
+
+            } catch (_: Exception) {
+
+            }
+        }
+    }
+
     /**
      * Update the user profile.
      */
@@ -79,28 +118,42 @@ class ProfileViewModel(
             _uiState.value = ProfileUiState.Error("All fields are required")
             return
         }
-        
+
         _uiState.value = ProfileUiState.Loading
-        
+
         viewModelScope.launch {
             try {
-                val userId = authManager.getUserId()
+                // Determine which user ID to update
+                val targetUserId = if (landlordId != null && landlordId > 0) {
+                    // If we're editing a specific landlord profile, use the landlord ID
+                    landlordId
+                } else {
+                    // Otherwise, update the current user's profile
+                    authManager.getUserId().toIntOrNull() ?: 0
+                }
+
+                if (targetUserId <= 0) {
+                    _uiState.value = ProfileUiState.Error("Invalid user ID")
+                    return@launch
+                }
+
                 val result = userRepository.updateUserProfile(
                     User(
-                        id = userId.toInt(),
+                        id = targetUserId,
                         username = "", // Keep existing username
                         fullName = fullName,
                         email = email,
                         phone = phone,
                         userType = "", // Keep existing userType
                         createdAt = "" // Keep existing createdAt
-                    )
+                    ),
+                    landlordId = landlordId // Pass landlordId to repository for proper update handling
                 )
-                
+
                 if (result is com.example.rentease.data.model.Result.Success) {
                     _uiState.value = ProfileUiState.Success("Profile updated successfully")
-                    // Reload user data to reflect changes
-                    loadUserData()
+                    // Reload user data to reflect changes without showing loading state
+                    reloadUserDataSilently()
                 } else if (result is com.example.rentease.data.model.Result.Error) {
                     _uiState.value = ProfileUiState.Error(result.errorMessage ?: "Failed to update profile")
                 }
@@ -109,53 +162,17 @@ class ProfileViewModel(
             }
         }
     }
-    
-    /**
-     * Change the user password.
-     */
-    fun changePassword(
-        currentPassword: String,
-        newPassword: String
-    ) {
-        if (currentPassword.isBlank() || newPassword.isBlank()) {
-            _uiState.value = ProfileUiState.Error("All fields are required")
-            return
-        }
-        
-        if (newPassword.length < 6) {
-            _uiState.value = ProfileUiState.Error("Password must be at least 6 characters")
-            return
-        }
-        
-        _uiState.value = ProfileUiState.Loading
-        
-        viewModelScope.launch {
-            try {
-                // Get the user ID for logging purposes if needed
-                val result = userRepository.changePassword(
-                    oldPassword = currentPassword,
-                    newPassword = newPassword
-                )
-                
-                if (result is com.example.rentease.data.model.Result.Success) {
-                    _uiState.value = ProfileUiState.Success("Password changed successfully")
-                } else if (result is com.example.rentease.data.model.Result.Error) {
-                    _uiState.value = ProfileUiState.Error(result.errorMessage ?: "Failed to change password")
-                }
-            } catch (e: Exception) {
-                _uiState.value = ProfileUiState.Error(e.message ?: "An error occurred")
-            }
-        }
-    }
-    
+
+
+
     /**
      * Factory for creating ProfileViewModel instances.
      */
-    class Factory(private val application: Application) : ViewModelProvider.Factory {
+    class Factory(private val application: Application, private val landlordId: Int? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
-                return ProfileViewModel(application) as T
+                return ProfileViewModel(application, landlordId) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

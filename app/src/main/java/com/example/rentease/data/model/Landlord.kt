@@ -5,6 +5,5 @@ data class Landlord(
     val name: String,
     val contact: String,
     val adminId: Int,
-    val email: String = "",
-    val status: String = "pending"
+    val email: String = ""
 )

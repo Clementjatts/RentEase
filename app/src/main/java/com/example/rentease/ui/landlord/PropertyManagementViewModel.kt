@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.auth.AuthManager
+import com.example.rentease.auth.UserType
 import com.example.rentease.data.model.Property
-import com.example.rentease.data.repository.PropertyRepository
 import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,24 +19,45 @@ import kotlinx.coroutines.launch
 class PropertyManagementViewModel(
     application: Application
 ) : AndroidViewModel(application) {
-    
+
     private val propertyRepository = RepositoryProvider.providePropertyRepository(application)
+    private val userRepository = RepositoryProvider.provideUserRepository(application)
     private val authManager = AuthManager.getInstance(application)
-    
+
     private val _uiState = MutableStateFlow<PropertyManagementUiState>(PropertyManagementUiState.Loading)
     val uiState: StateFlow<PropertyManagementUiState> = _uiState
-    
+
     /**
      * Load the landlord's properties from the repository.
      */
     fun loadProperties() {
         _uiState.value = PropertyManagementUiState.Loading
-        
+
         viewModelScope.launch {
             try {
-                val landlordId = authManager.getUserId()
-                val result = propertyRepository.getLandlordProperties(landlordId)
-                
+                // Check if the user is an admin or a landlord
+                val userType = authManager.userType
+                val result = if (userType == UserType.ADMIN) {
+                    // Admin sees all properties
+                    propertyRepository.getProperties()
+                } else {
+                    // Landlord sees only their properties
+                    // First get the landlord ID for the current user
+                    when (val landlordIdResult = userRepository.getLandlordIdForCurrentUser()) {
+                        is com.example.rentease.data.model.Result.Success -> {
+                            val landlordId = landlordIdResult.data
+                            if (landlordId != null) {
+                                propertyRepository.getLandlordProperties(landlordId.toString())
+                            } else {
+                                com.example.rentease.data.model.Result.Error("Could not find landlord profile for current user")
+                            }
+                        }
+                        is com.example.rentease.data.model.Result.Error -> {
+                            com.example.rentease.data.model.Result.Error(landlordIdResult.errorMessage ?: "Failed to get landlord ID")
+                        }
+                    }
+                }
+
                 when (result) {
                     is com.example.rentease.data.model.Result.Success -> {
                         _uiState.value = PropertyManagementUiState.Success(result.data)
@@ -50,16 +71,14 @@ class PropertyManagementViewModel(
             }
         }
     }
-    
+
     /**
      * Delete a property from the repository.
      */
     fun deleteProperty(propertyId: Int) {
         viewModelScope.launch {
             try {
-                val result = propertyRepository.deleteProperty(propertyId)
-                
-                when (result) {
+                when (val result = propertyRepository.deleteProperty(propertyId)) {
                     is com.example.rentease.data.model.Result.Success -> {
                         // Reload properties after deletion
                         loadProperties()
@@ -73,7 +92,7 @@ class PropertyManagementViewModel(
             }
         }
     }
-    
+
     /**
      * Factory for creating PropertyManagementViewModel instances.
      */
@@ -92,7 +111,7 @@ class PropertyManagementViewModel(
  * Represents the UI state for the property management screen.
  */
 sealed class PropertyManagementUiState {
-    object Loading : PropertyManagementUiState()
+    data object Loading : PropertyManagementUiState()
     data class Success(val properties: List<Property>) : PropertyManagementUiState()
     data class Error(val message: String) : PropertyManagementUiState()
 }

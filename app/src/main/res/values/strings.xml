@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">RentEase</string>
-    
+
     <!-- Dashboard Strings -->
     <string name="title_admin_dashboard">Admin Dashboard</string>
     <string name="title_landlord_dashboard">Landlord Dashboard</string>
-    <string name="title_user_management">User Management</string>
-    <string name="desc_user_management">Manage users, approve landlords, and handle user accounts</string>
-    <string name="button_manage_users">Manage Users</string>
+    <string name="title_landlord_management">Landlord Management</string>
+    <string name="desc_landlord_management">Manage landlords, add new landlords, and handle landlord accounts</string>
+    <string name="button_manage_landlords">Manage Landlords</string>
     <string name="title_property_management">Property Management</string>
     <string name="desc_property_management">Manage all properties, approve listings, and handle property-related issues</string>
     <string name="button_manage_properties">Manage Properties</string>
@@ -19,7 +19,7 @@
     <string name="title_profile_settings">Profile Settings</string>
     <string name="desc_profile_settings">Update your profile information and contact details</string>
     <string name="button_edit_profile">Edit Profile</string>
-    
+
     <!-- Common -->
     <string name="error_network">Network error. Please check your connection.</string>
     <string name="error_unknown">An unexpected error occurred.</string>
@@ -35,11 +35,11 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_save">Save</string>
     <string name="action_contact">Contact</string>
-    <string name="action_refresh">Refresh</string>
+    <!-- Removed unused refresh string -->
     <string name="content_description_property_image">Property Image</string>
     <string name="content_description_delete_image">Delete Image</string>
     <string name="property_image">Property Image</string>
-    <string name="image_counter">%1$d/%2$d</string>
+
     <string name="hello_world">Hello World!</string>
     <string name="button_save">Save</string>
     <string name="button_send">Send</string>
@@ -51,9 +51,14 @@
     <string name="prompt_login">Already have an account? Login</string>
     <string name="prompt_register">Don\'t have an account? Register</string>
     <string name="title_images">Images</string>
+    <string name="title_image">Image</string>
+    <string name="button_remove_image">Remove Image</string>
+    <string name="replace_image">Replace Image</string>
+    <string name="add_image">Add Image</string>
+    <string name="remove_image">Remove Image</string>
     <string name="apply">Apply</string>
     <string name="action_logout">Logout</string>
-    <string name="action_profile">Profile</string>
+    <!-- Removed unused profile action string -->
     <string name="title_logout">Logout</string>
     <string name="message_contact_form_sent">Your contact form has been sent</string>
     <string name="message_registration_success">Registration successful! Please login.</string>
@@ -62,7 +67,7 @@
     <string name="title_create_property">Create Property</string>
     <string name="title_edit_property">Edit Property</string>
     <string name="error_invalid_price">Please enter a valid price</string>
-    
+
     <!-- Profile -->
     <string name="profile_title">My Profile</string>
     <string name="profile_personal_info">Personal Information</string>
@@ -88,7 +93,7 @@
     <string name="message_confirm_logout">Are you sure you want to logout?</string>
     <string name="button_cancel">Cancel</string>
     <string name="title_change_password">Change Password</string>
-    
+
     <!-- Property List -->
     <string name="title_properties">Properties</string>
     <string name="property_list_title">Available Properties</string>
@@ -96,23 +101,26 @@
     <string name="property_list_error">Error loading properties</string>
     <string name="property_list_filter">Filter</string>
     <string name="property_list_sort">Sort</string>
-    <string name="property_list_search_hint">Search properties…</string>
-    <string name="search_properties_hint">Search properties…</string>
+
     <string name="filter_all">All</string>
     <string name="filter_price">Price</string>
     <string name="filter_location">Location</string>
     <string name="no_properties_found">No properties found</string>
     <string name="add_property">Add Property</string>
-    <string name="price_format">$%s</string>
-    
+    <string name="price_format">$%s/month</string>
+    <string name="property_details_format">%1$s • %2$d bed • %3$d bath</string>
+    <string name="listed_by_format">Listed by: %s</string>
+    <string name="unknown">Unknown</string>
+    <string name="property">Property</string>
+
     <!-- Property Details -->
     <string name="property_details_title">Property Details</string>
     <string name="property_details_description">Description</string>
     <string name="property_details_price">Price</string>
     <string name="property_details_location">Location</string>
     <string name="property_details_contact">Contact Landlord</string>
-    <string name="property_details_amenities">Amenities</string>
-    <string name="property_details_gallery">Photo Gallery</string>
+
+
     <string name="title_property_details">Property Details</string>
     <string name="title_landlord_info">Landlord Information</string>
     <string name="contact_landlord">Contact Landlord</string>
@@ -120,7 +128,10 @@
     <string name="property_description">Property Description</string>
     <string name="landlord_name">Landlord Name</string>
     <string name="property_price_format">$%.2f/month</string>
-    
+    <string name="error_loading_property">Error Loading Property</string>
+    <string name="error_message_format">Error: %s</string>
+    <string name="button_back_to_properties">Back to Properties</string>
+
     <!-- Contact Form -->
     <string name="title_contact">Contact</string>
     <string name="contact_form_title">Contact Landlord</string>
@@ -134,7 +145,7 @@
     <string name="hint_name">Name</string>
     <string name="hint_subject">Subject</string>
     <string name="hint_message">Message</string>
-    
+
     <!-- Change Password -->
     <string name="change_password_title">Change Password</string>
     <string name="change_password_current">Current Password</string>
@@ -144,7 +155,7 @@
     <string name="change_password_success">Password updated successfully</string>
     <string name="hint_current_password">Current Password</string>
     <string name="hint_new_password">New Password</string>
-    
+
     <!-- Property Form -->
     <string name="property_form_title_new">Add Property</string>
     <string name="property_form_title_edit">Edit Property</string>
@@ -153,7 +164,7 @@
     <string name="property_form_price">Price</string>
     <string name="property_form_location">Location</string>
     <string name="property_form_type">Property Type</string>
-    <string name="property_form_amenities">Amenities</string>
+
     <string name="property_form_photos">Add Photos</string>
     <string name="property_form_submit">Save Property</string>
     <string name="property_form_success">Property saved successfully</string>
@@ -162,7 +173,15 @@
     <string name="title_description">Description</string>
     <string name="title_address">Address</string>
     <string name="title_price">Price</string>
-    
+    <string name="title_bedroom_count">Bedrooms</string>
+    <string name="title_bathroom_count">Bathrooms</string>
+    <string name="title_furniture_type">Furniture Type</string>
+
+    <!-- Furniture Type Options -->
+    <string name="furniture_furnished">Furnished</string>
+    <string name="furniture_semi_furnished">Semi-Furnished</string>
+    <string name="furniture_unfurnished">Unfurnished</string>
+
     <!-- Property List Sorting -->
     <string name="sort_by">Sort By</string>
     <string name="sort_price_low_to_high">Price: Low to High</string>
@@ -170,7 +189,7 @@
     <string name="sort_newest">Newest First</string>
     <string name="sort_oldest">Oldest First</string>
     <string name="sort_nearest">Nearest to Me</string>
-    
+
     <!-- Login -->
     <string name="title_login">Login</string>
     <string name="login_title">Welcome Back</string>
@@ -186,7 +205,7 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="button_login">Login</string>
-    
+
     <!-- Register -->
     <string name="title_register">Register</string>
     <string name="register_title">Create Account</string>
@@ -204,6 +223,7 @@
     <string name="hint_confirm_password">Confirm Password</string>
     <string name="button_create_account">Create Account</string>
     <string name="hint_user_type">User Type</string>
+    <string name="helper_text_user_type">Only admins can create admin accounts</string>
     <string name="error_registration_failed">Registration failed</string>
     <string name="error_login_failed">Login failed</string>
     <string name="error_network_error">Network error. Please check your connection</string>
@@ -212,4 +232,26 @@
     <string name="test_string">This is a test string</string>
     <string name="action_search">Search</string>
     <string name="action_filter">Filter</string>
+
+    <!-- Landlord Management -->
+    <string name="landlord_item_name">Landlord Name</string>
+    <string name="landlord_item_email">landlord@example.com</string>
+    <string name="button_delete_landlord">Delete</string>
+    <string name="button_edit_landlord">Edit</string>
+    <string name="content_description_delete_landlord">Delete landlord</string>
+    <string name="content_description_edit_landlord">Edit landlord</string>
+    <string name="dialog_title_delete_landlord">Delete Landlord</string>
+    <string name="dialog_message_delete_landlord">Are you sure you want to delete this landlord?</string>
+
+    <!-- Property Management -->
+    <string name="content_description_delete_property">Delete property</string>
+
+    <!-- Accessibility Strings -->
+    <string name="content_description_property_recycler_view">List of properties</string>
+    <string name="content_description_properties_recycler_view">List of available properties</string>
+    <string name="content_description_image_indicator">Property image indicator</string>
+    <string name="content_description_contact_landlord">Contact landlord about this property</string>
+    <string name="no_properties_message">No properties found</string>
+    <string name="no_landlords_found">No landlords found</string>
+    <string name="add_landlord">Add Landlord</string>
 </resources>

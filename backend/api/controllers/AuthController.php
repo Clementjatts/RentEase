@@ -5,167 +5,316 @@
  * Handles authentication-related API requests
  */
 
-// Explicitly require the User model
-require_once __DIR__ . '/../models/User.php';
-
-class AuthController {
-    private $db;
-    private $service;
-    private $request;
+class AuthController extends Controller {
     private $user;
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param PDO $db Database connection
      * @param ResponseService $service Response service
      * @param array $request Request data
      */
     public function __construct($db, $service, $request) {
-        $this->db = $db;
-        $this->service = $service;
-        $this->request = $request;
+        parent::__construct($db, $service, $request);
         $this->user = new User($db);
     }
-    
+
+    /**
+     * Process the request and route to the appropriate method
+     *
+     * @return array Response data
+     */
+    public function processRequest() {
+        $action = isset($this->request['path_parts'][1]) ? $this->request['path_parts'][1] : '';
+
+        if ($action === 'login') {
+            return $this->login();
+        } else if ($action === 'register') {
+            return $this->register();
+        } else if ($action === 'password') {
+            return $this->changePassword();
+        } else if ($action === 'me') {
+            return $this->getCurrentUser();
+        } else {
+            return $this->service->notFound('Endpoint not found');
+        }
+    }
+
+    /**
+     * Get all resources - Not used for Auth
+     *
+     * @return array
+     */
+    protected function getAll() {
+        return $this->service->methodNotAllowed('Method not allowed');
+    }
+
+    /**
+     * Get one resource by ID - Not used for Auth
+     *
+     * @param int $id Resource ID
+     * @return array
+     */
+    protected function getOne($id) {
+        return $this->service->methodNotAllowed('Method not allowed');
+    }
+
+    /**
+     * Create a new resource - Used for register
+     *
+     * @return array
+     */
+    protected function create() {
+        return $this->register();
+    }
+
+    /**
+     * Update a resource - Not used for Auth
+     *
+     * @param int $id Resource ID
+     * @param bool $partial Whether this is a partial update (PATCH)
+     * @return array
+     */
+    protected function update($id, $partial = false) {
+        return $this->service->methodNotAllowed('Method not allowed');
+    }
+
+    /**
+     * Delete a resource - Not used for Auth
+     *
+     * @param int $id Resource ID
+     * @return array
+     */
+    protected function delete($id) {
+        return $this->service->methodNotAllowed('Method not allowed');
+    }
+
+    /**
+     * Get count of resources - Not used for Auth
+     *
+     * @return array
+     */
+    protected function getCount() {
+        return $this->service->methodNotAllowed('Method not allowed');
+    }
+
     /**
      * Login a user
      *
-     * @return void
+     * @return array
      */
     public function login() {
+        // Get request body
+        $data = $this->getBody();
+
         // Validate request
-        if (!isset($this->request['email']) || !isset($this->request['password'])) {
-            return $this->service->badRequest('Username and password are required');
+        if (!isset($data['username']) || !isset($data['password'])) {
+            return $this->service->badRequest('Username/email and password are required');
         }
-        
+
         // Extract credentials
-        $email = $this->request['email'];
-        $password = $this->request['password'];
-        
+        $username = $data['username'];
+        $password = $data['password'];
+
         // Authenticate user
-        $user = $this->user->findByEmail($email);
-        
+        $user = $this->user->verify($username, $password);
+
         if (!$user) {
             return $this->service->unauthorized('Invalid credentials');
         }
-        
-        // Verify password
-        if (!password_verify($password, $user['password'])) {
-            return $this->service->unauthorized('Invalid credentials');
-        }
-        
-        // Generate token
-        $token = $this->generateToken($user['id']);
-        
-        // Return response
+
+        // Simplified for academic project - no JWT tokens
+        $token = 'demo-token-' . $user['id'];
+
+        // Return response in format expected by Android app
         return $this->service->success('Login successful', [
             'token' => $token,
             'user' => [
                 'id' => $user['id'],
-                'name' => $user['name'],
+                'username' => $user['username'],
                 'email' => $user['email'],
-                'role' => $user['role']
+                'user_type' => $user['user_type']
             ]
         ]);
     }
-    
+
     /**
      * Register a new user
      *
-     * @return void
+     * @return array
      */
     public function register() {
+        // Get request body
+        $data = $this->getBody();
+
         // Validate request
-        if (!isset($this->request['name']) || !isset($this->request['email']) || !isset($this->request['password'])) {
+        if (!isset($data['username']) || !isset($data['email']) || !isset($data['password'])) {
             return $this->service->badRequest('Username, email, and password are required');
         }
-        
+
         // Check if passwords match
-        if (isset($this->request['confirm_password']) && $this->request['password'] !== $this->request['confirm_password']) {
+        if (isset($data['confirm_password']) && $data['password'] !== $data['confirm_password']) {
             return $this->service->badRequest('Passwords do not match');
         }
-        
+
         // Check if user already exists
-        $existing = $this->user->findByEmail($this->request['email']);
-        if ($existing) {
+        $existingUsername = $this->user->getByUsername($data['username']);
+        $existingEmail = $this->user->getByEmail($data['email']);
+
+        if ($existingUsername || $existingEmail) {
             return $this->service->conflict('Username or email already exists');
         }
-        
+
+        // Map user_type from Android app format to database format
+        $user_type = 'user'; // Default
+        if (isset($data['user_type'])) {
+            switch (strtoupper($data['user_type'])) {
+                case 'LANDLORD':
+                    $user_type = 'LANDLORD';
+                    break;
+                case 'ADMIN':
+                    $user_type = 'ADMIN';
+                    break;
+                default:
+                    $user_type = 'user';
+            }
+        }
+
         // Create user
-        $user = [
-            'name' => $this->request['name'],
-            'email' => $this->request['email'],
-            'password' => password_hash($this->request['password'], PASSWORD_DEFAULT),
-            'role' => 'user' // Default role
-        ];
-        
-        $id = $this->user->create($user);
-        
-        if (!$id) {
+        $result = $this->user->create([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'user_type' => $user_type,
+            'full_name' => $data['full_name'] ?? null,
+            'phone' => $data['phone'] ?? null
+        ]);
+
+        if ($result === -1) {
+            return $this->service->conflict('Username or email already exists');
+        }
+
+        if (!$result) {
             return $this->service->serverError('Failed to create user');
         }
-        
-        // Generate token
-        $token = $this->generateToken($id);
-        
-        // Return response
-        return $this->service->created('User registered successfully', [
+
+        // If user is a LANDLORD, create corresponding landlord record
+        if ($user_type === 'LANDLORD' && isset($data['full_name']) && isset($data['phone'])) {
+            $landlord = new Landlord($this->db);
+            $landlord_id = $landlord->create([
+                'name' => $data['full_name'],
+                'contact' => $data['phone'],
+                'email' => $data['email'],
+                'user_id' => $result  // Link to the user record
+            ]);
+
+            if (!$landlord_id) {
+                // Log error but don't fail registration - user can still be created manually later
+                error_log("Failed to create landlord record for user ID: $result");
+            }
+        }
+
+        // Get the created user
+        $user = $this->user->getById($result);
+
+        // Simplified for academic project - no JWT tokens
+        $token = 'demo-token-' . $user['id'];
+
+        // Return response in format expected by Android app
+        return $this->service->created([
             'token' => $token,
             'user' => [
-                'id' => $id,
-                'name' => $user['name'],
+                'id' => $user['id'],
+                'username' => $user['username'],
                 'email' => $user['email'],
-                'role' => $user['role']
+                'user_type' => $user['user_type']
             ]
-        ]);
+        ], 'User registered successfully');
     }
-    
+
+    /**
+     * Change user password
+     *
+     * @return array
+     */
+    public function changePassword() {
+        // Get request body
+        $data = $this->getBody();
+
+        // Validate request
+        if (!isset($data['current_password']) || !isset($data['new_password'])) {
+            return $this->service->badRequest('Current password and new password are required');
+        }
+
+        // Get the authenticated user from the request
+        if (!isset($this->request['user'])) {
+            return $this->service->unauthorized('Authentication required to change password');
+        }
+
+        $user = $this->request['user'];
+        $userId = $user['id'];
+
+        // Get the current user data from database to verify current password
+        $currentUser = $this->user->getByIdWithPassword($userId);
+        if (!$currentUser) {
+            return $this->service->notFound('User not found');
+        }
+
+        // Verify the current password
+        if (!password_verify($data['current_password'], $currentUser['password'])) {
+            return $this->service->badRequest('Current password is incorrect');
+        }
+
+        // Validate new password (basic validation)
+        if (strlen($data['new_password']) < 6) {
+            return $this->service->badRequest('New password must be at least 6 characters long');
+        }
+
+        // Update the password in the database
+        $updateData = [
+            'password' => $data['new_password'] // User::update() will hash this automatically
+        ];
+
+        $result = $this->user->update($userId, $updateData);
+
+        if ($result) {
+            error_log("[" . date('c') . "] [INFO] [AuthController] Password changed successfully for user ID: $userId");
+            return $this->service->success('Password changed successfully');
+        } else {
+            error_log("[" . date('c') . "] [ERROR] [AuthController] Failed to update password for user ID: $userId");
+            return $this->service->error('Failed to update password. Please try again.');
+        }
+    }
+
     /**
      * Get the current authenticated user
      *
-     * @param array $user Authenticated user data
-     * @return void
+     * @return array
      */
-    public function getCurrentUser($user) {
-        if (!$user) {
-            return $this->service->unauthorized('User not found');
+    public function getCurrentUser() {
+        // Check if user is authenticated
+        if (!isset($this->request['user'])) {
+            // Return a guest user if not authenticated
+            return $this->service->success('Guest user', [
+                'user' => [
+                    'id' => 0,
+                    'username' => 'guest',
+                    'email' => 'guest@rentease.com',
+                    'user_type' => 'GUEST'
+                ]
+            ]);
         }
-        
-        return $this->service->success('User found', [
+
+        $user = $this->request['user'];
+
+        return $this->service->success('User authenticated', [
             'user' => [
                 'id' => $user['id'],
-                'name' => $user['name'],
+                'username' => $user['username'],
                 'email' => $user['email'],
-                'role' => $user['role']
+                'user_type' => $user['user_type']
             ]
         ]);
-    }
-    
-    /**
-     * Generate a JWT token
-     *
-     * @param int $userId User ID
-     * @return string JWT token
-     */
-    private function generateToken($userId) {
-        $issuedAt = time();
-        $expirationTime = $issuedAt + 60 * 60 * 24; // 24 hours
-        
-        $payload = [
-            'iat' => $issuedAt,
-            'exp' => $expirationTime,
-            'user_id' => $userId
-        ];
-        
-        // Use the JWT_SECRET from environment or a default value
-        $secret = getenv('JWT_SECRET') ?: 'default_secret_key';
-        
-        // Create token with base64 encoding (simplified JWT implementation)
-        $header = base64_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
-        $payload = base64_encode(json_encode($payload));
-        $signature = base64_encode(hash_hmac('sha256', "$header.$payload", $secret, true));
-        
-        return "$header.$payload.$signature";
     }
 }

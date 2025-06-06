@@ -87,14 +87,7 @@
                 app:drawableStartCompat="@android:drawable/ic_menu_myplaces"
                 tools:text="@string/landlord_name" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/contactButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="8dp"
-                android:text="@string/action_contact" />
+            <!-- Contact button removed as it's redundant with the property details screen -->
 
         </LinearLayout>
 

@@ -15,6 +15,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/white"
+            app:titleTextColor="@color/white"
             app:title="@string/title_property_details" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -29,20 +33,23 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/imageViewPager"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/imageCard"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/imageIndicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/imageViewPager"
-                app:tabBackground="@drawable/tab_selector"
-                app:tabGravity="center"
-                app:tabIndicatorHeight="0dp" />
+                <ImageView
+                    android:id="@+id/propertyImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/content_description_property_image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/placeholder_property" />
+
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:id="@+id/propertyTitle"
@@ -51,7 +58,7 @@
                 android:textAppearance="?attr/textAppearanceHeadline5"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/imageIndicator"
+                app:layout_constraintTop_toBottomOf="@id/imageCard"
                 android:layout_marginTop="16dp"
                 tools:text="Modern Apartment" />
 
@@ -90,56 +97,15 @@
                 app:layout_constraintTop_toBottomOf="@id/propertyPrice"
                 tools:text="123 Main St, City, State" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/amenitiesCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                app:layout_constraintTop_toBottomOf="@id/propertyLocation">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/property_details_amenities"
-                        android:textAppearance="?attr/textAppearanceSubtitle1" />
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/amenitiesChipGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                android:id="@+id/descriptionLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/property_details_description"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/amenitiesCard" />
-
             <TextView
                 android:id="@+id/propertyDescription"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="24dp"
                 android:textAppearance="?attr/textAppearanceBody1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/descriptionLabel"
+                app:layout_constraintTop_toBottomOf="@id/propertyLocation"
                 tools:text="A beautiful 2-bedroom apartment with modern amenities..." />
 
             <com.google.android.material.card.MaterialCardView
@@ -184,7 +150,7 @@
                         android:textAppearance="?attr/textAppearanceBody2"
                         app:drawableStartCompat="@android:drawable/ic_dialog_email"
                         tools:text="john@example.com" />
-                        
+
                     <TextView
                         android:id="@+id/landlordPhone"
                         android:layout_width="wrap_content"
@@ -220,7 +186,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:text="Contact"
+        android:text="@string/contact_landlord"
+        android:contentDescription="@string/content_description_contact_landlord"
         app:icon="@android:drawable/ic_dialog_email" />
+
+    <!-- Main loading indicator -->
+    <ProgressBar
+        android:id="@+id/mainLoadingIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

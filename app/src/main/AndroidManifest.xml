@@ -7,6 +7,14 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Package visibility queries for email intents -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+    </queries>
+
     <application
         android:name=".RentEaseApplication"
         android:allowBackup="true"
@@ -28,7 +36,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
+
             <!-- Deep linking -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -36,7 +44,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="rentease" android:host="app" />
             </intent-filter>
-            
+
             <!-- Navigation Graph -->
             <nav-graph android:value="@navigation/nav_graph" />
         </activity>

@@ -19,7 +19,8 @@ class ResponseService {
         
         $response = [
             'status' => 'success',
-            'message' => $message
+            'message' => $message,
+            'success' => true
         ];
         
         if ($data !== null) {
@@ -50,7 +51,8 @@ class ResponseService {
         
         $response = [
             'status' => 'error',
-            'message' => $message
+            'message' => $message,
+            'success' => false
         ];
         
         if ($errors !== null) {

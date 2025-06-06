@@ -3,8 +3,6 @@ package com.example.rentease.ui.profile
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
 import android.widget.Button
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
@@ -12,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.rentease.R
 import com.example.rentease.databinding.DialogChangePasswordBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -28,12 +25,12 @@ class ChangePasswordDialog : DialogFragment() {
     private var positiveButton: Button? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        _binding = DialogChangePasswordBinding.inflate(LayoutInflater.from(context))
+        _binding = DialogChangePasswordBinding.inflate(layoutInflater)
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Change Password")
             .setView(binding.root)
-            .setPositiveButton("Change Password", null)
+            .setPositiveButton("Save", null)
             .setNegativeButton("Cancel", null)
             .create()
 
@@ -61,8 +58,8 @@ class ChangePasswordDialog : DialogFragment() {
     }
 
     private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     when (state) {
                         ChangePasswordUiState.Initial -> {

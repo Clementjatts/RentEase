@@ -18,19 +18,16 @@ import kotlinx.coroutines.launch
  */
 class RequestFormViewModel(
     application: Application,
-    private val propertyId: Int,
-    private val landlordId: Int
+    private val propertyId: Int
 ) : AndroidViewModel(application) {
     
-    private val propertyRepository = PropertyRepository(ApiClient.api, application)
-    private val requestRepository = RequestRepository(ApiClient.api, application)
+    private val propertyRepository = PropertyRepository(ApiClient.getApi(application), application)
+    private val requestRepository = RequestRepository()
     
     private val _uiState = MutableStateFlow<RequestFormUiState>(RequestFormUiState.Loading)
     val uiState: StateFlow<RequestFormUiState> = _uiState
     
-    /**
-     * Load property details for the given property ID.
-     */
+    // Load property details
     fun loadPropertyDetails() {
         viewModelScope.launch {
             try {
@@ -51,45 +48,44 @@ class RequestFormViewModel(
         }
     }
     
-    /**
-     * Submit a contact request for the property.
-     * This forwards the request directly to the landlord's email.
-     */
+    // Submit contact request to landlord via email
     fun submitRequest(name: String, email: String, phone: String, message: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = RequestFormUiState.Loading
-                
-                // Get property details for the email subject
-                val propertyResult = propertyRepository.getPropertyById(propertyId)
-                val propertyTitle = if (propertyResult.isSuccess) {
-                    val property = (propertyResult as com.example.rentease.data.model.Result.Success<Property>).data
-                    property.title
+
+                // Get current property data from the UI state
+                val currentState = _uiState.value
+                val property = if (currentState is RequestFormUiState.PropertyLoaded) {
+                    currentState.property
                 } else {
-                    "Property #$propertyId"
+                    // If property not loaded, try to load it first
+                    val propertyResult = propertyRepository.getPropertyById(propertyId)
+                    if (propertyResult.isSuccess) {
+                        (propertyResult as com.example.rentease.data.model.Result.Success<Property>).data
+                    } else {
+                        _uiState.value = RequestFormUiState.Error("Property information not available")
+                        return@launch
+                    }
                 }
-                
-                // Format the message to include all user details
-                val formattedMessage = """
-                    |Name: $name
-                    |Email: $email
-                    |Phone: $phone
-                    |
-                    |Message:
-                    |$message
-                """.trimMargin()
-                
+
+                // Validate that we have landlord contact information
+                if (property.landlordContact.isNullOrBlank()) {
+                    _uiState.value = RequestFormUiState.Error("Landlord contact information not available")
+                    return@launch
+                }
+
                 // Submit the inquiry via email
                 val result = requestRepository.submitPropertyInquiry(
-                    userId = "user123", // This would come from auth in a real app
+                    propertyTitle = property.title,
+                    landlordContact = property.landlordContact!!,
                     propertyId = propertyId,
-                    landlordId = landlordId.toString(),
                     name = name,
                     email = email,
-                    subject = "Inquiry about $propertyTitle",
-                    message = formattedMessage
+                    phone = phone.takeIf { it.isNotBlank() },
+                    message = message
                 )
-                
+
                 if (result is com.example.rentease.data.model.Result.Success) {
                     _uiState.value = RequestFormUiState.Success
                 } else {
@@ -102,30 +98,25 @@ class RequestFormViewModel(
         }
     }
     
-    /**
-     * Factory for creating RequestFormViewModel instances.
-     */
+    // Factory for creating RequestFormViewModel instances
     class Factory(
         private val application: Application,
-        private val propertyId: Int,
-        private val landlordId: Int
+        private val propertyId: Int
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(RequestFormViewModel::class.java)) {
-                return RequestFormViewModel(application, propertyId, landlordId) as T
+                return RequestFormViewModel(application, propertyId) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
 
-/**
- * UI state for the request form screen.
- */
+// UI state for the request form screen
 sealed class RequestFormUiState {
-    object Loading : RequestFormUiState()
+    data object Loading : RequestFormUiState()
     data class PropertyLoaded(val property: Property) : RequestFormUiState()
-    object Success : RequestFormUiState()
+    data object Success : RequestFormUiState()
     data class Error(val message: String) : RequestFormUiState()
 }
