@@ -37,24 +37,21 @@ class PropertyManagementViewModel(
             try {
                 // Check if the user is an admin or a landlord
                 val userType = authManager.userType
+                val userId = authManager.getUserId()
+                val isLoggedIn = authManager.isLoggedIn
+                val authToken = authManager.authToken
+
                 val result = if (userType == UserType.ADMIN) {
                     // Admin sees all properties
                     propertyRepository.getProperties()
                 } else {
                     // Landlord sees only their properties
-                    // First get the landlord ID for the current user
-                    when (val landlordIdResult = userRepository.getLandlordIdForCurrentUser()) {
-                        is com.example.rentease.data.model.Result.Success -> {
-                            val landlordId = landlordIdResult.data
-                            if (landlordId != null) {
-                                propertyRepository.getLandlordProperties(landlordId.toString())
-                            } else {
-                                com.example.rentease.data.model.Result.Error("Could not find landlord profile for current user")
-                            }
-                        }
-                        is com.example.rentease.data.model.Result.Error -> {
-                            com.example.rentease.data.model.Result.Error(landlordIdResult.errorMessage ?: "Failed to get landlord ID")
-                        }
+                    // Since landlord_id = user_id in the backend, we can use userId directly
+                    val userIdInt = userId.toIntOrNull()
+                    if (userIdInt != null && userIdInt > 0) {
+                        propertyRepository.getLandlordProperties(userIdInt.toString())
+                    } else {
+                        com.example.rentease.data.model.Result.Error("Invalid user ID")
                     }
                 }
 
@@ -67,6 +64,7 @@ class PropertyManagementViewModel(
                     }
                 }
             } catch (e: Exception) {
+                android.util.Log.e("PropertyManagementVM", "Exception loading properties", e)
                 _uiState.value = PropertyManagementUiState.Error(e.message ?: "An error occurred")
             }
         }

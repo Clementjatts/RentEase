@@ -118,3 +118,4 @@ out/
 !README.md
 !CONTRIBUTING.md
 !LICENSE.md
+.kotlin/

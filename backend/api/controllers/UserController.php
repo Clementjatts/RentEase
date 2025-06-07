@@ -146,7 +146,9 @@ class UserController extends Controller {
         try {
             // Users can only update their own profile, unless they're admin
             $user_id = $this->getUserId();
-            if (!$this->isAdmin() && $user_id != $id) {
+            $is_admin = $this->isAdmin();
+
+            if (!$is_admin && $user_id != $id) {
                 return $this->service->forbidden('Permission denied');
             }
 

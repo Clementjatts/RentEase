@@ -1,0 +1,12 @@
+services:
+  # RentEase API service
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - ./api:/var/www/html
+      - ./database:/var/www/database
+      - ./uploads:/var/www/uploads

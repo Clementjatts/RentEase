@@ -155,6 +155,8 @@ class UserRepository(
             // Get the user ID and type from AuthManager
             val userId = authManager.getUserId().toIntOrNull() ?: 0
             val userType = authManager.userType
+            val isLoggedIn = authManager.isLoggedIn
+            val authToken = authManager.authToken
 
             // Only proceed if the user is a landlord
             if (userType != com.example.rentease.auth.UserType.LANDLORD || userId <= 0) {
@@ -163,22 +165,31 @@ class UserRepository(
 
             // Use the new endpoint to get landlord by user ID
             val response = api.getLandlordByUserId()
+
             if (response.isSuccessful) {
                 val apiResponse = response.body()
+
                 if (apiResponse != null && apiResponse.success) {
                     val landlordData = apiResponse.data as? Map<*, *>
+
                     if (landlordData != null) {
                         val landlordId = (landlordData["id"] as? Double)?.toInt()
+
                         if (landlordId != null && landlordId > 0) {
                             return@withContext com.example.rentease.data.model.Result.Success(landlordId)
                         }
                     }
                 }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("UserRepository", "API call failed - Code: ${response.code()}, Error: $errorBody")
             }
 
             // If we couldn't find a matching landlord, return an error
+            android.util.Log.e("UserRepository", "Could not find landlord profile for current user")
             return@withContext com.example.rentease.data.model.Result.Error("Could not find landlord profile for current user")
         } catch (e: Exception) {
+            android.util.Log.e("UserRepository", "Exception in getLandlordIdForCurrentUser", e)
             return@withContext com.example.rentease.data.model.Result.Error("Error getting landlord ID: ${e.message}")
         }
     }

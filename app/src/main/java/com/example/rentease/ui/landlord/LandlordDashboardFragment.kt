@@ -105,35 +105,22 @@ class LandlordDashboardFragment : Fragment() {
 
     /**
      * Navigate to the profile fragment with the correct landlord ID
-     * This method gets the actual landlord ID for the current user by matching their username
-     * with the landlords in the database
+     * Since landlord_id = user_id in the backend, we can use userId directly
      */
     private fun navigateToProfileWithCorrectLandlordId() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                when (val result = userRepository.getLandlordIdForCurrentUser()) {
-                    is com.example.rentease.data.model.Result.Success -> {
-                        val landlordId = result.data
-                        if (landlordId != null) {
-                            // Direct navigation to profile with landlord ID
-                            val bundle = Bundle().apply {
-                                putInt("landlordId", landlordId)
-                            }
-                            findNavController().navigate(R.id.action_global_profileFragment, bundle)
-                        } else {
-                            // If we couldn't find a landlord ID, show an error
-                            Toast.makeText(requireContext(), "Could not find your landlord profile", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    is com.example.rentease.data.model.Result.Error -> {
-                        // Show the error message
-                        Toast.makeText(requireContext(), result.errorMessage, Toast.LENGTH_SHORT).show()
-                    }
+        try {
+            val userId = authManager.getUserId().toIntOrNull()
+            if (userId != null && userId > 0) {
+                // Direct navigation to profile with landlord ID (same as user ID)
+                val bundle = Bundle().apply {
+                    putInt("landlordId", userId)
                 }
-            } catch (e: Exception) {
-                // Show a generic error message
-                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_global_profileFragment, bundle)
+            } else {
+                Toast.makeText(requireContext(), "Invalid user ID", Toast.LENGTH_SHORT).show()
             }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 

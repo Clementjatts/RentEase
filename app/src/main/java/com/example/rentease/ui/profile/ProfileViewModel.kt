@@ -38,11 +38,11 @@ class ProfileViewModel(
 
         viewModelScope.launch {
             try {
-
                 val result = userRepository.getUserProfile(landlordId)
 
                 if (result is com.example.rentease.data.model.Result.Success) {
                     val user = result.data
+
                     val joinDateFormatted = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
                         .format(Date(System.currentTimeMillis()))
 
@@ -56,11 +56,12 @@ class ProfileViewModel(
                         username = user.username,
                         fullName = user.fullName ?: "",
                         email = user.email ?: "",
-                        phone = user.phone.toString(),
+                        phone = user.phone ?: "",
                         userType = UserType.fromString(user.userType),
                         joinDate = formattedDate
                     )
                 } else if (result is com.example.rentease.data.model.Result.Error) {
+                    android.util.Log.e("ProfileViewModel", "Failed to load user data: ${result.errorMessage}")
                     _uiState.value = ProfileUiState.Error(result.errorMessage ?: "Failed to load user data")
                 }
             } catch (e: Exception) {
@@ -94,7 +95,7 @@ class ProfileViewModel(
                         username = user.username,
                         fullName = user.fullName ?: "",
                         email = user.email ?: "",
-                        phone = user.phone.toString(),
+                        phone = user.phone ?: "",
                         userType = UserType.fromString(user.userType),
                         joinDate = formattedDate
                     )

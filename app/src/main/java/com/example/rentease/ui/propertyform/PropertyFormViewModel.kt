@@ -53,8 +53,16 @@ class PropertyFormViewModel(
                             furnitureType = property.furnitureType
                         )
 
-                        // Load existing images from the server
-                        loadExistingImages()
+                        // Load existing image from the property's imageUrl
+                        val imageUrl = property.imageUrl
+                        if (!imageUrl.isNullOrEmpty()) {
+                            val imageItem = PropertyImageItem(
+                                uri = imageUrl.toUri(),
+                                isExisting = true,
+                                imageId = null // We don't have separate image IDs, just the URL
+                            )
+                            _image.value = imageItem
+                        }
                     }
                     is com.example.rentease.data.model.Result.Error -> {
                         _uiState.value = PropertyFormUiState.Error(result.errorMessage ?: "Failed to load property")
@@ -66,33 +74,7 @@ class PropertyFormViewModel(
         }
     }
 
-    /**
-     * Load existing image for the property from the server (single image only)
-     */
-    private suspend fun loadExistingImages() {
-        try {
-            when (val result = propertyRepository.getPropertyImages(propertyId)) {
-                is com.example.rentease.data.model.Result.Success -> {
-                    // Take only the first image if multiple exist
-                    val firstImageData = result.data.firstOrNull()
-                    if (firstImageData != null) {
-                        val imageItem = PropertyImageItem(
-                            uri = firstImageData.url.toUri(),
-                            isExisting = true,
-                            imageId = firstImageData.id
-                        )
-                        _image.value = imageItem
-                    }
-                }
-                is com.example.rentease.data.model.Result.Error -> {
-                    android.util.Log.e("PropertyFormViewModel", "Failed to load existing image: ${result.errorMessage}")
-                    // Don't show error to user for images, just log it
-                }
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("PropertyFormViewModel", "Exception loading existing image: ${e.message}", e)
-        }
-    }
+
 
     /**
      * Save the property to the repository.
@@ -138,19 +120,13 @@ class PropertyFormViewModel(
                         // For now, use a default or let the backend handle it
                         1 // Default to first landlord - this should be improved
                     } else {
-                        // For landlord users, get their landlord ID from the repository
-                        val userRepository = com.example.rentease.di.RepositoryProvider.provideUserRepository(getApplication())
-                        when (val landlordIdResult = userRepository.getLandlordIdForCurrentUser()) {
-                            is com.example.rentease.data.model.Result.Success -> {
-                                landlordIdResult.data ?: run {
-                                    _uiState.value = PropertyFormUiState.Error("Could not find landlord profile for current user")
-                                    return@launch
-                                }
-                            }
-                            is com.example.rentease.data.model.Result.Error -> {
-                                _uiState.value = PropertyFormUiState.Error(landlordIdResult.errorMessage ?: "Failed to get landlord ID")
-                                return@launch
-                            }
+                        // For landlord users, use userId directly as landlordId (since they're the same in the backend)
+                        val userId = authManager.getUserId().toIntOrNull()
+                        if (userId != null && userId > 0) {
+                            userId
+                        } else {
+                            _uiState.value = PropertyFormUiState.Error("Invalid user ID")
+                            return@launch
                         }
                     }
 

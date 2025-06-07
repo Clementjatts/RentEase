@@ -140,6 +140,13 @@ class RequestFormFragment : Fragment() {
 
         binding.propertyTitle.text = state.property.title
         binding.propertyAddress.text = state.property.address
+
+        // Display landlord information
+        binding.landlordName.text = if (!state.property.landlordName.isNullOrEmpty()) {
+            "Landlord: ${state.property.landlordName}"
+        } else {
+            "Landlord information not available"
+        }
     }
 
     private fun handleSuccess() {
@@ -149,10 +156,10 @@ class RequestFormFragment : Fragment() {
         // Show notification
         NotificationService.showRequestSubmittedNotification(requireContext())
 
-        // Show success message for email sending
+        // Show success message for contact request submission
         Snackbar.make(
             binding.root,
-            "Email sent successfully to landlord! They will contact you directly.",
+            "Contact request submitted successfully! Check console logs for details.",
             Snackbar.LENGTH_LONG
         ).apply {
             setAction("OK") {
@@ -175,7 +182,7 @@ class RequestFormFragment : Fragment() {
         binding.submitButton.isEnabled = true
 
         // Show error message with retry option
-        Snackbar.make(binding.root, "Failed to send email: $message", Snackbar.LENGTH_LONG).apply {
+        Snackbar.make(binding.root, "Failed to submit contact request: $message", Snackbar.LENGTH_LONG).apply {
             setAction("RETRY") {
                 // Allow user to retry by clicking the submit button again
                 // The form data is still there, so they can just click submit

@@ -110,6 +110,8 @@
     <string name="price_format">$%s/month</string>
     <string name="property_details_format">%1$s • %2$d bed • %3$d bath</string>
     <string name="listed_by_format">Listed by: %s</string>
+    <string name="landlord_info_unavailable">Landlord info unavailable</string>
+    <string name="email_not_provided">Email not provided</string>
     <string name="unknown">Unknown</string>
     <string name="property">Property</string>
 
@@ -124,6 +126,7 @@
     <string name="title_property_details">Property Details</string>
     <string name="title_landlord_info">Landlord Information</string>
     <string name="contact_landlord">Contact Landlord</string>
+    <string name="contacting_landlord">Contacting Landlord:</string>
     <string name="property_title">Property Title</string>
     <string name="property_description">Property Description</string>
     <string name="landlord_name">Landlord Name</string>
@@ -252,9 +255,11 @@
     <!-- Accessibility Strings -->
     <string name="content_description_property_recycler_view">List of properties</string>
     <string name="content_description_properties_recycler_view">List of available properties</string>
+    <string name="content_description_landlords_recycler_view">List of landlords</string>
     <string name="content_description_image_indicator">Property image indicator</string>
     <string name="content_description_contact_landlord">Contact landlord about this property</string>
     <string name="no_properties_message">No properties found</string>
     <string name="no_landlords_found">No landlords found</string>
     <string name="add_landlord">Add Landlord</string>
+    <string name="no_description_provided">No description provided</string>
 </resources>

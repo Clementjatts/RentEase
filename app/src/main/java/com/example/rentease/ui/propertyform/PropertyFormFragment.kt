@@ -126,9 +126,17 @@ class PropertyFormFragment : Fragment() {
             binding.removeImageButton.visibility = View.VISIBLE
             binding.addImageButton.text = getString(R.string.replace_image)
 
-            // Load image using Glide
+            // Load image using Glide - handle both URI and URL strings
+            val imageSource = if (image.uri.toString().startsWith("http")) {
+                // It's a URL string from the backend
+                image.uri.toString()
+            } else {
+                // It's a local URI
+                image.uri
+            }
+
             Glide.with(this)
-                .load(image.uri)
+                .load(imageSource)
                 .placeholder(R.drawable.placeholder_property)
                 .error(R.drawable.placeholder_property)
                 .centerCrop()

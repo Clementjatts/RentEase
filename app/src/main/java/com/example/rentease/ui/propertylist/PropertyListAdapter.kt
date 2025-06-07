@@ -1,4 +1,4 @@
-package com.example.rentease.ui.landlord
+package com.example.rentease.ui.propertylist
 
 import android.view.LayoutInflater
 import android.view.View
@@ -12,13 +12,12 @@ import com.example.rentease.data.model.Property
 import com.example.rentease.databinding.ItemPropertyBinding
 
 /**
- * RecyclerView adapter for displaying properties in the property management screen.
- * Uses the same item layout as the property list but shows delete button for management.
+ * RecyclerView adapter for displaying properties in the property list screen.
+ * Supports click events for viewing property details.
  */
-class PropertyManagementAdapter(
-    private val onItemClick: (Property) -> Unit,
-    private val onDeleteClick: (Property) -> Unit
-) : ListAdapter<Property, PropertyManagementAdapter.PropertyViewHolder>(PropertyDiffCallback()) {
+class PropertyListAdapter(
+    private val onItemClick: (Property) -> Unit
+) : ListAdapter<Property, PropertyListAdapter.PropertyViewHolder>(PropertyDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PropertyViewHolder {
         val binding = ItemPropertyBinding.inflate(
@@ -42,7 +41,6 @@ class PropertyManagementAdapter(
                 // Set property details
                 propertyTitle.text = property.title
                 propertyPrice.text = root.context.getString(R.string.price_format, String.format("%.0f", property.price))
-
                 // Set location with address first, then bed/bath info
                 val locationText = buildString {
                     // Add address first
@@ -97,12 +95,11 @@ class PropertyManagementAdapter(
                     propertyImage.setImageResource(R.drawable.placeholder_property)
                 }
 
-                // Show delete button for management screen
-                deleteButton.visibility = View.VISIBLE
+                // Hide delete button for list screen
+                deleteButton.visibility = View.GONE
 
-                // Set click listeners
+                // Set click listener
                 root.setOnClickListener { onItemClick(property) }
-                deleteButton.setOnClickListener { onDeleteClick(property) }
             }
         }
     }
@@ -119,4 +116,4 @@ class PropertyManagementAdapter(
             return oldItem == newItem
         }
     }
-}
+} 

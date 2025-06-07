@@ -55,6 +55,29 @@
                 app:layout_constraintTop_toBottomOf="@id/propertyTitle"
                 tools:text="123 Main St, City, State" />
 
+            <TextView
+                android:id="@+id/landlordInfoLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/contacting_landlord"
+                android:textAppearance="?attr/textAppearanceSubtitle2"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/propertyAddress" />
+
+            <TextView
+                android:id="@+id/landlordName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="?attr/textAppearanceBody2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/landlordInfoLabel"
+                tools:text="John Doe" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/nameInputLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -62,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:hint="@string/hint_name"
-                app:layout_constraintTop_toBottomOf="@id/propertyAddress">
+                app:layout_constraintTop_toBottomOf="@id/landlordName">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/nameInput"
