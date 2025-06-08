@@ -6,7 +6,6 @@
  */
 class PropertyController extends Controller {
     private $property;
-    private $propertyImage;
 
     /**
      * Constructor
@@ -296,6 +295,15 @@ class PropertyController extends Controller {
                 return $this->service->notFound('Property not found');
             }
 
+            // Authorization: Only admins can edit any property, landlords can only edit their own
+            $current_user_id = $this->getUserId();
+            $is_admin = $this->isAdmin();
+            $is_owner = ($current_user_id && $property['landlord_id'] == $current_user_id);
+
+            if (!$is_admin && !$is_owner) {
+                return $this->service->forbidden('Permission denied: You can only edit your own properties');
+            }
+
             $data = $this->getBody();
 
             // For PUT requests (complete update), validate required fields
@@ -341,8 +349,23 @@ class PropertyController extends Controller {
                 return $this->service->notFound('Property not found');
             }
 
-            // Delete all property images first
-            $this->propertyImage->deleteByPropertyId($id);
+            // Authorization: Only admins can delete any property, landlords can only delete their own
+            $current_user_id = $this->getUserId();
+            $is_admin = $this->isAdmin();
+            $is_owner = ($current_user_id && $property['landlord_id'] == $current_user_id);
+
+            if (!$is_admin && !$is_owner) {
+                return $this->service->forbidden('Permission denied: You can only delete your own properties');
+            }
+
+            // Delete property image if exists (simplified schema - image stored in properties table)
+            if ($property['image_url']) {
+                $filename = basename($property['image_url']);
+                $filePath = __DIR__ . '/../uploads/properties/' . $filename;
+                if (file_exists($filePath)) {
+                    unlink($filePath); // Delete physical file
+                }
+            }
 
             // Delete the property
             $result = $this->property->delete($id);

@@ -13,8 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.rentease.databinding.FragmentRequestFormBinding
-import com.example.rentease.notification.NotificationService
-import com.example.rentease.ui.utils.WindowInsetsHelper
+import com.example.rentease.ui.helpers.WindowInsetsHelper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
@@ -73,11 +72,10 @@ class RequestFormFragment : Fragment() {
         binding.submitButton.setOnClickListener {
             val name = binding.nameInput.text.toString()
             val email = binding.emailInput.text.toString()
-            val phone = binding.phoneInput.text.toString()
             val message = binding.messageInput.text.toString()
 
             if (validateInputs(name, email, message)) {
-                viewModel.submitRequest(name, email, phone, message)
+                viewModel.submitRequest()
             }
         }
     }
@@ -153,13 +151,10 @@ class RequestFormFragment : Fragment() {
         binding.loadingIndicator.visibility = View.GONE
         binding.submitButton.isEnabled = true
 
-        // Show notification
-        NotificationService.showRequestSubmittedNotification(requireContext())
-
         // Show success message for contact request submission
         Snackbar.make(
             binding.root,
-            "Contact request submitted successfully! Check console logs for details.",
+            "Contact request submitted successfully!",
             Snackbar.LENGTH_LONG
         ).apply {
             setAction("OK") {

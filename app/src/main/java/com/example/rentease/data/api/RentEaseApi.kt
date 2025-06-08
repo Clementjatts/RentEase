@@ -43,7 +43,7 @@ interface RentEaseApi {
     suspend fun register(@Body request: RegisterRequest): Response<LoginResponse>
 
     @POST("auth/password")
-    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Unit>
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<ApiResponse>
 
     @GET("auth/me")
     suspend fun getCurrentUser(): Response<User>

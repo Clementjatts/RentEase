@@ -199,21 +199,8 @@ class AuthController extends Controller {
             return $this->service->serverError('Failed to create user');
         }
 
-        // If user is a LANDLORD, create corresponding landlord record
-        if ($user_type === 'LANDLORD' && isset($data['full_name']) && isset($data['phone'])) {
-            $landlord = new Landlord($this->db);
-            $landlord_id = $landlord->create([
-                'name' => $data['full_name'],
-                'contact' => $data['phone'],
-                'email' => $data['email'],
-                'user_id' => $result  // Link to the user record
-            ]);
-
-            if (!$landlord_id) {
-                // Log error but don't fail registration - user can still be created manually later
-                error_log("Failed to create landlord record for user ID: $result");
-            }
-        }
+        // Note: In simplified schema, landlords are stored directly in users table
+        // No separate landlord record needed
 
         // Get the created user
         $user = $this->user->getById($result);

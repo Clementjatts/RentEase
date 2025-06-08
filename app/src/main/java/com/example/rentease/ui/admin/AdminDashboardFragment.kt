@@ -11,7 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.rentease.R
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.databinding.FragmentAdminDashboardBinding
-import com.example.rentease.ui.utils.WindowInsetsHelper
+import com.example.rentease.ui.helpers.WindowInsetsHelper
 
 /**
  * AdminDashboardFragment displays the admin dashboard screen.

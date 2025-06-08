@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentease.R
 import com.example.rentease.data.model.Landlord
 import com.example.rentease.databinding.FragmentLandlordManagementBinding
-import com.example.rentease.ui.utils.WindowInsetsHelper
+import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
 /**
@@ -159,13 +159,11 @@ class LandlordManagementFragment : Fragment() {
     }
 
     private fun showDeleteConfirmation(landlord: Landlord) {
-        // For now, just show a simple confirmation
-        // In a real app, you'd implement proper deletion logic
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Delete Landlord")
-            .setMessage("Are you sure you want to delete ${landlord.name}?")
+            .setMessage("Are you sure you want to delete ${landlord.name}?\n\nThis action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                // TODO: Implement deletion logic
+                viewModel.deleteLandlord(landlord.id)
             }
             .setNegativeButton("Cancel", null)
             .show()

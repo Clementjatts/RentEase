@@ -1,4 +1,4 @@
-package com.example.rentease.ui.utils
+package com.example.rentease.ui.helpers
 
 import android.view.View
 import androidx.core.view.ViewCompat

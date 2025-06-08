@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.rentease.data.api.ApiClient
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
-import com.example.rentease.data.repository.RequestRepository
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,7 +22,6 @@ class RequestFormViewModel(
 ) : AndroidViewModel(application) {
     
     private val propertyRepository = PropertyRepository(ApiClient.getApi(application), application)
-    private val requestRepository = RequestRepository()
     
     private val _uiState = MutableStateFlow<RequestFormUiState>(RequestFormUiState.Loading)
     val uiState: StateFlow<RequestFormUiState> = _uiState
@@ -49,7 +48,7 @@ class RequestFormViewModel(
     }
     
     // Submit contact request to landlord via email
-    fun submitRequest(name: String, email: String, phone: String, message: String) {
+    fun submitRequest() {
         viewModelScope.launch {
             try {
                 _uiState.value = RequestFormUiState.Loading

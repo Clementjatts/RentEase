@@ -136,7 +136,12 @@ class AuthRepository(
 
             val response = api.changePassword(request)
             if (response.isSuccessful) {
-                Result.Success(Unit)
+                val apiResponse = response.body()
+                if (apiResponse?.success == true) {
+                    Result.Success(Unit)
+                } else {
+                    Result.Error(apiResponse?.message ?: "Failed to change password")
+                }
             } else {
                 Result.Error(handleApiError(response).message)
             }

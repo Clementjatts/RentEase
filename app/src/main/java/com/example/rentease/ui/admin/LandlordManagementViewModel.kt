@@ -47,6 +47,29 @@ class LandlordManagementViewModel(
     }
 
     /**
+     * Delete a landlord
+     */
+    fun deleteLandlord(landlordId: Int) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = LandlordManagementUiState.Loading
+
+                when (val result = userRepository.deleteLandlord(landlordId)) {
+                    is com.example.rentease.data.model.Result.Success -> {
+                        // Reload the landlords list after successful deletion
+                        loadLandlords()
+                    }
+                    is com.example.rentease.data.model.Result.Error -> {
+                        _uiState.value = LandlordManagementUiState.Error(result.errorMessage ?: "Failed to delete landlord")
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = LandlordManagementUiState.Error(e.message ?: "An error occurred")
+            }
+        }
+    }
+
+    /**
      * Factory for creating LandlordManagementViewModel instances.
      */
     class Factory(private val application: Application) : ViewModelProvider.Factory {

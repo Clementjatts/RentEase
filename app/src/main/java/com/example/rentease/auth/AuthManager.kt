@@ -2,7 +2,7 @@ package com.example.rentease.auth
 
 import android.content.Context
 
-class AuthManager private constructor(context: Context) {
+class AuthManager private constructor() {
 
     // Simple session-based authentication state (in-memory only)
     var isLoggedIn: Boolean = false
@@ -49,14 +49,17 @@ class AuthManager private constructor(context: Context) {
     }
 
     companion object {
-        private const val PREFS_NAME = "auth_prefs"
-
         @Volatile
         private var instance: AuthManager? = null
 
+        /**
+         * Get singleton instance of AuthManager
+         * @param context Context parameter kept for API compatibility with existing code
+         */
+        @Suppress("UNUSED_PARAMETER")
         fun getInstance(context: Context): AuthManager {
             return instance ?: synchronized(this) {
-                instance ?: AuthManager(context.applicationContext).also { instance = it }
+                instance ?: AuthManager().also { instance = it }
             }
         }
     }

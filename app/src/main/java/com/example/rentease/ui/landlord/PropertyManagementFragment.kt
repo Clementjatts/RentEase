@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentease.R
 import com.example.rentease.data.model.Property
 import com.example.rentease.databinding.FragmentPropertyManagementBinding
-import com.example.rentease.ui.utils.WindowInsetsHelper
+import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
 /**

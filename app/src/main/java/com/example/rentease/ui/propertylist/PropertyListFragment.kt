@@ -18,7 +18,7 @@ import com.example.rentease.auth.AuthManager
 import com.example.rentease.auth.UserType
 import com.example.rentease.data.model.Property
 import com.example.rentease.databinding.FragmentPropertyListBinding
-import com.example.rentease.ui.utils.WindowInsetsHelper
+import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
 /**

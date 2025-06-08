@@ -46,6 +46,11 @@ class LandlordController extends Controller {
      */
     protected function getAll() {
         try {
+            // Only admins can view all landlords
+            if (!$this->isAdmin()) {
+                return $this->service->forbidden('Permission denied: Only admins can view all landlords');
+            }
+
             // Get pagination and query parameters
             $params = array_merge($this->getPaginationParams(), $this->getQueryParams());
 
@@ -99,6 +104,15 @@ class LandlordController extends Controller {
      */
     protected function getOne($id) {
         try {
+            // Authorization: Admins can view any landlord, landlords can only view their own profile
+            $current_user_id = $this->getUserId();
+            $is_admin = $this->isAdmin();
+            $is_own_profile = ($current_user_id && $current_user_id == $id);
+
+            if (!$is_admin && !$is_own_profile) {
+                return $this->service->forbidden('Permission denied: You can only view your own profile');
+            }
+
             $user = $this->user->getById($id);
 
             if (!$user || $user['user_type'] !== 'LANDLORD') {

@@ -5,7 +5,6 @@ import android.net.Uri
 import com.example.rentease.data.api.RentEaseApi
 import com.example.rentease.data.model.Property
 import com.example.rentease.utils.ImageUploader
-import com.example.rentease.utils.PropertyImageData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -122,35 +121,7 @@ class PropertyRepository(
         )
     }
 
-    suspend fun getProperty(id: Int): com.example.rentease.data.model.Result<Property> = withContext(Dispatchers.IO) {
-        try {
-            val response = api.getProperty(id)
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    try {
-                        if (body.data is Map<*, *>) {
-                            val property = convertMapToProperty(body.data)
-                            return@withContext com.example.rentease.data.model.Result.Success(property)
-                        } else {
-                            android.util.Log.e("PropertyRepository", "Property data is not a Map: ${body.data}")
-                            return@withContext com.example.rentease.data.model.Result.Error("Failed to parse property: data is not a Map")
-                        }
-                    } catch (e: Exception) {
-                        android.util.Log.e("PropertyRepository", "Error parsing property: ${e.message}", e)
-                        return@withContext com.example.rentease.data.model.Result.Error("Failed to parse property: ${e.message}")
-                    }
-                } else {
-                    return@withContext com.example.rentease.data.model.Result.Error("Failed to get property")
-                }
-            } else {
-                return@withContext com.example.rentease.data.model.Result.Error(handleApiError(response).message)
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("PropertyRepository", "Exception in getProperty: ${e.message}", e)
-            return@withContext com.example.rentease.data.model.Result.Error(handleException(e).message)
-        }
-    }
+
 
     /**
      * Get a property by its ID.
@@ -368,28 +339,7 @@ class PropertyRepository(
         }
     }
 
-    /**
-     * Get all images for a property with their IDs
-     *
-     * @param propertyId The ID of the property
-     * @return Result containing a list of PropertyImageData
-     */
-    suspend fun getPropertyImages(propertyId: Int): com.example.rentease.data.model.Result<List<PropertyImageData>> = withContext(Dispatchers.IO) {
-        try {
-            val result = imageUploader.getPropertyImages(propertyId)
-            return@withContext if (result.isSuccess) {
-                val imageData = result.getOrDefault(emptyList())
-                com.example.rentease.data.model.Result.Success(imageData)
-            } else {
-                val exception = result.exceptionOrNull()
-                android.util.Log.e("PropertyRepository", "Failed to get property images: ${exception?.message}")
-                com.example.rentease.data.model.Result.Error("Failed to get property images: ${exception?.message}")
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("PropertyRepository", "Exception in getPropertyImages: ${e.message}", e)
-            return@withContext com.example.rentease.data.model.Result.Error("Error fetching property images: ${e.message}")
-        }
-    }
+
 
     /**
      * Delete a property image

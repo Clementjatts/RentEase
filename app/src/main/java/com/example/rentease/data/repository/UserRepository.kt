@@ -150,13 +150,11 @@ class UserRepository(
      * Get the landlord ID for the current user
      * This is used when a landlord wants to edit their own profile
      */
-    suspend fun getLandlordIdForCurrentUser(): com.example.rentease.data.model.Result<Int?> = withContext(Dispatchers.IO) {
+    private suspend fun getLandlordIdForCurrentUser(): com.example.rentease.data.model.Result<Int?> = withContext(Dispatchers.IO) {
         try {
             // Get the user ID and type from AuthManager
             val userId = authManager.getUserId().toIntOrNull() ?: 0
             val userType = authManager.userType
-            val isLoggedIn = authManager.isLoggedIn
-            val authToken = authManager.authToken
 
             // Only proceed if the user is a landlord
             if (userType != com.example.rentease.auth.UserType.LANDLORD || userId <= 0) {
@@ -211,10 +209,11 @@ class UserRepository(
                                 if (landlordMap is Map<*, *>) {
                                     com.example.rentease.data.model.Landlord(
                                         id = (landlordMap["id"] as? Double)?.toInt() ?: 0,
+                                        user_id = (landlordMap["user_id"] as? Double)?.toInt() ?: 0,
                                         name = (landlordMap["name"] as? String) ?: "",
                                         contact = (landlordMap["contact"] as? String) ?: "",
-                                        adminId = 0, // This field might not be in the response
-                                        email = (landlordMap["email"] as? String) ?: ""
+                                        email = (landlordMap["email"] as? String) ?: "",
+                                        created_at = (landlordMap["created_at"] as? String) ?: ""
                                     )
                                 } else null
                             } catch (e: Exception) {
@@ -234,16 +233,19 @@ class UserRepository(
 
     suspend fun deleteLandlord(landlordId: Int): com.example.rentease.data.model.Result<Boolean> = withContext(Dispatchers.IO) {
         try {
-            // Call the API to delete the landlord
             val response = api.deleteLandlord(landlordId)
             if (response.isSuccessful) {
-                return@withContext com.example.rentease.data.model.Result.Success(true)
+                val apiResponse = response.body()
+                if (apiResponse != null && apiResponse.success) {
+                    return@withContext com.example.rentease.data.model.Result.Success(true)
+                } else {
+                    return@withContext com.example.rentease.data.model.Result.Error(apiResponse?.message ?: "Failed to delete landlord")
+                }
+            } else {
+                return@withContext com.example.rentease.data.model.Result.Error("Failed to delete landlord: ${response.message()}")
             }
-
-            return@withContext com.example.rentease.data.model.Result.Error("Failed to delete landlord")
         } catch (e: Exception) {
             return@withContext com.example.rentease.data.model.Result.Error("Error deleting landlord: ${e.message}")
         }
     }
-
 }

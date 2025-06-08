@@ -14,7 +14,7 @@ import com.example.rentease.R
 import com.example.rentease.auth.AuthManager
 import com.example.rentease.databinding.FragmentLandlordDashboardBinding
 import com.example.rentease.di.RepositoryProvider
-import com.example.rentease.ui.utils.WindowInsetsHelper
+import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
 /**
