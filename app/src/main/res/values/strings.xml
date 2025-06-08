@@ -100,7 +100,7 @@
     <string name="property_list_empty">No properties found</string>
     <string name="property_list_error">Error loading properties</string>
     <string name="property_list_filter">Filter</string>
-    <string name="property_list_sort">Sort</string>
+
 
     <string name="filter_all">All</string>
     <string name="filter_price">Price</string>
@@ -185,13 +185,7 @@
     <string name="furniture_semi_furnished">Semi-Furnished</string>
     <string name="furniture_unfurnished">Unfurnished</string>
 
-    <!-- Property List Sorting -->
-    <string name="sort_by">Sort By</string>
-    <string name="sort_price_low_to_high">Price: Low to High</string>
-    <string name="sort_price_high_to_low">Price: High to Low</string>
-    <string name="sort_newest">Newest First</string>
-    <string name="sort_oldest">Oldest First</string>
-    <string name="sort_nearest">Nearest to Me</string>
+
 
     <!-- Login -->
     <string name="title_login">Login</string>
@@ -262,4 +256,11 @@
     <string name="no_landlords_found">No landlords found</string>
     <string name="add_landlord">Add Landlord</string>
     <string name="no_description_provided">No description provided</string>
+
+    <!-- Notifications -->
+    <string name="title_notifications">Notifications</string>
+    <string name="notifications">Notifications</string>
+    <string name="no_notifications">No notifications</string>
+    <string name="no_notifications_desc">You have no contact requests at the moment</string>
+
 </resources>

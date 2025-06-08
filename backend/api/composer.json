@@ -14,15 +14,11 @@
             "controllers/",
             "models/",
             "services/",
-            "utils/",
-            "middleware/",
             "config/"
         ]
     },
     "autoload-dev": {
-        "classmap": [
-            "tests/"
-        ]
+        "classmap": []
     },
     "scripts": {
         "test": "phpunit",

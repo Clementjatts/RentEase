@@ -189,7 +189,6 @@ class PropertyDetailsFragment : Fragment() {
     private fun showError(message: String) {
         binding.mainLoadingIndicator.visibility = View.GONE
         binding.loadingIndicator.visibility = View.GONE
-        // TODO: Show error message to user
     }
 
     override fun onDestroyView() {

@@ -5,16 +5,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rentease.data.model.Landlord
+import com.example.rentease.data.model.User
 import com.example.rentease.databinding.ItemLandlordBinding
 
 /**
  * LandlordAdapter is a RecyclerView adapter for displaying landlords in the landlord management screen.
+ * Updated to use User model for consistency.
  */
 class LandlordAdapter(
-    private val onEditClick: (Landlord) -> Unit,
-    private val onDeleteClick: (Landlord) -> Unit
-) : ListAdapter<Landlord, LandlordAdapter.LandlordViewHolder>(LandlordDiffCallback()) {
+    private val onEditClick: (User) -> Unit,
+    private val onDeleteClick: (User) -> Unit
+) : ListAdapter<User, LandlordAdapter.LandlordViewHolder>(LandlordDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LandlordViewHolder {
         val binding = ItemLandlordBinding.inflate(
@@ -33,29 +34,29 @@ class LandlordAdapter(
         private val binding: ItemLandlordBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(landlord: Landlord) {
+        fun bind(user: User) {
             binding.apply {
-                nameTextView.text = landlord.name
-                emailTextView.text = landlord.email
+                nameTextView.text = user.fullName ?: user.username // Use consistent field name
+                emailTextView.text = user.email
 
                 // Set up edit and delete buttons
                 editButton.setOnClickListener {
-                    onEditClick(landlord)
+                    onEditClick(user)
                 }
 
                 deleteButton.setOnClickListener {
-                    onDeleteClick(landlord)
+                    onDeleteClick(user)
                 }
             }
         }
     }
 
-    private class LandlordDiffCallback : DiffUtil.ItemCallback<Landlord>() {
-        override fun areItemsTheSame(oldItem: Landlord, newItem: Landlord): Boolean {
+    private class LandlordDiffCallback : DiffUtil.ItemCallback<User>() {
+        override fun areItemsTheSame(oldItem: User, newItem: User): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: Landlord, newItem: Landlord): Boolean {
+        override fun areContentsTheSame(oldItem: User, newItem: User): Boolean {
             return oldItem == newItem
         }
     }

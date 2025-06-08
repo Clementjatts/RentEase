@@ -60,26 +60,7 @@
 
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="8dp">
 
-            <!-- Filter chips removed as they were redundant with the default behavior and sort functionality -->
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/sortButton"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/property_list_sort"
-                app:icon="@android:drawable/ic_menu_sort_by_size" />
-
-        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

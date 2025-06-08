@@ -25,10 +25,6 @@ RUN echo '<VirtualHost *:80>\n\
         AllowOverride All\n\
         Require all granted\n\
     </Directory>\n\
-    Alias /uploads /var/www/uploads\n\
-    <Directory /var/www/uploads>\n\
-        Require all granted\n\
-    </Directory>\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Set permissions

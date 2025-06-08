@@ -13,13 +13,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentease.R
-import com.example.rentease.data.model.Landlord
+import com.example.rentease.data.model.User
 import com.example.rentease.databinding.FragmentLandlordManagementBinding
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
 /**
  * LandlordManagementFragment displays and manages landlord accounts for admins.
+ * Updated to use User model for consistency with the consolidated architecture.
  */
 class LandlordManagementFragment : Fragment() {
 
@@ -70,16 +71,16 @@ class LandlordManagementFragment : Fragment() {
 
     private fun setupRecyclerView() {
         landlordAdapter = LandlordAdapter(
-            onEditClick = { landlord ->
-                // Navigate to landlord profile for editing
+            onEditClick = { user ->
+                // Navigate to user profile for editing (landlord)
                 val bundle = Bundle().apply {
-                    putInt("landlordId", landlord.id)
+                    putInt("landlordId", user.id)
                 }
                 findNavController().navigate(R.id.action_landlordManagementFragment_to_profileFragment, bundle)
             },
-            onDeleteClick = { landlord ->
+            onDeleteClick = { user ->
                 // Handle landlord deletion
-                showDeleteConfirmation(landlord)
+                showDeleteConfirmation(user)
             }
         )
 
@@ -132,7 +133,7 @@ class LandlordManagementFragment : Fragment() {
         binding.emptyView.visibility = View.GONE
     }
 
-    private fun showLandlords(landlords: List<Landlord>) {
+    private fun showLandlords(landlords: List<User>) {
         // Hide all loading indicators
         binding.loadingIndicator.visibility = View.GONE
         binding.swipeRefreshLayout.isRefreshing = false
@@ -158,12 +159,12 @@ class LandlordManagementFragment : Fragment() {
         binding.emptyView.text = message
     }
 
-    private fun showDeleteConfirmation(landlord: Landlord) {
+    private fun showDeleteConfirmation(user: User) {
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Delete Landlord")
-            .setMessage("Are you sure you want to delete ${landlord.name}?\n\nThis action cannot be undone.")
+            .setMessage("Are you sure you want to delete ${user.fullName ?: user.username}?\n\nThis action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteLandlord(landlord.id)
+                viewModel.deleteLandlord(user.id)
             }
             .setNegativeButton("Cancel", null)
             .show()

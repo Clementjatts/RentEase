@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rentease.data.model.Result
-import com.example.rentease.data.model.Landlord
+import com.example.rentease.data.model.User
 import com.example.rentease.di.RepositoryProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -85,9 +85,10 @@ class LandlordManagementViewModel(
 
 /**
  * Represents the UI state for the landlord management screen.
+ * Updated to use User model for consistency.
  */
 sealed class LandlordManagementUiState {
     data object Loading : LandlordManagementUiState()
-    data class Success(val landlords: List<Landlord>) : LandlordManagementUiState()
+    data class Success(val landlords: List<User>) : LandlordManagementUiState()
     data class Error(val message: String) : LandlordManagementUiState()
 }

@@ -341,27 +341,7 @@ class PropertyRepository(
 
 
 
-    /**
-     * Delete a property image
-     *
-     * @param imageId The ID of the image to delete
-     * @return Result indicating success or failure
-     */
-    suspend fun deletePropertyImage(imageId: Int): com.example.rentease.data.model.Result<Boolean> = withContext(Dispatchers.IO) {
-        try {
-            val result = imageUploader.deleteImage(imageId)
-            return@withContext if (result.isSuccess) {
-                com.example.rentease.data.model.Result.Success(true)
-            } else {
-                val exception = result.exceptionOrNull()
-                android.util.Log.e("PropertyRepository", "Failed to delete image: ${exception?.message}")
-                com.example.rentease.data.model.Result.Error("Failed to delete image: ${exception?.message}")
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("PropertyRepository", "Exception in deletePropertyImage: ${e.message}", e)
-            return@withContext com.example.rentease.data.model.Result.Error("Error deleting property image: ${e.message}")
-        }
-    }
+
 
     /**
      * Transform image URLs for Android emulator compatibility

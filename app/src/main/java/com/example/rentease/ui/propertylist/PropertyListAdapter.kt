@@ -1,5 +1,6 @@
 package com.example.rentease.ui.propertylist
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +37,7 @@ class PropertyListAdapter(
         private val binding: ItemPropertyBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        @SuppressLint("DefaultLocale")
         fun bind(property: Property) {
             binding.apply {
                 // Set property details
@@ -65,7 +67,7 @@ class PropertyListAdapter(
                 }
 
                 // Set property type chip to show furniture type (since it's more relevant for users)
-                if (!property.furnitureType.isNullOrEmpty() && property.furnitureType != "unfurnished") {
+                if (property.furnitureType.isNotEmpty() && property.furnitureType != "unfurnished") {
                     propertyType.text = property.furnitureType.replaceFirstChar { it.uppercase() }
                     propertyType.visibility = View.VISIBLE
                 } else if (!property.type.isNullOrEmpty()) {

@@ -9,4 +9,3 @@ services:
     volumes:
       - ./api:/var/www/html
       - ./database:/var/www/database
-      - ./uploads:/var/www/uploads

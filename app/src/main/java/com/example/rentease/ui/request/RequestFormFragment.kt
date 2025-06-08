@@ -72,15 +72,16 @@ class RequestFormFragment : Fragment() {
         binding.submitButton.setOnClickListener {
             val name = binding.nameInput.text.toString()
             val email = binding.emailInput.text.toString()
+            val phone = binding.phoneInput.text.toString()
             val message = binding.messageInput.text.toString()
 
-            if (validateInputs(name, email, message)) {
-                viewModel.submitRequest()
+            if (validateInputs(name, email, phone, message)) {
+                viewModel.submitRequest(name, email, phone.ifBlank { null }, message)
             }
         }
     }
 
-    private fun validateInputs(name: String, email: String, message: String): Boolean {
+    private fun validateInputs(name: String, email: String, phone: String, message: String): Boolean {
         var isValid = true
 
         if (name.isBlank()) {
@@ -98,6 +99,14 @@ class RequestFormFragment : Fragment() {
             isValid = false
         } else {
             binding.emailInputLayout.error = null
+        }
+
+        // Phone is optional, but validate format if provided
+        if (phone.isNotBlank() && !android.util.Patterns.PHONE.matcher(phone).matches()) {
+            binding.phoneInputLayout.error = "Invalid phone format"
+            isValid = false
+        } else {
+            binding.phoneInputLayout.error = null
         }
 
         if (message.isBlank()) {

@@ -58,8 +58,7 @@ class PropertyFormViewModel(
                         if (!imageUrl.isNullOrEmpty()) {
                             val imageItem = PropertyImageItem(
                                 uri = imageUrl.toUri(),
-                                isExisting = true,
-                                imageId = null // We don't have separate image IDs, just the URL
+                                isExisting = true
                             )
                             _image.value = imageItem
                         }
@@ -186,20 +185,6 @@ class PropertyFormViewModel(
      * Set the single image for the property (replaces any existing image).
      */
     fun addImage(uri: Uri) {
-        // If there's an existing image, remove it first
-        val currentImage = _image.value
-        if (currentImage?.isExisting == true && currentImage.imageId != null) {
-            // Delete existing image from server
-            viewModelScope.launch {
-                try {
-                    propertyRepository.deletePropertyImage(currentImage.imageId)
-                } catch (e: Exception) {
-                    android.util.Log.e("PropertyFormViewModel", "Failed to delete existing image: ${e.message}", e)
-                }
-            }
-        }
-
-        // Set the new image
         _image.value = PropertyImageItem(uri = uri, isExisting = false)
     }
 
@@ -207,30 +192,7 @@ class PropertyFormViewModel(
      * Remove the single image from the property.
      */
     fun removeImage() {
-        val currentImage = _image.value
-        if (currentImage != null) {
-            // If it's an existing image, delete it from the server
-            if (currentImage.isExisting && currentImage.imageId != null) {
-                viewModelScope.launch {
-                    try {
-                        when (val result = propertyRepository.deletePropertyImage(currentImage.imageId)) {
-                            is com.example.rentease.data.model.Result.Success -> {
-                                // Image deleted successfully
-                            }
-                            is com.example.rentease.data.model.Result.Error -> {
-                                android.util.Log.e("PropertyFormViewModel", "Failed to delete image: ${result.errorMessage}")
-                                // For now, we'll still remove it from the UI even if server deletion fails
-                            }
-                        }
-                    } catch (e: Exception) {
-                        android.util.Log.e("PropertyFormViewModel", "Exception deleting image: ${e.message}", e)
-                    }
-                }
-            }
-
-            // Clear the image
-            _image.value = null
-        }
+        _image.value = null
     }
 
     /**

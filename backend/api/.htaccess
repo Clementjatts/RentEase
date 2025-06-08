@@ -1,6 +1,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Force uploads to go through index.php
+    RewriteRule ^uploads/ index.php [QSA,L]
+
     # Redirect to front controller
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f

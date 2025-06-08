@@ -4,7 +4,7 @@
  *
  * Provides common functionality for all controllers
  */
-abstract class Controller {
+abstract class BaseController {
     protected $db;
     protected $service;
     protected $request;

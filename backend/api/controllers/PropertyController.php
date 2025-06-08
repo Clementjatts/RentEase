@@ -4,7 +4,7 @@
  *
  * Handles property-related API requests
  */
-class PropertyController extends Controller {
+class PropertyController extends BaseController {
     private $property;
 
     /**
@@ -18,79 +18,15 @@ class PropertyController extends Controller {
         parent::__construct($db, $service, $request);
         try {
             $this->property = new Property($db);
-            // PropertyImage model removed - images now stored directly in properties table
+            
         } catch (Exception $e) {
             // Log the error and return a proper API response instead of PHP error
-            $this->logImageError('ERROR', 'PropertyController::__construct',
-                "Error initializing controller: " . $e->getMessage(), [
-                    'exception' => get_class($e),
-                    'trace' => $e->getTraceAsString()
-                ]);
+            error_log("PropertyController initialization error: " . $e->getMessage());
             $this->service->error("Error initializing controller", 500);
         }
     }
 
-    /**
-     * Log image-related errors to dedicated log file
-     *
-     * @param string $level Error level (ERROR, WARNING, INFO)
-     * @param string $source Source method/endpoint
-     * @param string $message Error message
-     * @param array $context Additional context data
-     */
-    private function logImageError($level, $source, $message, $context = []) {
-        // Ensure logs directory exists
-        $logDir = __DIR__ . '/../../logs/';
-        if (!file_exists($logDir)) {
-            mkdir($logDir, 0755, true);
-        }
 
-        // Sanitize context data to avoid exposing sensitive information
-        $sanitizedContext = $this->sanitizeLogContext($context);
-
-        // Format log entry
-        $timestamp = date('c'); // ISO 8601 format
-        $contextStr = !empty($sanitizedContext) ? ' Context: ' . json_encode($sanitizedContext) : '';
-        $logEntry = "[{$timestamp}] [{$level}] [{$source}] Message: {$message}{$contextStr}" . PHP_EOL;
-
-        // Write to log file
-        $logFile = $logDir . 'image_errors.log';
-        file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
-    }
-
-    /**
-     * Sanitize context data for logging to avoid exposing sensitive information
-     *
-     * @param array $context Context data
-     * @return array Sanitized context data
-     */
-    private function sanitizeLogContext($context) {
-        $sanitized = [];
-
-        foreach ($context as $key => $value) {
-            // Sanitize file paths to show only filename
-            if ($key === 'file_path' || $key === 'upload_path') {
-                $sanitized[$key] = basename($value);
-            }
-            // Sanitize full paths in trace
-            elseif ($key === 'trace' && is_string($value)) {
-                $sanitized[$key] = preg_replace('/\/[^\s]*\/([^\/\s]+\.php)/', '.../$1', $value);
-            }
-            // Keep safe values as-is
-            elseif (in_array($key, ['property_id', 'image_id', 'file_size', 'file_type', 'error_code', 'exception'])) {
-                $sanitized[$key] = $value;
-            }
-            // Truncate long strings
-            elseif (is_string($value) && strlen($value) > 200) {
-                $sanitized[$key] = substr($value, 0, 200) . '...';
-            }
-            else {
-                $sanitized[$key] = $value;
-            }
-        }
-
-        return $sanitized;
-    }
 
     /**
      * Get landlord ID for a given user ID (simplified - now user_id IS the landlord_id)
@@ -108,10 +44,7 @@ class PropertyController extends Controller {
 
             return $result ? (int)$result['id'] : null;
         } catch (Exception $e) {
-            $this->logImageError('ERROR', 'PropertyController::getLandlordIdForUser',
-                "Error getting landlord ID for user: " . $e->getMessage(), [
-                    'user_id' => $user_id
-                ]);
+            error_log("PropertyController::getLandlordIdForUser - Error getting landlord ID for user: " . $e->getMessage());
             return null;
         }
     }
@@ -124,8 +57,6 @@ class PropertyController extends Controller {
     public function processRequest() {
         $method = $this->request['method'];
         $action = $this->request['action'] ?? '';
-
-        // Removed verbose INFO logging - functionality is working correctly
 
         try {
             // Handle special image-related actions
@@ -160,13 +91,7 @@ class PropertyController extends Controller {
             return parent::processRequest();
 
         } catch (Exception $e) {
-            $this->logImageError('ERROR', 'PropertyController::processRequest',
-                "Error processing request: " . $e->getMessage(), [
-                    'method' => $method,
-                    'action' => $action,
-                    'exception' => get_class($e),
-                    'trace' => $e->getTraceAsString()
-                ]);
+            error_log("PropertyController::processRequest - Error processing request: " . $e->getMessage());
             return $this->service->serverError('Error processing request: ' . $e->getMessage());
         }
     }
@@ -211,11 +136,7 @@ class PropertyController extends Controller {
 
             return $this->service->success('Properties retrieved successfully', $data, 200, $total);
         } catch (Exception $e) {
-            $this->logImageError('ERROR', 'PropertyController::getAll',
-                "Error retrieving properties: " . $e->getMessage(), [
-                    'exception' => get_class($e),
-                    'trace' => $e->getTraceAsString()
-                ]);
+            error_log("PropertyController::getAll - Error retrieving properties: " . $e->getMessage());
             return $this->service->error("Error retrieving properties: " . $e->getMessage(), 500);
         }
     }
@@ -415,12 +336,7 @@ class PropertyController extends Controller {
                 'images' => $images
             ]);
         } catch (Exception $e) {
-            $this->logImageError('ERROR', 'PropertyController::getImages',
-                "Error retrieving property images: " . $e->getMessage(), [
-                    'property_id' => $id,
-                    'exception' => get_class($e),
-                    'trace' => $e->getTraceAsString()
-                ]);
+            error_log("PropertyController::getImages - Error retrieving property images: " . $e->getMessage());
             return $this->service->serverError('Error retrieving property images: ' . $e->getMessage());
         }
     }
@@ -446,16 +362,9 @@ class PropertyController extends Controller {
                 return $this->service->notFound('Property not found');
             }
 
-            // Note: Single image constraint is handled automatically by the PropertyImage model
-            // which deletes existing images before adding new ones
-
             // Check if file was uploaded
             if (!isset($_FILES['image'])) {
-                $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                    "No image file in request", [
-                        'property_id' => $propertyId,
-                        'files_keys' => array_keys($_FILES)
-                    ]);
+                error_log("PropertyController::uploadImage - No image file in request for property ID: $propertyId");
                 return $this->service->badRequest('No image file uploaded');
             }
 
@@ -472,12 +381,7 @@ class PropertyController extends Controller {
                 ];
 
                 $errorMessage = $errorMessages[$uploadError] ?? 'Unknown upload error';
-                $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                    "File upload error: " . $errorMessage, [
-                        'property_id' => $propertyId,
-                        'error_code' => $uploadError,
-                        'file_size' => $_FILES['image']['size'] ?? 'unknown'
-                    ]);
+                error_log("PropertyController::uploadImage - File upload error: $errorMessage for property ID: $propertyId");
                 return $this->service->badRequest('Upload error: ' . $errorMessage);
             }
 
@@ -507,37 +411,21 @@ class PropertyController extends Controller {
             // Create directory if it doesn't exist
             if (!file_exists($uploadDir)) {
                 if (!mkdir($uploadDir, 0755, true)) {
-                    $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                        "Failed to create upload directory", [
-                            'property_id' => $propertyId,
-                            'upload_path' => basename($uploadDir),
-                            'permissions' => '0755'
-                        ]);
+                    error_log("PropertyController::uploadImage - Failed to create upload directory for property ID: $propertyId");
                     return $this->service->serverError('Failed to create upload directory');
                 }
             }
 
             // Check directory permissions
             if (!is_writable($uploadDir)) {
-                $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                    "Upload directory is not writable", [
-                        'property_id' => $propertyId,
-                        'upload_path' => basename($uploadDir),
-                        'permissions' => substr(sprintf('%o', fileperms($uploadDir)), -4)
-                    ]);
+                error_log("PropertyController::uploadImage - Upload directory is not writable for property ID: $propertyId");
                 return $this->service->serverError('Upload directory is not writable');
             }
 
             // Check available disk space
             $freeSpace = disk_free_space($uploadDir);
             if ($freeSpace !== false && $freeSpace < $fileSize * 2) { // Require 2x file size for safety
-                $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                    "Insufficient disk space", [
-                        'property_id' => $propertyId,
-                        'file_size' => $fileSize,
-                        'free_space' => $freeSpace,
-                        'required_space' => $fileSize * 2
-                    ]);
+                error_log("PropertyController::uploadImage - Insufficient disk space for property ID: $propertyId");
                 return $this->service->serverError('Insufficient disk space for upload');
             }
 
@@ -545,25 +433,13 @@ class PropertyController extends Controller {
 
             // Move uploaded file
             if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
-                $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                    "Failed to move uploaded file", [
-                        'property_id' => $propertyId,
-                        'filename' => $filename,
-                        'temp_file' => basename($_FILES['image']['tmp_name']),
-                        'upload_path' => basename($uploadPath)
-                    ]);
+                error_log("PropertyController::uploadImage - Failed to move uploaded file for property ID: $propertyId");
                 return $this->service->serverError('Failed to save uploaded file');
             }
 
             // Verify file was created and has correct size
             if (!file_exists($uploadPath) || filesize($uploadPath) !== $fileSize) {
-                $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                    "File verification failed after upload", [
-                        'property_id' => $propertyId,
-                        'filename' => $filename,
-                        'expected_size' => $fileSize,
-                        'actual_size' => file_exists($uploadPath) ? filesize($uploadPath) : 'file_not_found'
-                    ]);
+                error_log("PropertyController::uploadImage - File verification failed after upload for property ID: $propertyId");
                 return $this->service->serverError('File upload verification failed');
             }
 
@@ -578,12 +454,7 @@ class PropertyController extends Controller {
                 $result = $this->property->update($propertyId, ['image_url' => $imageUrl]);
 
                 if (!$result) {
-                    $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                        "Failed to save image URL to properties table", [
-                            'property_id' => $propertyId,
-                            'filename' => $filename,
-                            'image_url' => $imageUrl
-                        ]);
+                    error_log("PropertyController::uploadImage - Failed to save image URL to properties table for property ID: $propertyId");
 
                     // Clean up uploaded file since database save failed
                     if (file_exists($uploadPath)) {
@@ -593,13 +464,7 @@ class PropertyController extends Controller {
                     return $this->service->serverError('Failed to save image to database');
                 }
             } catch (Exception $dbException) {
-                $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                    "Database exception while saving image URL: " . $dbException->getMessage(), [
-                        'property_id' => $propertyId,
-                        'filename' => $filename,
-                        'image_url' => $imageUrl,
-                        'exception' => get_class($dbException)
-                    ]);
+                error_log("PropertyController::uploadImage - Database exception while saving image URL: " . $dbException->getMessage());
 
                 // Clean up uploaded file since database save failed
                 if (file_exists($uploadPath)) {
@@ -617,12 +482,7 @@ class PropertyController extends Controller {
                 'message' => 'Single image uploaded for property'
             ]);
         } catch (Exception $e) {
-            $this->logImageError('ERROR', 'PropertyController::uploadImage',
-                "Unexpected error during image upload: " . $e->getMessage(), [
-                    'property_id' => $propertyId ?? 'unknown',
-                    'exception' => get_class($e),
-                    'trace' => $e->getTraceAsString()
-                ]);
+            error_log("PropertyController::uploadImage - Unexpected error during image upload: " . $e->getMessage());
             return $this->service->serverError('Error uploading image: ' . $e->getMessage());
         }
     }
@@ -649,12 +509,7 @@ class PropertyController extends Controller {
 
                 if (file_exists($filePath)) {
                     if (!unlink($filePath)) {
-                        $this->logImageError('WARNING', 'PropertyController::deleteImage',
-                            "Failed to delete physical file", [
-                                'property_id' => $propertyId,
-                                'filename' => $filename,
-                                'file_path' => basename($filePath)
-                            ]);
+                        error_log("PropertyController::deleteImage - Failed to delete physical file for property ID: $propertyId");
                     }
                 }
             }
@@ -663,19 +518,13 @@ class PropertyController extends Controller {
             $result = $this->property->update($propertyId, ['image_url' => null]);
 
             if (!$result) {
-                $this->logImageError('ERROR', 'PropertyController::deleteImage',
-                    "Failed to clear image URL from properties table", ['property_id' => $propertyId]);
+                error_log("PropertyController::deleteImage - Failed to clear image URL from properties table for property ID: $propertyId");
                 return $this->service->serverError('Failed to delete image');
             }
 
             return $this->service->success('Image deleted successfully');
         } catch (Exception $e) {
-            $this->logImageError('ERROR', 'PropertyController::deleteImage',
-                "Error deleting image: " . $e->getMessage(), [
-                    'property_id' => $propertyId,
-                    'exception' => get_class($e),
-                    'trace' => $e->getTraceAsString()
-                ]);
+            error_log("PropertyController::deleteImage - Error deleting image: " . $e->getMessage());
             return $this->service->serverError('Error deleting image: ' . $e->getMessage());
         }
     }

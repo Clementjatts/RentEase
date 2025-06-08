@@ -21,17 +21,68 @@ require_once __DIR__ . '/config/Database.php';
 require_once __DIR__ . '/config/Config.php';
 require_once __DIR__ . '/config/Routes.php';
 require_once __DIR__ . '/services/ResponseService.php';
-require_once __DIR__ . '/controllers/Controller.php';
+require_once __DIR__ . '/controllers/BaseController.php';
 require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/UserController.php';
 require_once __DIR__ . '/controllers/PropertyController.php';
-require_once __DIR__ . '/controllers/LandlordController.php';
+require_once __DIR__ . '/controllers/RequestController.php';
 require_once __DIR__ . '/models/User.php';
 require_once __DIR__ . '/models/Property.php';
+require_once __DIR__ . '/models/Request.php';
 
 // Get the requested path and method
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
+
+// Handle image serving for uploads directory
+if (strpos($path, '/uploads/') === 0) {
+    // Remove CORS and JSON headers for image serving
+    header_remove('Content-Type');
+
+    // Get the relative file path
+    $relativePath = str_replace('/uploads/', '', $path);
+    $filePath = __DIR__ . '/uploads/' . $relativePath;
+
+    // Security check: ensure the file is within the uploads directory
+    $realPath = realpath($filePath);
+    $uploadsDir = realpath(__DIR__ . '/uploads/');
+
+    if (!$realPath || !$uploadsDir || strpos($realPath, $uploadsDir) !== 0) {
+        http_response_code(404);
+        exit('File not found');
+    }
+
+    // Check if file exists
+    if (!file_exists($filePath) || !is_file($filePath)) {
+        http_response_code(404);
+        exit('File not found');
+    }
+
+    // Get file info
+    $fileInfo = pathinfo($filePath);
+    $extension = strtolower($fileInfo['extension']);
+
+    // Set appropriate content type
+    $contentTypes = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp'
+    ];
+
+    $contentType = $contentTypes[$extension] ?? 'application/octet-stream';
+
+    // Set headers
+    header('Content-Type: ' . $contentType);
+    header('Content-Length: ' . filesize($filePath));
+    header('Cache-Control: public, max-age=31536000'); // Cache for 1 year
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
+
+    // Output the file
+    readfile($filePath);
+    exit;
+}
 
 // Route the request
 $route = Routes::match($path, $method);

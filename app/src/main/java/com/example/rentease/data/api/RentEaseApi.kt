@@ -2,10 +2,12 @@ package com.example.rentease.data.api
 
 import com.example.rentease.data.model.ApiResponse
 import com.example.rentease.data.model.ChangePasswordRequest
+import com.example.rentease.data.model.CreateRequestData
 import com.example.rentease.data.model.LoginRequest
 import com.example.rentease.data.model.LoginResponse
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.model.RegisterRequest
+import com.example.rentease.data.model.Request
 import com.example.rentease.data.model.User
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -13,26 +15,27 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface RentEaseApi {
-    // Landlord endpoints
-    @GET("landlords")
+    // Landlord endpoints (consolidated into user endpoints)
+    @GET("users/landlords")
     suspend fun getLandlords(): Response<ApiResponse>
 
-    @GET("landlords/by-user")
+    @GET("users/landlord/by-user")
     suspend fun getLandlordByUserId(): Response<ApiResponse>
 
-    @GET("landlords/{id}")
+    @GET("users/{id}")
     suspend fun getLandlord(@Path("id") id: Int): Response<ApiResponse>
 
-    @PUT("landlords/{id}")
+    @PUT("users/{id}")
     suspend fun updateLandlord(@Path("id") id: Int, @Body data: Map<String, String>): Response<ApiResponse>
 
-    @DELETE("landlords/{id}")
+    @DELETE("users/landlord/{id}")
     suspend fun deleteLandlord(@Path("id") id: Int): Response<ApiResponse>
 
     // Auth endpoints
@@ -48,9 +51,9 @@ interface RentEaseApi {
     @GET("auth/me")
     suspend fun getCurrentUser(): Response<User>
 
-    // User endpoints
+    // User endpoints (consolidated - use updateLandlord for all user updates)
     @PUT("users/{id}")
-    suspend fun updateUser(@Path("id") id: Int, @Body user: User): Response<ApiResponse>
+    suspend fun updateUser(@Path("id") id: Int, @Body data: Map<String, String>): Response<ApiResponse>
 
     // Property endpoints
     @POST("properties")
@@ -80,4 +83,17 @@ interface RentEaseApi {
 
     @DELETE("properties/images/{id}")
     suspend fun deletePropertyImage(@Path("id") imageId: Int): Response<ApiResponse>
+
+    // Request endpoints
+    @POST("requests")
+    suspend fun createRequest(@Body request: CreateRequestData): Response<ApiResponse>
+
+    @GET("requests/landlord/{landlordId}")
+    suspend fun getRequestsForLandlord(@Path("landlordId") landlordId: Int): Response<ApiResponse>
+
+    @PATCH("requests/{id}/read")
+    suspend fun markRequestAsRead(@Path("id") requestId: Int): Response<ApiResponse>
+
+    @GET("requests/landlord/{landlordId}/unread-count")
+    suspend fun getUnreadCount(@Path("landlordId") landlordId: Int): Response<ApiResponse>
 }

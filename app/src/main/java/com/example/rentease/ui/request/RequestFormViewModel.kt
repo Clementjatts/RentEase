@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.rentease.data.api.ApiClient
 import com.example.rentease.data.model.Property
 import com.example.rentease.data.repository.PropertyRepository
+import com.example.rentease.data.repository.RequestRepository
+import com.example.rentease.di.RepositoryProvider
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,8 +22,9 @@ class RequestFormViewModel(
     application: Application,
     private val propertyId: Int
 ) : AndroidViewModel(application) {
-    
+
     private val propertyRepository = PropertyRepository(ApiClient.getApi(application), application)
+    private val requestRepository = RepositoryProvider.provideRequestRepository(application)
     
     private val _uiState = MutableStateFlow<RequestFormUiState>(RequestFormUiState.Loading)
     val uiState: StateFlow<RequestFormUiState> = _uiState
@@ -47,8 +50,8 @@ class RequestFormViewModel(
         }
     }
     
-    // Submit contact request to landlord via email
-    fun submitRequest() {
+    // Submit contact request to landlord
+    fun submitRequest(name: String, email: String, phone: String?, message: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = RequestFormUiState.Loading
@@ -68,14 +71,22 @@ class RequestFormViewModel(
                     }
                 }
 
-                // Validate that we have landlord contact information
-                if (property.landlordContact.isNullOrBlank()) {
-                    _uiState.value = RequestFormUiState.Error("Landlord contact information not available")
-                    return@launch
-                }
+                // Submit request to backend
+                val result = requestRepository.submitRequest(
+                    propertyId = property.id,
+                    landlordId = property.landlordId,
+                    requesterName = name,
+                    requesterEmail = email,
+                    requesterPhone = phone,
+                    message = message
+                )
 
-                // Simulate successful submission (simplified implementation)
-                _uiState.value = RequestFormUiState.Success
+                if (result.isSuccess) {
+                    _uiState.value = RequestFormUiState.Success
+                } else {
+                    val errorMsg = (result as com.example.rentease.data.model.Result.Error).errorMessage ?: "Unknown error"
+                    _uiState.value = RequestFormUiState.Error(errorMsg)
+                }
             } catch (e: Exception) {
                 _uiState.value = RequestFormUiState.Error(e.message ?: "Failed to submit request")
             }

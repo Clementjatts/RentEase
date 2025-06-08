@@ -21,7 +21,6 @@ class PropertyManagementViewModel(
 ) : AndroidViewModel(application) {
 
     private val propertyRepository = RepositoryProvider.providePropertyRepository(application)
-    private val userRepository = RepositoryProvider.provideUserRepository(application)
     private val authManager = AuthManager.getInstance(application)
 
     private val _uiState = MutableStateFlow<PropertyManagementUiState>(PropertyManagementUiState.Loading)
@@ -38,8 +37,6 @@ class PropertyManagementViewModel(
                 // Check if the user is an admin or a landlord
                 val userType = authManager.userType
                 val userId = authManager.getUserId()
-                val isLoggedIn = authManager.isLoggedIn
-                val authToken = authManager.authToken
 
                 val result = if (userType == UserType.ADMIN) {
                     // Admin sees all properties

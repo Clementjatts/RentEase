@@ -4,7 +4,7 @@
  *
  * Handles user-related API requests
  */
-class UserController extends Controller {
+class UserController extends BaseController {
     private $user;
 
     /**
@@ -17,6 +17,34 @@ class UserController extends Controller {
     public function __construct($db, $service, $request) {
         parent::__construct($db, $service, $request);
         $this->user = new User($db);
+    }
+
+    /**
+     * Process the request and route to the appropriate method
+     * Enhanced to handle landlord-specific routes
+     *
+     * @return array Response data
+     */
+    public function processRequest() {
+        $action = $this->request['action'] ?? '';
+
+        // Handle landlord-specific routes
+        if ($action === 'landlords') {
+            return $this->getLandlords();
+        } elseif ($action === 'landlord-by-user') {
+            return $this->getLandlordByUserId();
+        } elseif ($action === 'delete-landlord') {
+            $routeParams = $this->request['route_params'] ?? [];
+            $landlordId = $routeParams['id'] ?? null;
+            return $this->deleteLandlord($landlordId);
+        } elseif ($action === 'landlord-properties') {
+            $routeParams = $this->request['route_params'] ?? [];
+            $landlordId = $routeParams['id'] ?? null;
+            return $this->getLandlordProperties($landlordId);
+        }
+
+        // Use parent routing for standard CRUD operations
+        return parent::processRequest();
     }
 
     /**
@@ -34,15 +62,22 @@ class UserController extends Controller {
             // Get pagination and query parameters
             $params = array_merge($this->getPaginationParams(), $this->getQueryParams());
 
-            // Get users
+            // Get users (supports user_type filtering via query parameter)
             $users = $this->user->getAll($params);
 
-            // Get total count for pagination
+            // Get total count for pagination (respect user_type filtering)
             $total = 0;
-            if (!empty($users)) {
+            if (!empty($users) || isset($params['user_type'])) {
                 $total_query = "SELECT COUNT(*) as total FROM users";
+                $total_params = [];
+
+                if (isset($params['user_type'])) {
+                    $total_query .= " WHERE user_type = ?";
+                    $total_params[] = $params['user_type'];
+                }
+
                 $stmt = $this->db->prepare($total_query);
-                $stmt->execute();
+                $stmt->execute($total_params);
                 $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
             }
 
@@ -311,5 +346,175 @@ class UserController extends Controller {
     private function generateJWT($data) {
         // Simplified for academic project - return demo token
         return 'demo-token-' . ($data['id'] ?? 'unknown') . '-' . time();
+    }
+
+    /**
+     * Get all landlords (users with user_type = 'LANDLORD')
+     * Consolidated from LandlordController
+     *
+     * @return array
+     */
+    public function getLandlords() {
+        try {
+            // Only admins can view all landlords
+            if (!$this->isAdmin()) {
+                return $this->service->forbidden('Permission denied: Only admins can view all landlords');
+            }
+
+            // Get pagination and query parameters
+            $params = array_merge($this->getPaginationParams(), $this->getQueryParams());
+
+            // Filter for landlords only
+            $params['user_type'] = 'LANDLORD';
+
+            // Get landlords from users table
+            $users = $this->user->getAll($params);
+
+            // Get total count for pagination
+            $query = "SELECT COUNT(*) as count FROM users WHERE user_type = 'LANDLORD'";
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $total = $result['count'];
+
+            // Build response with consistent field names (no transformation)
+            $data = [
+                'landlords' => $users, // Use original user data with consistent field names
+                'pagination' => [
+                    'total' => $total,
+                    'page' => $params['page'],
+                    'limit' => $params['limit'],
+                    'pages' => ceil($total / $params['limit'])
+                ]
+            ];
+
+            return $this->service->success('Landlords retrieved successfully', $data);
+        } catch (Exception $e) {
+            return $this->service->serverError('Error retrieving landlords: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get landlord by user ID (for current authenticated user)
+     * Consolidated from LandlordController
+     *
+     * @return array
+     */
+    public function getLandlordByUserId() {
+        try {
+            // Get the authenticated user ID
+            $user_id = $this->getUserId();
+
+            if (!$user_id) {
+                return $this->service->unauthorized('Authentication required');
+            }
+
+            // Get user and check if they are a landlord
+            $user = $this->user->getById($user_id);
+
+            if (!$user || $user['user_type'] !== 'LANDLORD') {
+                return $this->service->notFound('Landlord profile not found for current user');
+            }
+
+            // Return user data with consistent field names (no transformation)
+            return $this->service->success('Landlord retrieved successfully', $user);
+        } catch (Exception $e) {
+            return $this->service->serverError('Error retrieving landlord: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a landlord (user with user_type = 'LANDLORD')
+     * Consolidated from LandlordController with property deletion checks
+     *
+     * @param int $id User ID (landlord ID)
+     * @return array
+     */
+    public function deleteLandlord($id) {
+        try {
+            // Only admins can delete landlords
+            if (!$this->isAdmin()) {
+                return $this->service->forbidden('Permission denied');
+            }
+
+            // Check if landlord exists
+            $user = $this->user->getById($id);
+
+            if (!$user || $user['user_type'] !== 'LANDLORD') {
+                return $this->service->notFound('Landlord not found');
+            }
+
+            // Check if landlord has associated properties
+            require_once __DIR__ . '/../models/Property.php';
+            $property = new Property($this->db);
+            $properties = $property->getAll(['landlord_id' => $id]);
+
+            if (!empty($properties)) {
+                return $this->service->conflict('Cannot delete landlord with associated properties');
+            }
+
+            // Delete the user (landlord)
+            $result = $this->user->delete($id);
+
+            if (!$result) {
+                return $this->service->serverError('Failed to delete landlord');
+            }
+
+            return $this->service->success('Landlord deleted successfully');
+        } catch (Exception $e) {
+            return $this->service->serverError('Error deleting landlord: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get properties by landlord
+     * Consolidated from LandlordController
+     *
+     * @param int $landlord_id Landlord ID
+     * @return array
+     */
+    public function getLandlordProperties($landlord_id) {
+        try {
+            if (!$landlord_id) {
+                return $this->service->badRequest('Landlord ID is required');
+            }
+
+            // Check if landlord exists
+            $user = $this->user->getById($landlord_id);
+
+            if (!$user || $user['user_type'] !== 'LANDLORD') {
+                return $this->service->notFound('Landlord not found');
+            }
+
+            // Get pagination parameters
+            $params = $this->getPaginationParams();
+
+            // Load property model to get properties
+            require_once __DIR__ . '/../models/Property.php';
+            $property = new Property($this->db);
+            $params['landlord_id'] = $landlord_id;
+
+            // Get properties
+            $properties = $property->getAll($params);
+
+            // Get total count for pagination
+            $total = $property->getCount(['landlord_id' => $landlord_id]);
+
+            // Build response with consistent field names
+            $data = [
+                'landlord' => $user, // Use original user data
+                'properties' => $properties,
+                'pagination' => [
+                    'total' => $total,
+                    'page' => $params['page'],
+                    'limit' => $params['limit'],
+                    'pages' => ceil($total / $params['limit'])
+                ]
+            ];
+
+            return $this->service->success('Landlord properties retrieved successfully', $data);
+        } catch (Exception $e) {
+            return $this->service->serverError('Error retrieving landlord properties: ' . $e->getMessage());
+        }
     }
 }

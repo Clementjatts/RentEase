@@ -140,6 +140,9 @@
         <action
             android:id="@+id/action_landlordDashboardFragment_to_propertyManagementFragment"
             app:destination="@id/propertyManagementFragment" />
+        <action
+            android:id="@+id/action_landlordDashboardFragment_to_notificationsFragment"
+            app:destination="@id/notificationsFragment" />
     </fragment>
 
     <fragment
@@ -184,4 +187,11 @@
             android:id="@+id/action_landlordManagementFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.example.rentease.ui.notifications.NotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifications" />
+
 </navigation>

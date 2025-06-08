@@ -362,7 +362,7 @@ class Property {
             $parameters[] = (int)$data['landlord_id'];
         }
 
-        if (isset($data['image_url'])) {
+        if (array_key_exists('image_url', $data)) {
             $set_clauses[] = "image_url = ?";
             $parameters[] = $data['image_url'];
         }

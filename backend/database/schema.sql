@@ -26,6 +26,27 @@ CREATE TABLE IF NOT EXISTS properties (
     FOREIGN KEY (landlord_id) REFERENCES users(id)
 );
 
--- Insert default admin account
+-- Requests table for storing contact requests/notifications
+CREATE TABLE IF NOT EXISTS requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    property_id INTEGER NOT NULL,
+    landlord_id INTEGER NOT NULL,
+    requester_name TEXT NOT NULL,
+    requester_email TEXT NOT NULL,
+    requester_phone TEXT,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
+    FOREIGN KEY (landlord_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Add indexes for performance
+CREATE INDEX IF NOT EXISTS idx_requests_landlord_id ON requests(landlord_id);
+CREATE INDEX IF NOT EXISTS idx_requests_property_id ON requests(property_id);
+CREATE INDEX IF NOT EXISTS idx_requests_is_read ON requests(is_read);
+
+-- Insert default admin account with hashed password
+-- Password: 'password' hashed using PHP password_hash()
 INSERT OR IGNORE INTO users (username, password, email, user_type, full_name, phone)
-VALUES ('admin', 'pass', 'admin@rentease.com', 'ADMIN', 'Admin User', '+1234567890');
+VALUES ('admin', '$2y$12$OnXnF4RzoYwE3pY4vg6n1upqGaTRLbvyIBmikY.Fq.sNRgZDwkIF6', 'admin@rentease.com', 'ADMIN', 'Admin User', '+1234567890');

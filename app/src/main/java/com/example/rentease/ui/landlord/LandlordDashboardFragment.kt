@@ -15,6 +15,7 @@ import com.example.rentease.auth.AuthManager
 import com.example.rentease.databinding.FragmentLandlordDashboardBinding
 import com.example.rentease.di.RepositoryProvider
 import com.example.rentease.ui.helpers.WindowInsetsHelper
+import com.example.rentease.data.model.Result
 import kotlinx.coroutines.launch
 
 /**
@@ -28,6 +29,7 @@ class LandlordDashboardFragment : Fragment() {
 
     private lateinit var authManager: AuthManager
     private val userRepository by lazy { RepositoryProvider.provideUserRepository(requireActivity().application) }
+    private val requestRepository by lazy { RepositoryProvider.provideRequestRepository(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,11 +52,13 @@ class LandlordDashboardFragment : Fragment() {
         WindowInsetsHelper.applyWindowInsets(binding.root, binding.appBarLayout)
 
         setupUI()
+        loadNotificationCount()
     }
 
     private fun setupUI() {
         setupToolbar()
         setupButtons()
+        setupNotificationIcon()
     }
 
     private fun setupToolbar() {
@@ -85,6 +89,44 @@ class LandlordDashboardFragment : Fragment() {
         binding.logoutButton.setOnClickListener {
             showLogoutConfirmation()
         }
+    }
+
+    private fun setupNotificationIcon() {
+        binding.notificationContainer.setOnClickListener {
+            findNavController().navigate(R.id.action_landlordDashboardFragment_to_notificationsFragment)
+        }
+    }
+
+    private fun loadNotificationCount() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val userId = authManager.getUserId().toIntOrNull()
+                if (userId != null) {
+                    val result = requestRepository.getUnreadCount(userId)
+                    if (result.isSuccess) {
+                        val count = (result as Result.Success<Int>).data
+                        updateNotificationBadge(count)
+                    }
+                }
+            } catch (e: Exception) {
+                // Notification count is non-critical
+            }
+        }
+    }
+
+    private fun updateNotificationBadge(count: Int) {
+        if (count > 0) {
+            binding.notificationBadge.text = if (count > 99) "99+" else count.toString()
+            binding.notificationBadge.visibility = View.VISIBLE
+        } else {
+            binding.notificationBadge.visibility = View.GONE
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh notification count when returning to dashboard
+        loadNotificationCount()
     }
 
     // Deprecated menu methods removed and replaced with MenuProvider in setupMenu()

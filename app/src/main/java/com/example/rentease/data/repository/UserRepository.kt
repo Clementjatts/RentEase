@@ -23,15 +23,15 @@ class UserRepository(
                     if (apiResponse != null && apiResponse.success) {
                         val dataMap = apiResponse.data as? Map<*, *>
                         if (dataMap != null) {
-                            // Create a user object from the landlord data
+                            // Create a user object from the user data (consistent field names)
                             return@withContext com.example.rentease.data.model.Result.Success(
                                 User(
                                     id = landlordId,
-                                    username = dataMap["name"] as? String ?: "",
+                                    username = dataMap["username"] as? String ?: "",
                                     email = dataMap["email"] as? String ?: "",
                                     userType = "LANDLORD",
-                                    fullName = dataMap["name"] as? String ?: "",
-                                    phone = dataMap["contact"] as? String ?: "",
+                                    fullName = dataMap["full_name"] as? String ?: "",
+                                    phone = dataMap["phone"] as? String ?: "",
                                     createdAt = dataMap["created_at"] as? String ?: ""
                                 )
                             )
@@ -105,10 +105,31 @@ class UserRepository(
         try {
             // If landlordId is provided, we're updating a landlord profile
             if (landlordId != null && landlordId > 0) {
-                // Update landlord data via the landlord API endpoint
+                // When admin updates landlord profile, we need the landlord's username, not admin's
+                // Get the current landlord data first to get the correct username
+                val landlordResponse = api.getLandlord(landlordId)
+                if (!landlordResponse.isSuccessful) {
+                    return@withContext com.example.rentease.data.model.Result.Error("Failed to get landlord data: ${landlordResponse.message()}")
+                }
+
+                val landlordApiResponse = landlordResponse.body()
+                if (landlordApiResponse == null || !landlordApiResponse.success) {
+                    return@withContext com.example.rentease.data.model.Result.Error("Failed to get landlord data")
+                }
+
+                val landlordData = landlordApiResponse.data as? Map<*, *>
+                val landlordUsername = landlordData?.get("username") as? String
+
+                if (landlordUsername.isNullOrEmpty()) {
+                    return@withContext com.example.rentease.data.model.Result.Error("Could not get landlord username")
+                }
+
+                // Update landlord data via the user API endpoint with consistent field names
+                // Use the landlord's username, not the admin's username
                 val updateData = mapOf(
-                    "name" to (user.fullName ?: ""),
-                    "contact" to (user.phone ?: ""),
+                    "username" to landlordUsername,
+                    "full_name" to (user.fullName ?: ""),
+                    "phone" to (user.phone ?: ""),
                     "email" to (user.email ?: "")
                 )
 
@@ -119,14 +140,29 @@ class UserRepository(
                         // Return the updated user object
                         return@withContext com.example.rentease.data.model.Result.Success(user)
                     } else {
-                        return@withContext com.example.rentease.data.model.Result.Error("Failed to update landlord profile")
+                        val errorMsg = apiResponse?.message ?: "Unknown error"
+                        return@withContext com.example.rentease.data.model.Result.Error("Failed to update landlord profile: $errorMsg")
                     }
                 } else {
                     return@withContext com.example.rentease.data.model.Result.Error("Failed to update landlord profile: ${response.message()}")
                 }
             } else {
                 // Update current user profile via user API endpoint
-                val response = api.updateUser(user.id, user)
+                // Ensure we have the username - use AuthManager as fallback
+                val username = if (user.username.isNotEmpty()) {
+                    user.username
+                } else {
+                    authManager.username ?: ""
+                }
+
+                // Use Map format to match API expectations and include required fields
+                val updateData = mapOf(
+                    "username" to username,
+                    "full_name" to (user.fullName ?: ""),
+                    "phone" to (user.phone ?: ""),
+                    "email" to (user.email ?: "")
+                )
+                val response = api.updateUser(user.id, updateData)
                 if (response.isSuccessful) {
                     return@withContext com.example.rentease.data.model.Result.Success(user)
                 } else {
@@ -178,22 +214,17 @@ class UserRepository(
                         }
                     }
                 }
-            } else {
-                val errorBody = response.errorBody()?.string()
-                android.util.Log.e("UserRepository", "API call failed - Code: ${response.code()}, Error: $errorBody")
             }
 
             // If we couldn't find a matching landlord, return an error
-            android.util.Log.e("UserRepository", "Could not find landlord profile for current user")
             return@withContext com.example.rentease.data.model.Result.Error("Could not find landlord profile for current user")
         } catch (e: Exception) {
-            android.util.Log.e("UserRepository", "Exception in getLandlordIdForCurrentUser", e)
             return@withContext com.example.rentease.data.model.Result.Error("Error getting landlord ID: ${e.message}")
         }
     }
 
-    // Landlord management methods
-    suspend fun getLandlords(): com.example.rentease.data.model.Result<List<com.example.rentease.data.model.Landlord>> = withContext(Dispatchers.IO) {
+    // Landlord management methods (consolidated to use User model)
+    suspend fun getLandlords(): com.example.rentease.data.model.Result<List<User>> = withContext(Dispatchers.IO) {
         try {
             val response = api.getLandlords()
             if (response.isSuccessful) {
@@ -204,23 +235,24 @@ class UserRepository(
                     val landlordsList = dataMap?.get("landlords") as? List<*>
 
                     if (landlordsList != null) {
-                        val landlords = landlordsList.mapNotNull { landlordMap ->
+                        val users = landlordsList.mapNotNull { userMap ->
                             try {
-                                if (landlordMap is Map<*, *>) {
-                                    com.example.rentease.data.model.Landlord(
-                                        id = (landlordMap["id"] as? Double)?.toInt() ?: 0,
-                                        user_id = (landlordMap["user_id"] as? Double)?.toInt() ?: 0,
-                                        name = (landlordMap["name"] as? String) ?: "",
-                                        contact = (landlordMap["contact"] as? String) ?: "",
-                                        email = (landlordMap["email"] as? String) ?: "",
-                                        created_at = (landlordMap["created_at"] as? String) ?: ""
+                                if (userMap is Map<*, *>) {
+                                    User(
+                                        id = (userMap["id"] as? Double)?.toInt() ?: 0,
+                                        username = (userMap["username"] as? String) ?: "",
+                                        email = (userMap["email"] as? String) ?: "",
+                                        userType = "LANDLORD", // All users from this endpoint are landlords
+                                        fullName = (userMap["full_name"] as? String) ?: "", // Consistent field name
+                                        phone = (userMap["phone"] as? String) ?: "", // Consistent field name
+                                        createdAt = (userMap["created_at"] as? String) ?: ""
                                     )
                                 } else null
                             } catch (e: Exception) {
                                 null
                             }
                         }
-                        return@withContext com.example.rentease.data.model.Result.Success(landlords)
+                        return@withContext com.example.rentease.data.model.Result.Success(users)
                     }
                 }
             }

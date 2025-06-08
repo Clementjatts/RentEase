@@ -5,7 +5,7 @@
  * Handles authentication-related API requests
  */
 
-class AuthController extends Controller {
+class AuthController extends BaseController {
     private $user;
 
     /**
