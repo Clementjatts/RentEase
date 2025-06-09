@@ -246,6 +246,15 @@
     <string name="delete_property">Delete Property</string>
     <string name="no_address_provided">No address provided</string>
 
+    <!-- WebView Strings -->
+    <string name="web_portal">Web Portal</string>
+    <string name="content_description_web_portal">Open web portal</string>
+    <string name="loading_web_portal">Loading Web Portal...</string>
+    <string name="content_description_error_icon">Error icon</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="failed_to_load_web_application">Failed to load web application</string>
+    <string name="button_retry">Retry</string>
+
     <!-- Accessibility Strings -->
     <string name="content_description_property_recycler_view">List of properties</string>
     <string name="content_description_properties_recycler_view">List of available properties</string>

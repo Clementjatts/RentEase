@@ -1,0 +1,7 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Serve index.html for all requests to the web directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ index.html [L]

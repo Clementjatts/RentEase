@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 RentEase</title>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+    <!-- App Bar matching Android toolbar -->
+    <div class="app-bar">
+        <div class="app-title">RentEase</div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <!-- Stats -->
+            <div id="stats" class="stats" style="display: none;">
+                Total Properties: <span id="propertyCount">0</span>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+            </div>
+
+            <!-- Error message -->
+            <div id="error" class="error" style="display: none;">
+                <strong>Error:</strong> <span id="errorMessage"></span>
+                <br><br>
+                <button onclick="loadProperties()" style="background-color: #6200ea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Try Again</button>
+            </div>
+
+            <!-- Properties list -->
+            <div id="propertiesContainer" class="property-list">
+                <!-- Properties will be loaded here -->
+            </div>
+
+            <!-- Empty state -->
+            <div id="noProperties" class="no-properties" style="display: none;">
+                <h3>No Properties Found</h3>
+                <p>There are currently no properties available in the system.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

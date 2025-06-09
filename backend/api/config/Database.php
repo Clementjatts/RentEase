@@ -10,8 +10,14 @@ class Database {
 
     public function __construct() {
         try {
-            // Simplified for academic project - use relative path
-            $db_path = dirname(dirname(dirname(__FILE__))) . '/database/rentease.db';
+            // Check if running in Docker container
+            if (file_exists('/var/www/database/rentease.db')) {
+                // Docker container path
+                $db_path = '/var/www/database/rentease.db';
+            } else {
+                // Local development path
+                $db_path = dirname(dirname(dirname(__FILE__))) . '/database/rentease.db';
+            }
 
             $this->dbPath = $db_path;
 

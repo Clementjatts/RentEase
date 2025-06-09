@@ -143,6 +143,9 @@
         <action
             android:id="@+id/action_landlordDashboardFragment_to_notificationsFragment"
             app:destination="@id/notificationsFragment" />
+        <action
+            android:id="@+id/action_landlordDashboardFragment_to_webViewFragment"
+            app:destination="@id/webViewFragment" />
     </fragment>
 
     <fragment
@@ -168,6 +171,9 @@
         <action
             android:id="@+id/action_adminDashboardFragment_to_propertyManagementFragment"
             app:destination="@id/propertyManagementFragment" />
+        <action
+            android:id="@+id/action_adminDashboardFragment_to_webViewFragment"
+            app:destination="@id/webViewFragment" />
     </fragment>
 
     <fragment
@@ -193,5 +199,11 @@
         android:name="com.example.rentease.ui.notifications.NotificationsFragment"
         android:label="Notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="com.example.rentease.ui.webview.WebViewFragment"
+        android:label="Web Portal"
+        tools:layout="@layout/fragment_webview" />
 
 </navigation>

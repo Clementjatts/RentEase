@@ -3,7 +3,6 @@ package com.example.rentease.ui.helpers
 import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.appbar.AppBarLayout
 
 /**
  * Helper class for handling window insets in edge-to-edge display mode.
@@ -16,12 +15,12 @@ object WindowInsetsHelper {
      * This ensures the content is properly positioned below the status bar and above the navigation bar.
      *
      * @param rootView The root view of the fragment/activity
-     * @param appBarLayout The app bar layout that should extend into the status bar area
+     * @param appBarLayout The app bar layout that should extend into the status bar area (can be null)
      */
-    fun applyWindowInsets(rootView: View, appBarLayout: AppBarLayout?) {
+    fun applyWindowInsets(rootView: View, appBarLayout: View?) {
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            
+
             // Apply top padding to the app bar layout to account for status bar
             appBarLayout?.setPadding(
                 appBarLayout.paddingLeft,
@@ -29,7 +28,7 @@ object WindowInsetsHelper {
                 appBarLayout.paddingRight,
                 appBarLayout.paddingBottom
             )
-            
+
             // Apply bottom padding to the root view to account for navigation bar
             view.setPadding(
                 view.paddingLeft,
@@ -37,7 +36,7 @@ object WindowInsetsHelper {
                 view.paddingRight,
                 systemBars.bottom
             )
-            
+
             insets
         }
     }
