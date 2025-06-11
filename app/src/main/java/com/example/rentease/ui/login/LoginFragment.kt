@@ -16,10 +16,7 @@ import com.example.rentease.databinding.FragmentLoginBinding
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
-/**
- * LoginFragment handles user authentication.
- * Simplified implementation without BaseFragment complexity.
- */
+// Login fragment that handles user authentication with simplified implementation
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
@@ -29,6 +26,7 @@ class LoginFragment : Fragment() {
         LoginViewModel.Factory(requireActivity().application)
     }
 
+    // Creates and returns the fragment's view
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,7 +35,8 @@ class LoginFragment : Fragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
-    
+
+    // Sets up UI components and observers after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -48,6 +47,7 @@ class LoginFragment : Fragment() {
         setupObservers()
     }
 
+    // Configures UI components and click listeners
     private fun setupUI() {
         // Set up toolbar navigation icon click listener
         binding.toolbar.setNavigationOnClickListener {
@@ -70,6 +70,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -84,19 +85,22 @@ class LoginFragment : Fragment() {
             }
         }
     }
-    
+
+    // Shows the initial UI state with enabled buttons
     private fun showInitialState() {
         binding.loadingIndicator.visibility = View.GONE
         binding.loginButton.isEnabled = true
         binding.registerButton.isEnabled = true
     }
-    
+
+    // Shows loading state with disabled buttons and progress indicator
     private fun showLoadingState() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.loginButton.isEnabled = false
         binding.registerButton.isEnabled = false
     }
-    
+
+    // Handles successful login by navigating to appropriate dashboard
     private fun handleLoginSuccess() {
         binding.loadingIndicator.visibility = View.GONE
         
@@ -116,7 +120,8 @@ class LoginFragment : Fragment() {
         // Reset the state so we don't navigate again if we come back to this fragment
         viewModel.resetState()
     }
-    
+
+    // Displays error message and re-enables UI controls
     private fun showError(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.loginButton.isEnabled = true
@@ -125,12 +130,14 @@ class LoginFragment : Fragment() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
+    // Cleans up view binding when fragment view is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of LoginFragment
         fun newInstance() = LoginFragment()
     }
 }

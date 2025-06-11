@@ -1,28 +1,15 @@
 <?php
-/**
- * Property Model
- *
- * Handles database operations for properties
- */
+// Property model that handles database operations for properties
 class Property {
     private $db;
     private $table = 'properties';
 
-    /**
-     * Constructor
-     *
-     * @param PDO $db Database connection
-     */
+    // Initializes the model with database connection
     public function __construct($db) {
         $this->db = $db;
     }
 
-    /**
-     * Get all properties
-     *
-     * @param array $params Optional filter parameters and pagination
-     * @return array
-     */
+    // Retrieves all properties with optional filtering and pagination
     public function getAll($params = []) {
         // Simplified query - direct JOIN with users table
         $query = "SELECT p.id, p.title, p.description, p.price, p.bedroom_count, p.bathroom_count,
@@ -128,12 +115,7 @@ class Property {
         return $properties;
     }
 
-    /**
-     * Get total count of properties based on filters
-     *
-     * @param array $params Optional filter parameters
-     * @return int
-     */
+    // Returns the total count of properties based on optional filters
     public function getCount($params = []) {
         // Base query
         $query = "SELECT COUNT(*) as total FROM {$this->table} p";
@@ -189,12 +171,7 @@ class Property {
         return (int)$result['total'];
     }
 
-    /**
-     * Get a single property by ID
-     *
-     * @param int $id Property ID
-     * @return array|false
-     */
+    // Retrieves a single property by its ID with landlord information
     public function getById($id) {
         $query = "SELECT p.id, p.title, p.description, p.price, p.bedroom_count, p.bathroom_count,
                   p.furniture_type, p.address, p.created_at, p.updated_at, p.image_url,
@@ -247,12 +224,7 @@ class Property {
 
 
 
-    /**
-     * Create a new property
-     *
-     * @param array $data Property data
-     * @return int|false The ID of the new property or false on failure
-     */
+    // Creates a new property with landlord validation
     public function create($data) {
         // Validate landlord exists (now check users table directly)
         $landlord_check = "SELECT id FROM users WHERE id = ? AND user_type = 'LANDLORD'";
@@ -289,13 +261,7 @@ class Property {
         return false;
     }
 
-    /**
-     * Update a property
-     *
-     * @param int $id Property ID
-     * @param array $data Property data
-     * @return bool
-     */
+    // Updates an existing property with dynamic field updates
     public function update($id, $data) {
         // First get the current property to check if it exists
         $current = $this->getById($id);
@@ -385,12 +351,7 @@ class Property {
         return $stmt->execute($parameters);
     }
 
-    /**
-     * Delete a property
-     *
-     * @param int $id Property ID
-     * @return bool
-     */
+    // Deletes a property by its ID after existence check
     public function delete($id) {
         // Check if the property exists
         $current = $this->getById($id);

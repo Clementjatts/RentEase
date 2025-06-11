@@ -1,7 +1,5 @@
 <?php
-/**
- * Global Configuration Settings
- */
+// Global configuration settings for the RentEase API
 class Config {
     // API settings
     public static $api_version = '1.0.0';
@@ -22,7 +20,7 @@ class Config {
     // Security settings
     public static $cors_origins = ['*'];
 
-    // Get a configuration value
+    // Retrieves a configuration value by key
     public static function get($key) {
         if (property_exists(self::class, $key)) {
             return self::$$key;

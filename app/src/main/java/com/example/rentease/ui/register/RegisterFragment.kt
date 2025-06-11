@@ -19,10 +19,7 @@ import com.example.rentease.databinding.FragmentRegisterBinding
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
-/**
- * RegisterFragment handles user registration.
- * Simplified implementation without BaseFragment complexity.
- */
+// RegisterFragment handles user registration
 class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
@@ -35,6 +32,7 @@ class RegisterFragment : Fragment() {
     // Flag to determine if this fragment was opened by an admin
     private var isFromAdmin = false
 
+    // Initializes fragment and retrieves arguments
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Get the argument
@@ -43,6 +41,7 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    // Creates the fragment's view hierarchy
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,6 +51,7 @@ class RegisterFragment : Fragment() {
         return binding.root
     }
 
+    // Initializes the fragment after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -62,6 +62,7 @@ class RegisterFragment : Fragment() {
         setupObservers()
     }
 
+    // Sets up all user interface components
     private fun setupUI() {
         setupToolbar()
         setupUserTypeDropdown()
@@ -69,6 +70,7 @@ class RegisterFragment : Fragment() {
         setupLoginPrompt()
     }
 
+    // Configures the toolbar with navigation
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -78,6 +80,7 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    // Configures the user type dropdown based on admin access
     private fun setupUserTypeDropdown() {
         // Define user types based on who's accessing the screen
         val userTypes = if (isFromAdmin) {
@@ -104,6 +107,7 @@ class RegisterFragment : Fragment() {
         binding.userTypeDropdown.isEnabled = isFromAdmin
     }
 
+    // Sets up the register button click handler
     private fun setupRegisterButton() {
         binding.registerButton.setOnClickListener {
             val username = binding.usernameInput.text.toString()
@@ -127,6 +131,7 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    // Gets the selected user type from the dropdown
     private fun getUserTypeFromDropdown(): UserType {
         return when (binding.userTypeDropdown.text.toString()) {
             getString(R.string.user_type_admin) -> UserType.ADMIN
@@ -134,6 +139,7 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    // Sets up the login prompt click handler
     private fun setupLoginPrompt() {
         binding.loginPrompt.setOnClickListener {
             // Direct navigation to login screen
@@ -141,6 +147,7 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -156,18 +163,21 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    // Shows the initial state with enabled controls
     private fun showInitialState() {
         binding.loadingIndicator.visibility = View.GONE
         binding.registerButton.isEnabled = true
         binding.loginPrompt.isEnabled = true
     }
 
+    // Shows loading state with disabled controls
     private fun showLoadingState() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.registerButton.isEnabled = false
         binding.loginPrompt.isEnabled = false
     }
 
+    // Handles successful registration and navigation
     private fun handleRegisterSuccess() {
         binding.loadingIndicator.visibility = View.GONE
 
@@ -191,6 +201,7 @@ class RegisterFragment : Fragment() {
         viewModel.resetState()
     }
 
+    // Shows error message and re-enables controls
     private fun showError(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.registerButton.isEnabled = true
@@ -199,12 +210,14 @@ class RegisterFragment : Fragment() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
+    // Cleans up view binding when fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of RegisterFragment
         fun newInstance() = RegisterFragment()
     }
 }

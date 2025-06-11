@@ -1,19 +1,15 @@
 <?php
-/**
- * Request Controller
- * Handles contact request/notification operations
- */
+// Request controller that handles contact request and notification operations
 class RequestController extends BaseController {
     private $requestModel;
 
+    // Initializes the controller with database connection and Request model
     public function __construct($db, $service, $request) {
         parent::__construct($db, $service, $request);
         $this->requestModel = new Request($db);
     }
 
-    /**
-     * Override processRequest to handle custom routing
-     */
+    // Processes requests and routes to appropriate methods with custom routing for requests
     public function processRequest() {
         $method = $this->request['method'];
         $action = $this->request['action'] ?? '';
@@ -44,9 +40,7 @@ class RequestController extends BaseController {
         }
     }
 
-    /**
-     * Create new request (implements BaseController abstract method)
-     */
+    // Creates a new contact request with validation
     protected function create() {
         $data = $this->getBody();
 
@@ -74,9 +68,7 @@ class RequestController extends BaseController {
         }
     }
 
-    /**
-     * Get requests for landlord
-     */
+    // Retrieves all requests for a specific landlord
     public function getByLandlord($landlordId) {
         if (!is_numeric($landlordId)) {
             return $this->service->badRequest('Invalid landlord ID');
@@ -86,9 +78,7 @@ class RequestController extends BaseController {
         return $this->service->success('Requests retrieved successfully', $requests);
     }
 
-    /**
-     * Mark request as read
-     */
+    // Marks a specific request as read by the landlord
     public function markAsRead($id) {
         if (!is_numeric($id)) {
             return $this->service->badRequest('Invalid request ID');
@@ -103,9 +93,7 @@ class RequestController extends BaseController {
         }
     }
 
-    /**
-     * Get unread count for landlord
-     */
+    // Returns the count of unread requests for a specific landlord
     public function getUnreadCount($landlordId) {
         if (!is_numeric($landlordId)) {
             return $this->service->badRequest('Invalid landlord ID');
@@ -115,23 +103,27 @@ class RequestController extends BaseController {
         return $this->service->success('Unread count retrieved successfully', ['count' => $count]);
     }
 
-    // Required abstract method implementations
+    // Not supported for request operations
     protected function getAll() {
         return $this->service->methodNotAllowed('Method not supported');
     }
 
+    // Not supported for request operations
     protected function getOne($id) {
         return $this->service->methodNotAllowed('Method not supported');
     }
 
+    // Not supported for request operations
     protected function update($id, $partial = false) {
         return $this->service->methodNotAllowed('Method not supported');
     }
 
+    // Not supported for request operations
     protected function delete($id) {
         return $this->service->methodNotAllowed('Method not supported');
     }
 
+    // Not supported for request operations
     protected function getCount() {
         return $this->service->methodNotAllowed('Method not supported');
     }

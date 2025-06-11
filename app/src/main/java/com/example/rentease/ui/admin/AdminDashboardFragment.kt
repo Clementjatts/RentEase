@@ -18,10 +18,7 @@ import com.example.rentease.auth.AuthManager
 import com.example.rentease.databinding.FragmentAdminDashboardBinding
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 
-/**
- * AdminDashboardFragment displays the admin dashboard screen.
- * Simplified implementation without BaseFragment complexity.
- */
+// Admin dashboard fragment that displays management options for landlords and properties
 class AdminDashboardFragment : Fragment() {
 
     private var _binding: FragmentAdminDashboardBinding? = null
@@ -29,11 +26,13 @@ class AdminDashboardFragment : Fragment() {
 
     private lateinit var authManager: AuthManager
 
+    // Initializes the fragment and sets up authentication manager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         authManager = AuthManager.getInstance(requireContext())
     }
 
+    // Creates and returns the view for this fragment
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +42,7 @@ class AdminDashboardFragment : Fragment() {
         return binding.root
     }
 
+    // Sets up the UI components after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -52,17 +52,20 @@ class AdminDashboardFragment : Fragment() {
         setupUI()
     }
 
+    // Sets up all UI components including toolbar, menu, and buttons
     private fun setupUI() {
         setupToolbar()
         setupMenu()
         setupButtons()
     }
 
+    // Configures the toolbar for the admin dashboard
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
     }
 
+    // Sets up the options menu with web portal access
     private fun setupMenu() {
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -81,6 +84,7 @@ class AdminDashboardFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
+    // Sets up click listeners for dashboard buttons
     private fun setupButtons() {
         // Manage Landlords Button - Direct navigation to landlord management
         binding.manageLandlordsButton.setOnClickListener {
@@ -98,6 +102,7 @@ class AdminDashboardFragment : Fragment() {
         }
     }
 
+    // Shows a confirmation dialog before logging out
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.title_logout)
@@ -110,12 +115,14 @@ class AdminDashboardFragment : Fragment() {
             .show()
     }
 
+    // Cleans up view binding when the view is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of AdminDashboardFragment
         fun newInstance() = AdminDashboardFragment()
     }
 }

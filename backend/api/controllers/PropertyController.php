@@ -1,19 +1,9 @@
 <?php
-/**
- * Property Controller
- *
- * Handles property-related API requests
- */
+// Property controller that handles property-related API requests including CRUD and image operations
 class PropertyController extends BaseController {
     private $property;
 
-    /**
-     * Constructor
-     *
-     * @param PDO $db Database connection
-     * @param ResponseService $service Response service
-     * @param array $request Request data
-     */
+    // Initializes the controller with database connection and Property model
     public function __construct($db, $service, $request) {
         parent::__construct($db, $service, $request);
         try {
@@ -28,12 +18,7 @@ class PropertyController extends BaseController {
 
 
 
-    /**
-     * Get landlord ID for a given user ID (simplified - now user_id IS the landlord_id)
-     *
-     * @param int $user_id User ID
-     * @return int|null Landlord ID or null if not found
-     */
+    // Gets landlord ID for a given user ID in simplified schema where user_id IS the landlord_id
     private function getLandlordIdForUser($user_id) {
         try {
             // With simplified schema, user_id IS the landlord_id for LANDLORD users
@@ -49,11 +34,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Override processRequest to handle special image upload routing
-     *
-     * @return array Response data
-     */
+    // Processes requests and routes to appropriate methods including special image upload handling
     public function processRequest() {
         $method = $this->request['method'];
         $action = $this->request['action'] ?? '';
@@ -96,11 +77,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Get all properties
-     *
-     * @return array
-     */
+    // Retrieves all properties with optional filtering by landlord for authenticated users
     protected function getAll() {
         try {
             // Get pagination and query parameters
@@ -141,12 +118,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Get one property by ID
-     *
-     * @param int $id Property ID
-     * @return array
-     */
+    // Retrieves a single property by its ID
     protected function getOne($id) {
         try {
             $property = $this->property->getById($id);
@@ -161,11 +133,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Create a new property
-     *
-     * @return array
-     */
+    // Creates a new property with validation and default values
     protected function create() {
         try {
 
@@ -200,13 +168,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Update a property
-     *
-     * @param int $id Property ID
-     * @param bool $partial Whether this is a partial update (PATCH)
-     * @return array
-     */
+    // Updates an existing property with authorization checks
     protected function update($id, $partial = false) {
         try {
             // Check if property exists
@@ -255,12 +217,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Delete a property
-     *
-     * @param int $id Property ID
-     * @return array
-     */
+    // Deletes a property with authorization checks and image cleanup
     protected function delete($id) {
         try {
             // Check if property exists
@@ -302,12 +259,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Get property images (simplified - single image stored in properties table)
-     *
-     * @param int $id Property ID
-     * @return array
-     */
+    // Retrieves property images from simplified schema where single image is stored in properties table
     protected function getImages($id) {
         try {
             // Validate property ID
@@ -341,11 +293,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Upload property image
-     *
-     * @return array
-     */
+    // Uploads and validates property image with comprehensive error handling
     protected function uploadImage() {
         try {
             // Get property ID from POST data (multipart form field)
@@ -487,12 +435,7 @@ class PropertyController extends BaseController {
         }
     }
 
-    /**
-     * Delete property image (simplified - clear image_url from properties table)
-     *
-     * @param int $propertyId Property ID
-     * @return array
-     */
+    // Deletes property image by clearing image_url from properties table and removing physical file
     protected function deleteImage($propertyId) {
         try {
             // Validate property ID
@@ -531,11 +474,7 @@ class PropertyController extends BaseController {
 
 
 
-    /**
-     * Get count of properties
-     *
-     * @return array
-     */
+    // Returns the total count of properties with optional filtering
     protected function getCount() {
         try {
             $params = $this->getQueryParams();

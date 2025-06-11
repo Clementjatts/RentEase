@@ -18,10 +18,7 @@ import com.example.rentease.databinding.FragmentLandlordManagementBinding
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
-/**
- * LandlordManagementFragment displays and manages landlord accounts for admins.
- * Updated to use User model for consistency with the consolidated architecture.
- */
+// Fragment that displays and manages landlord accounts for admin users
 class LandlordManagementFragment : Fragment() {
 
     private var _binding: FragmentLandlordManagementBinding? = null
@@ -33,6 +30,7 @@ class LandlordManagementFragment : Fragment() {
 
     private lateinit var landlordAdapter: LandlordAdapter
 
+    // Creates and returns the view for this fragment
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,6 +40,7 @@ class LandlordManagementFragment : Fragment() {
         return binding.root
     }
 
+    // Sets up the UI components and observers after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -52,6 +51,7 @@ class LandlordManagementFragment : Fragment() {
         setupObservers()
     }
 
+    // Sets up all UI components including toolbar, RecyclerView, and FAB
     private fun setupUI() {
         setupToolbar()
         setupRecyclerView()
@@ -59,6 +59,7 @@ class LandlordManagementFragment : Fragment() {
         setupFab()
     }
 
+    // Configures the toolbar with navigation support
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -69,6 +70,7 @@ class LandlordManagementFragment : Fragment() {
         }
     }
 
+    // Sets up the RecyclerView with adapter and click handlers
     private fun setupRecyclerView() {
         landlordAdapter = LandlordAdapter(
             onEditClick = { user ->
@@ -90,6 +92,7 @@ class LandlordManagementFragment : Fragment() {
         }
     }
 
+    // Configures pull-to-refresh functionality
     private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             // Trigger landlord refresh when user pulls down
@@ -97,6 +100,7 @@ class LandlordManagementFragment : Fragment() {
         }
     }
 
+    // Sets up the floating action button for adding new landlords
     private fun setupFab() {
         binding.addLandlordFab.setOnClickListener {
             // Navigate to register screen for admin to create landlord
@@ -107,6 +111,7 @@ class LandlordManagementFragment : Fragment() {
         }
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -124,6 +129,7 @@ class LandlordManagementFragment : Fragment() {
         viewModel.loadLandlords()
     }
 
+    // Shows loading state with appropriate indicators
     private fun showLoading() {
         // Only show the center loading indicator if we don't have data yet
         if (!binding.swipeRefreshLayout.isRefreshing) {
@@ -133,6 +139,7 @@ class LandlordManagementFragment : Fragment() {
         binding.emptyView.visibility = View.GONE
     }
 
+    // Displays the list of landlords or empty state
     private fun showLandlords(landlords: List<User>) {
         // Hide all loading indicators
         binding.loadingIndicator.visibility = View.GONE
@@ -148,6 +155,7 @@ class LandlordManagementFragment : Fragment() {
         }
     }
 
+    // Shows error state with message
     private fun showError(message: String) {
         // Hide all loading indicators
         binding.loadingIndicator.visibility = View.GONE
@@ -159,6 +167,7 @@ class LandlordManagementFragment : Fragment() {
         binding.emptyView.text = message
     }
 
+    // Shows confirmation dialog before deleting a landlord
     private fun showDeleteConfirmation(user: User) {
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Delete Landlord")
@@ -170,6 +179,7 @@ class LandlordManagementFragment : Fragment() {
             .show()
     }
 
+    // Cleans up view binding when the view is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

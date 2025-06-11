@@ -20,10 +20,7 @@ import com.example.rentease.databinding.FragmentPropertyListBinding
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
-/**
- * PropertyListFragment displays the list of available properties.
- * This is the main screen users see when they open the app.
- */
+// Fragment that displays the list of available properties as the main screen
 class PropertyListFragment : Fragment() {
 
     private var _binding: FragmentPropertyListBinding? = null
@@ -36,6 +33,7 @@ class PropertyListFragment : Fragment() {
     private lateinit var propertyAdapter: PropertyListAdapter
     private lateinit var authManager: AuthManager
 
+    // Creates and returns the fragment's view
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,6 +43,7 @@ class PropertyListFragment : Fragment() {
         return binding.root
     }
 
+    // Sets up UI components and observers after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -59,6 +58,7 @@ class PropertyListFragment : Fragment() {
         updateUIBasedOnAuthState()
     }
 
+    // Configures all UI components
     private fun setupUI() {
         setupToolbar()
         setupRecyclerView()
@@ -67,11 +67,13 @@ class PropertyListFragment : Fragment() {
         setupFab()
     }
 
+    // Configures the toolbar for the fragment
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
     }
 
+    // Sets up the RecyclerView with adapter and layout manager
     private fun setupRecyclerView() {
         propertyAdapter = PropertyListAdapter { property ->
             // Navigate to property details
@@ -86,6 +88,7 @@ class PropertyListFragment : Fragment() {
         }
     }
 
+    // Configures pull-to-refresh functionality
     private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             // Trigger property refresh when user pulls down
@@ -93,12 +96,14 @@ class PropertyListFragment : Fragment() {
         }
     }
 
+    // Sets up the login button click listener
     private fun setupLoginButton() {
         binding.loginButton.setOnClickListener {
             findNavController().navigate(R.id.action_global_loginFragment)
         }
     }
 
+    // Configures the floating action button for adding properties
     private fun setupFab() {
         binding.addPropertyFab.setOnClickListener {
             val bundle = Bundle().apply {
@@ -108,9 +113,7 @@ class PropertyListFragment : Fragment() {
         }
     }
 
-    /**
-     * Update UI elements based on authentication state
-     */
+    // Updates UI elements based on current authentication state
     private fun updateUIBasedOnAuthState() {
         if (authManager.isLoggedIn) {
             // User is logged in - hide login button
@@ -132,6 +135,7 @@ class PropertyListFragment : Fragment() {
         }
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -149,6 +153,7 @@ class PropertyListFragment : Fragment() {
         viewModel.loadProperties()
     }
 
+    // Shows loading state with appropriate indicators
     private fun showLoading() {
         // Only show the center loading indicator if we don't have data yet
         // If we're refreshing, the SwipeRefreshLayout will show its own indicator
@@ -159,6 +164,7 @@ class PropertyListFragment : Fragment() {
         binding.emptyView.visibility = View.GONE
     }
 
+    // Displays the list of properties or empty state
     private fun showProperties(properties: List<Property>) {
         // Hide all loading indicators
         binding.loadingIndicator.visibility = View.GONE
@@ -174,6 +180,7 @@ class PropertyListFragment : Fragment() {
         }
     }
 
+    // Shows error state with message
     private fun showError(message: String) {
         // Hide all loading indicators
         binding.loadingIndicator.visibility = View.GONE
@@ -185,18 +192,21 @@ class PropertyListFragment : Fragment() {
         binding.emptyView.text = message
     }
 
+    // Updates UI when returning from other screens
     override fun onResume() {
         super.onResume()
         // Update UI when returning from other screens (like login)
         updateUIBasedOnAuthState()
     }
 
+    // Cleans up view binding when fragment view is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of PropertyListFragment
         fun newInstance() = PropertyListFragment()
     }
 } 

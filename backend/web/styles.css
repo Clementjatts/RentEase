@@ -1,18 +1,20 @@
 /* RentEase Web Portal Styles */
 
+/* Global reset and base styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Main body styling with system fonts */
 body {
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background-color: #f5f5f5;
     color: #333;
 }
 
-/* Header matching Android app toolbar */
+/* Header styling to match Android app toolbar */
 .app-bar {
     background-color: #6200ea;
     color: white;
@@ -27,7 +29,7 @@ body {
     z-index: 100;
 }
 
-/* Hide app-bar when in WebView to avoid double headers */
+/* Hides app-bar when in WebView to avoid double headers */
 .app-bar.webview-hidden {
     display: none;
 }
@@ -44,18 +46,18 @@ body {
     padding: 0;
 }
 
-/* Content area */
+/* Main content area styling */
 .content {
     padding: 0;
     min-height: calc(100vh - 56px);
 }
 
-/* Adjust content height when app-bar is hidden */
+/* Adjusts content height when app-bar is hidden in WebView */
 .content.webview-fullheight {
     min-height: 100vh;
 }
 
-/* Loading indicator matching Android */
+/* Loading indicator styling to match Android design */
 .loading {
     display: flex;
     justify-content: center;
@@ -78,7 +80,7 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* Error styling */
+/* Error message styling */
 .error {
     background-color: #ffebee;
     color: #c62828;
@@ -88,7 +90,7 @@ body {
     border-left: 4px solid #c62828;
 }
 
-/* Property list matching Android RecyclerView */
+/* Property list styling to match Android RecyclerView */
 .property-list {
     background: white;
 }
@@ -106,7 +108,7 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* Property image matching Android 16:9 ratio */
+/* Property image styling with Android 16:9 aspect ratio */
 .property-image {
     width: 100%;
     height: 0;

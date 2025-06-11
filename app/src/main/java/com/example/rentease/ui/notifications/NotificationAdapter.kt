@@ -11,13 +11,12 @@ import com.example.rentease.databinding.ItemNotificationBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * Adapter for displaying notifications in RecyclerView
- */
+// Adapter for displaying notifications in RecyclerView
 class NotificationAdapter(
     private val onItemClick: (Request) -> Unit
 ) : ListAdapter<Request, NotificationAdapter.NotificationViewHolder>(RequestDiffCallback()) {
 
+    // Creates new ViewHolder instances for notification items
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
         val binding = ItemNotificationBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -27,6 +26,7 @@ class NotificationAdapter(
         return NotificationViewHolder(binding)
     }
 
+    // Binds notification data to ViewHolder at specified position
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
@@ -35,6 +35,7 @@ class NotificationAdapter(
         private val binding: ItemNotificationBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        // Binds request data to the notification view elements
         fun bind(request: Request) {
             binding.apply {
                 // Set requester name
@@ -68,12 +69,13 @@ class NotificationAdapter(
             }
         }
 
+        // Formats timestamp into user-friendly relative time
         private fun formatTimestamp(timestamp: String): String {
             return try {
                 // Parse the timestamp from backend (assuming ISO format)
                 val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 val date = inputFormat.parse(timestamp)
-                
+
                 if (date != null) {
                     val now = Date()
                     val diffInMillis = now.time - date.time
@@ -98,14 +100,14 @@ class NotificationAdapter(
         }
     }
 
-    /**
-     * DiffUtil callback for efficient list updates
-     */
+    // DiffUtil callback for efficient list updates
     private class RequestDiffCallback : DiffUtil.ItemCallback<Request>() {
+        // Checks if two request items represent the same entity
         override fun areItemsTheSame(oldItem: Request, newItem: Request): Boolean {
             return oldItem.id == newItem.id
         }
 
+        // Checks if two request items have the same content
         override fun areContentsTheSame(oldItem: Request, newItem: Request): Boolean {
             return oldItem == newItem
         }

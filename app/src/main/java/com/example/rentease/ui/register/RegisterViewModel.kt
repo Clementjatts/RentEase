@@ -11,9 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * RegisterViewModel handles the business logic for the registration screen.
- */
+// RegisterViewModel handles the business logic for the registration screen
 class RegisterViewModel(
     application: Application
 ) : AndroidViewModel(application) {
@@ -23,9 +21,7 @@ class RegisterViewModel(
     private val _uiState = MutableStateFlow<RegisterUiState>(RegisterUiState.Initial)
     val uiState: StateFlow<RegisterUiState> = _uiState
 
-    /**
-     * Attempt to register a new user with the provided information.
-     */
+    // Attempts to register a new user with the provided information
     fun register(
         username: String,
         fullName: String,
@@ -84,11 +80,7 @@ class RegisterViewModel(
         }
     }
 
-    /**
-     * Validate the user input.
-     *
-     * @return An error message if validation fails, null otherwise.
-     */
+    // Validates user input and returns error message if validation fails
     private fun validateInput(
         username: String,
         fullName: String,
@@ -117,18 +109,15 @@ class RegisterViewModel(
         return null
     }
 
-    /**
-     * Reset the UI state to initial.
-     */
+    // Resets the UI state to initial
     fun resetState() {
         _uiState.value = RegisterUiState.Initial
     }
 
-    /**
-     * Factory for creating RegisterViewModel instances.
-     */
+    // Factory for creating RegisterViewModel instances
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
+        // Creates ViewModel instances for the registration screen
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
                 return RegisterViewModel(application) as T
@@ -138,9 +127,7 @@ class RegisterViewModel(
     }
 }
 
-/**
- * Represents the UI state for the registration screen.
- */
+// Represents the UI state for the registration screen
 sealed class RegisterUiState {
     data object Initial : RegisterUiState()
     data object Loading : RegisterUiState()

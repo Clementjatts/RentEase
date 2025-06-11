@@ -7,11 +7,12 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
+// Provides configured Retrofit API client with authentication support
 object ApiClient {
     // Backend URL - uses localhost with ADB reverse port forwarding
     private const val BASE_URL = "http://localhost:8000/"
 
-    // Single client with conditional auth interceptor
+    // Creates an OkHttpClient with conditional authentication interceptor
     private fun createClient(context: Context): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
@@ -37,7 +38,7 @@ object ApiClient {
 
     private val moshiConverterFactory = MoshiConverterFactory.create(moshi)
 
-    // Single API instance that handles both authenticated and non-authenticated requests
+    // Returns a configured RentEaseApi instance with authentication support
     fun getApi(context: Context): RentEaseApi {
         val client = createClient(context)
         val retrofit = Retrofit.Builder()

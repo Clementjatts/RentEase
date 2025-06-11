@@ -1,9 +1,5 @@
 <?php
-/**
- * Routes Configuration
- *
- * Defines all API routes and their handlers
- */
+// Routes configuration that defines all API endpoints and their handlers
 class Routes {
     // Route definitions with controllers and methods
     private static $routes = [
@@ -53,13 +49,7 @@ class Routes {
         ['method' => 'GET', 'path' => '/auth/me', 'controller' => 'AuthController', 'action' => 'getCurrentUser', 'auth' => false],
     ];
 
-    /**
-     * Match a request path and method to a route
-     *
-     * @param string $path The request path
-     * @param string $method The HTTP method
-     * @return array|null The matched route or null if no match
-     */
+    // Matches a request path and HTTP method to a defined route
     public static function match($path, $method) {
         $path = trim($path, '/');
         $path_segments = explode('/', $path);

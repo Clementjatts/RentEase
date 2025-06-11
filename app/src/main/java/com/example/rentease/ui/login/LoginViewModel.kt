@@ -11,9 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * LoginViewModel handles the business logic for the login screen.
- */
+// ViewModel that handles the business logic for the login screen
 class LoginViewModel(
     application: Application
 ) : AndroidViewModel(application) {
@@ -24,9 +22,7 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Initial)
     val uiState: StateFlow<LoginUiState> = _uiState
 
-    /**
-     * Attempt to log in with the provided credentials.
-     */
+    // Attempts to log in with the provided credentials
     fun login(email: String, password: String) {
         if (email.isBlank() || password.isBlank()) {
             _uiState.value = LoginUiState.Error("Email and password cannot be empty")
@@ -57,21 +53,15 @@ class LoginViewModel(
         }
     }
 
-    /**
-     * Reset the UI state to initial.
-     */
+    // Resets the UI state to initial
     fun resetState() {
         _uiState.value = LoginUiState.Initial
     }
 
-    /**
-     * Get the user type from the AuthManager.
-     */
+    // Returns the current user type from AuthManager
     fun getUserType() = authManager.userType
 
-    /**
-     * Factory for creating LoginViewModel instances.
-     */
+    // Factory for creating LoginViewModel instances
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -83,9 +73,7 @@ class LoginViewModel(
     }
 }
 
-/**
- * Represents the UI state for the login screen.
- */
+// Represents the UI state for the login screen
 sealed class LoginUiState {
     data object Initial : LoginUiState()
     data object Loading : LoginUiState()

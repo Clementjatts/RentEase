@@ -1,22 +1,15 @@
 <?php
-/**
- * Request Model
- * Handles contact requests/notifications for properties
- */
+// Request model that handles contact requests and notifications for properties
 class Request {
     private $db;
     private $table = 'requests';
 
+    // Initializes the model with database connection
     public function __construct($database) {
         $this->db = $database;
     }
 
-    /**
-     * Get all requests for a landlord with property details
-     *
-     * @param int $landlordId Landlord ID
-     * @return array
-     */
+    // Retrieves all requests for a specific landlord with property details
     public function getByLandlordId($landlordId) {
         $query = "SELECT r.id, r.property_id, r.landlord_id, r.requester_name, 
                          r.requester_email, r.requester_phone, r.message, r.is_read, 
@@ -31,12 +24,7 @@ class Request {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Create new request
-     *
-     * @param array $data Request data
-     * @return int|false The ID of the new request or false on failure
-     */
+    // Creates a new contact request with the provided data
     public function create($data) {
         $query = "INSERT INTO {$this->table} (property_id, landlord_id, requester_name, 
                   requester_email, requester_phone, message) 
@@ -59,24 +47,14 @@ class Request {
         return false;
     }
 
-    /**
-     * Mark request as read
-     *
-     * @param int $id Request ID
-     * @return bool
-     */
+    // Marks a specific request as read by the landlord
     public function markAsRead($id) {
         $query = "UPDATE {$this->table} SET is_read = 1 WHERE id = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([(int)$id]);
     }
 
-    /**
-     * Get unread count for landlord
-     *
-     * @param int $landlordId Landlord ID
-     * @return int
-     */
+    // Returns the count of unread requests for a specific landlord
     public function getUnreadCount($landlordId) {
         $query = "SELECT COUNT(*) as count FROM {$this->table} 
                   WHERE landlord_id = ? AND is_read = 0";

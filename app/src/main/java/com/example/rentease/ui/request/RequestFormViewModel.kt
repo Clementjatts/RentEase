@@ -15,9 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for the RequestFormFragment.
- */
+// ViewModel for the RequestFormFragment
 class RequestFormViewModel(
     application: Application,
     private val propertyId: Int
@@ -25,11 +23,11 @@ class RequestFormViewModel(
 
     private val propertyRepository = PropertyRepository(ApiClient.getApi(application), application)
     private val requestRepository = RepositoryProvider.provideRequestRepository(application)
-    
+
     private val _uiState = MutableStateFlow<RequestFormUiState>(RequestFormUiState.Loading)
     val uiState: StateFlow<RequestFormUiState> = _uiState
-    
-    // Load property details
+
+    // Loads property details for the request form
     fun loadPropertyDetails() {
         viewModelScope.launch {
             try {
@@ -50,7 +48,7 @@ class RequestFormViewModel(
         }
     }
     
-    // Submit contact request to landlord
+    // Submits contact request to landlord
     fun submitRequest(name: String, email: String, phone: String?, message: String) {
         viewModelScope.launch {
             try {
@@ -92,13 +90,14 @@ class RequestFormViewModel(
             }
         }
     }
-    
+
     // Factory for creating RequestFormViewModel instances
     class Factory(
         private val application: Application,
         private val propertyId: Int
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
+        // Creates ViewModel instances for the request form screen
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(RequestFormViewModel::class.java)) {
                 return RequestFormViewModel(application, propertyId) as T
@@ -108,7 +107,7 @@ class RequestFormViewModel(
     }
 }
 
-// UI state for the request form screen
+// Represents the UI state for the request form screen
 sealed class RequestFormUiState {
     data object Loading : RequestFormUiState()
     data class PropertyLoaded(val property: Property) : RequestFormUiState()

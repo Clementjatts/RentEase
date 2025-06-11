@@ -1,19 +1,7 @@
 <?php
-/**
- * Response Service
- * 
- * Handles standardized API responses
- */
+// Response service that handles standardized API responses with consistent formatting
 class ResponseService {
-    /**
-     * Send a success response
-     * 
-     * @param string $message Optional success message
-     * @param mixed $data The data to return
-     * @param int $status_code HTTP status code
-     * @param int $count Optional count for collections
-     * @param array $pagination Optional pagination info
-     */
+    // Sends a success response with optional data and pagination
     public function success($message, $data = null, $status_code = 200, $count = null, $pagination = null) {
         http_response_code($status_code);
         
@@ -38,14 +26,8 @@ class ResponseService {
         echo json_encode($response);
         exit();
     }
-    
-    /**
-     * Send an error response
-     * 
-     * @param string $message Error message
-     * @param int $status_code HTTP status code
-     * @param array $errors Optional detailed errors
-     */
+
+    // Sends an error response with optional detailed error information
     public function error($message, $status_code = 400, $errors = null) {
         http_response_code($status_code);
         
@@ -62,33 +44,19 @@ class ResponseService {
         echo json_encode($response);
         exit();
     }
-    
-    /**
-     * Send a created response
-     * 
-     * @param mixed $data The created resource
-     * @param string $message Optional message
-     */
+
+    // Sends a created response for successful resource creation
     public function created($data, $message = 'Resource created successfully') {
         $this->success($message, $data, 201);
     }
-    
-    /**
-     * Send a no content response
-     */
+
+    // Sends a no content response for successful operations without data
     public function noContent() {
         http_response_code(204);
         exit();
     }
-    
-    /**
-     * Generate pagination metadata
-     * 
-     * @param int $total Total number of items
-     * @param int $page Current page number
-     * @param int $limit Items per page
-     * @return array Pagination metadata
-     */
+
+    // Generates pagination metadata for paginated responses
     public function paginate($total, $page, $limit) {
         $total_pages = ceil($total / $limit);
         
@@ -101,80 +69,38 @@ class ResponseService {
             'to' => (int)min($page * $limit, $total)
         ];
     }
-    
-    /**
-     * Send a bad request response
-     * 
-     * @param string $message Error message
-     * @param array $errors Optional detailed errors
-     * @return null
-     */
+
+    // Sends a 400 Bad Request response
     public function badRequest($message = 'Bad Request', $errors = null) {
         $this->error($message, 400, $errors);
     }
-    
-    /**
-     * Send an unauthorized response
-     * 
-     * @param string $message Error message
-     * @param array $errors Optional detailed errors
-     * @return null
-     */
+
+    // Sends a 401 Unauthorized response
     public function unauthorized($message = 'Unauthorized', $errors = null) {
         $this->error($message, 401, $errors);
     }
-    
-    /**
-     * Send a forbidden response
-     * 
-     * @param string $message Error message
-     * @param array $errors Optional detailed errors
-     * @return null
-     */
+
+    // Sends a 403 Forbidden response
     public function forbidden($message = 'Forbidden', $errors = null) {
         $this->error($message, 403, $errors);
     }
-    
-    /**
-     * Send a not found response
-     * 
-     * @param string $message Error message
-     * @param array $errors Optional detailed errors
-     * @return null
-     */
+
+    // Sends a 404 Not Found response
     public function notFound($message = 'Not Found', $errors = null) {
         $this->error($message, 404, $errors);
     }
-    
-    /**
-     * Send a method not allowed response
-     * 
-     * @param string $message Error message
-     * @param array $errors Optional detailed errors
-     * @return null
-     */
+
+    // Sends a 405 Method Not Allowed response
     public function methodNotAllowed($message = 'Method Not Allowed', $errors = null) {
         $this->error($message, 405, $errors);
     }
-    
-    /**
-     * Send a conflict response
-     * 
-     * @param string $message Error message
-     * @param array $errors Optional detailed errors
-     * @return null
-     */
+
+    // Sends a 409 Conflict response
     public function conflict($message = 'Conflict', $errors = null) {
         $this->error($message, 409, $errors);
     }
-    
-    /**
-     * Send a server error response
-     * 
-     * @param string $message Error message
-     * @param array $errors Optional detailed errors
-     * @return null
-     */
+
+    // Sends a 500 Internal Server Error response
     public function serverError($message = 'Internal Server Error', $errors = null) {
         $this->error($message, 500, $errors);
     }

@@ -2,6 +2,7 @@ package com.example.rentease.auth
 
 import android.content.Context
 
+// Manages user authentication state using session-based authentication
 class AuthManager private constructor() {
 
     // Simple session-based authentication state (in-memory only)
@@ -19,16 +20,12 @@ class AuthManager private constructor() {
 
     private var userId: Int? = null
 
-    /**
-     * Get the user ID as a string
-     */
+    // Returns the current user ID as a string
     fun getUserId(): String {
         return userId?.toString() ?: ""
     }
 
-    /**
-     * Login user with session-based authentication
-     */
+    // Logs in a user with session-based authentication
     fun login(username: String, userType: UserType, authToken: String, userId: Int? = null) {
         this.username = username
         this.userType = userType
@@ -37,9 +34,7 @@ class AuthManager private constructor() {
         this.isLoggedIn = true
     }
 
-    /**
-     * Logout - clears all session state
-     */
+    // Logs out the user and clears all session state
     fun logout() {
         isLoggedIn = false
         userType = null
@@ -52,10 +47,7 @@ class AuthManager private constructor() {
         @Volatile
         private var instance: AuthManager? = null
 
-        /**
-         * Get singleton instance of AuthManager
-         * @param context Context parameter kept for API compatibility with existing code
-         */
+        // Returns the singleton instance of AuthManager
         @Suppress("UNUSED_PARAMETER")
         fun getInstance(context: Context): AuthManager {
             return instance ?: synchronized(this) {
@@ -65,14 +57,13 @@ class AuthManager private constructor() {
     }
 }
 
-/**
- * Defines the types of users in the system
- */
+// Defines the types of users in the system
 enum class UserType {
     ADMIN,
     LANDLORD;
 
     companion object {
+        // Converts a string value to UserType enum
         fun fromString(value: String): UserType {
             return when (value.uppercase()) {
                 "ADMIN" -> ADMIN

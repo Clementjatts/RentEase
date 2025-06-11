@@ -11,15 +11,13 @@ import com.example.rentease.R
 import com.example.rentease.data.model.Property
 import com.example.rentease.databinding.ItemPropertyBinding
 
-/**
- * RecyclerView adapter for displaying properties in the property management screen.
- * Uses the same item layout as the property list but shows delete button for management.
- */
+// RecyclerView adapter for displaying properties in the property management screen
 class PropertyManagementAdapter(
     private val onItemClick: (Property) -> Unit,
     private val onDeleteClick: (Property) -> Unit
 ) : ListAdapter<Property, PropertyManagementAdapter.PropertyViewHolder>(PropertyDiffCallback()) {
 
+    // Creates new ViewHolder instances for property items
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PropertyViewHolder {
         val binding = ItemPropertyBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -29,6 +27,7 @@ class PropertyManagementAdapter(
         return PropertyViewHolder(binding)
     }
 
+    // Binds property data to ViewHolder at specified position
     override fun onBindViewHolder(holder: PropertyViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
@@ -37,6 +36,7 @@ class PropertyManagementAdapter(
         private val binding: ItemPropertyBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        // Binds property data to the view elements
         fun bind(property: Property) {
             binding.apply {
                 // Set property details
@@ -107,14 +107,14 @@ class PropertyManagementAdapter(
         }
     }
 
-    /**
-     * DiffUtil callback for efficient list updates
-     */
+    // DiffUtil callback for efficient list updates
     private class PropertyDiffCallback : DiffUtil.ItemCallback<Property>() {
+        // Checks if two property items represent the same entity
         override fun areItemsTheSame(oldItem: Property, newItem: Property): Boolean {
             return oldItem.id == newItem.id
         }
 
+        // Checks if two property items have the same content
         override fun areContentsTheSame(oldItem: Property, newItem: Property): Boolean {
             return oldItem == newItem
         }

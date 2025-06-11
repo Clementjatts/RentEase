@@ -3,6 +3,7 @@ package com.example.rentease.data.model
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+// Standard API response wrapper for all backend responses
 @JsonClass(generateAdapter = true)
 data class ApiResponse(
     @Json(name = "status") val status: String,

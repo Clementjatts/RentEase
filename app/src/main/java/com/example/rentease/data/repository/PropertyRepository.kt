@@ -8,6 +8,7 @@ import com.example.rentease.utils.ImageUploader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+// Repository for handling property-related operations like CRUD and image uploads
 class PropertyRepository(
     private val api: RentEaseApi,
     context: Context
@@ -15,6 +16,7 @@ class PropertyRepository(
 
     private val imageUploader = ImageUploader(context, api)
 
+    // Fetches all properties from the API
     suspend fun getProperties(): com.example.rentease.data.model.Result<List<Property>> = withContext(Dispatchers.IO) {
         try {
             // Fetch from network
@@ -69,7 +71,7 @@ class PropertyRepository(
         }
     }
 
-    // Helper method to convert a Map to a Property object
+    // Converts a Map from API response to a Property object
     private fun convertMapToProperty(map: Map<*, *>): Property {
         // Try to parse the date or use current date as fallback
         val dateAdded = try {
@@ -123,12 +125,7 @@ class PropertyRepository(
 
 
 
-    /**
-     * Get a property by its ID.
-     *
-     * @param propertyId The ID of the property to retrieve
-     * @return A Result containing the property if successful, or an error message if not
-     */
+    // Retrieves a specific property by its ID
     suspend fun getPropertyById(propertyId: Int): com.example.rentease.data.model.Result<Property> = withContext(Dispatchers.IO) {
         try {
             // Fetch from API
@@ -160,12 +157,7 @@ class PropertyRepository(
         }
     }
 
-    /**
-     * Get properties owned by a specific landlord.
-     *
-     * @param landlordId The ID of the landlord
-     * @return A Result containing the list of properties if successful, or an error message if not
-     */
+    // Fetches all properties owned by a specific landlord
     suspend fun getLandlordProperties(landlordId: String): com.example.rentease.data.model.Result<List<Property>> = withContext(Dispatchers.IO) {
         try {
             // Fetch from API
@@ -223,6 +215,7 @@ class PropertyRepository(
         }
     }
 
+    // Creates a new property with optional image upload
     suspend fun createProperty(property: Property, imageUri: Uri? = null): com.example.rentease.data.model.Result<Property> = withContext(Dispatchers.IO) {
         try {
             val response = api.createProperty(property)
@@ -274,6 +267,7 @@ class PropertyRepository(
         }
     }
 
+    // Updates an existing property with optional image replacement
     suspend fun updateProperty(property: Property, imageUri: Uri? = null): com.example.rentease.data.model.Result<Property> = withContext(Dispatchers.IO) {
         try {
             // Use Property directly - @Transient annotation excludes dateAdded from serialization
@@ -326,6 +320,7 @@ class PropertyRepository(
         }
     }
 
+    // Deletes a property by its ID
     suspend fun deleteProperty(id: Int): com.example.rentease.data.model.Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val response = api.deleteProperty(id)
@@ -343,10 +338,7 @@ class PropertyRepository(
 
 
 
-    /**
-     * Transform image URLs for Android emulator compatibility
-     * With ADB reverse proxy, localhost:8000 URLs should work directly
-     */
+    // Transforms image URLs for Android emulator compatibility
     private fun transformImageUrl(url: String?): String? {
         if (url == null) return null
         // With ADB reverse proxy, no transformation needed
@@ -354,6 +346,7 @@ class PropertyRepository(
     }
 
     companion object {
+        // Creates a PropertyRepository instance with configured API client
         fun getInstance(context: Context): PropertyRepository {
             val api = com.example.rentease.data.api.ApiClient.getApi(context)
             return PropertyRepository(api, context.applicationContext)

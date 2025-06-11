@@ -3,6 +3,7 @@ package com.example.rentease.data.model
 import com.squareup.moshi.Json
 import java.util.Date
 
+// Property model representing a rental property listing
 data class Property(
     val id: Int,
     val title: String,

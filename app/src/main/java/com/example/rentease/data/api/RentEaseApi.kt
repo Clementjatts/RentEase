@@ -21,6 +21,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 
+// Retrofit API interface defining all endpoints for the RentEase backend
 interface RentEaseApi {
     // Landlord endpoints (consolidated into user endpoints)
     @GET("users/landlords")

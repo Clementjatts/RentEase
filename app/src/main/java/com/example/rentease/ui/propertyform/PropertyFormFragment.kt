@@ -25,10 +25,7 @@ import com.example.rentease.ui.helpers.WindowInsetsHelper
 import com.example.rentease.utils.PropertyImageItem
 import kotlinx.coroutines.launch
 
-/**
- * PropertyFormFragment handles property creation and editing.
- * Simplified implementation without BaseFragment complexity.
- */
+// PropertyFormFragment handles property creation and editing
 class PropertyFormFragment : Fragment() {
 
     private var _binding: FragmentPropertyFormBinding? = null
@@ -49,6 +46,7 @@ class PropertyFormFragment : Fragment() {
         }
     }
 
+    // Creates the fragment's view hierarchy
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,6 +56,7 @@ class PropertyFormFragment : Fragment() {
         return binding.root
     }
 
+    // Initializes the fragment after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -68,6 +67,7 @@ class PropertyFormFragment : Fragment() {
         setupObservers()
     }
 
+    // Sets up all user interface components
     private fun setupUI() {
         setupToolbar()
         setupImagesRecyclerView()
@@ -76,6 +76,7 @@ class PropertyFormFragment : Fragment() {
         setupSaveButton()
     }
 
+    // Configures the toolbar with navigation and title
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -93,11 +94,13 @@ class PropertyFormFragment : Fragment() {
         binding.toolbar.title = getString(titleRes)
     }
 
+    // Sets up the images RecyclerView (placeholder for single image)
     private fun setupImagesRecyclerView() {
         // No longer needed for single image, but keeping for now
         // Will be replaced with simple ImageView
     }
 
+    // Sets up the add image button to launch image picker
     private fun setupAddImageButton() {
         binding.addImageButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -105,6 +108,7 @@ class PropertyFormFragment : Fragment() {
         }
     }
 
+    // Configures the furniture type dropdown with options
     private fun setupFurnitureTypeDropdown() {
         val furnitureTypes = arrayOf(
             getString(R.string.furniture_furnished),
@@ -119,6 +123,7 @@ class PropertyFormFragment : Fragment() {
         binding.furnitureTypeInput.setText(getString(R.string.furniture_unfurnished), false)
     }
 
+    // Updates the image display based on current image state
     private fun updateImageDisplay(image: PropertyImageItem?) {
         if (image != null) {
             // Show the image
@@ -154,6 +159,7 @@ class PropertyFormFragment : Fragment() {
         }
     }
 
+    // Sets up the save button with validation and form submission
     private fun setupSaveButton() {
         binding.saveButton.setOnClickListener {
             val title = binding.titleInput.text.toString()
@@ -186,6 +192,7 @@ class PropertyFormFragment : Fragment() {
         }
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -215,18 +222,21 @@ class PropertyFormFragment : Fragment() {
         }
     }
 
+    // Shows the initial state with enabled controls
     private fun showInitialState() {
         binding.loadingIndicator.visibility = View.GONE
         binding.saveButton.isEnabled = true
         binding.addImageButton.isEnabled = true
     }
 
+    // Shows loading state with disabled controls
     private fun showLoadingState() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.saveButton.isEnabled = false
         binding.addImageButton.isEnabled = false
     }
 
+    // Handles successful property save and navigation
     private fun handleSuccess() {
         binding.loadingIndicator.visibility = View.GONE
 
@@ -241,6 +251,7 @@ class PropertyFormFragment : Fragment() {
         findNavController().popBackStack()
     }
 
+    // Shows error message and re-enables controls
     private fun showError(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.saveButton.isEnabled = true
@@ -249,6 +260,7 @@ class PropertyFormFragment : Fragment() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
+    // Populates form fields with existing property data
     private fun showPropertyData(state: PropertyFormUiState.PropertyData) {
         binding.titleInput.setText(state.title)
         binding.descriptionInput.setText(state.description)
@@ -259,12 +271,14 @@ class PropertyFormFragment : Fragment() {
         binding.furnitureTypeInput.setText(state.furnitureType, false)
     }
 
+    // Cleans up view binding when fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of PropertyFormFragment with optional property ID
         fun newInstance(propertyId: Int = -1) = PropertyFormFragment().apply {
             arguments = Bundle().apply {
                 putInt("propertyId", propertyId)

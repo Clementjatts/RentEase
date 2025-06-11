@@ -15,9 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * PropertyFormViewModel handles the business logic for the property form screen.
- */
+// PropertyFormViewModel handles the business logic for the property form screen
 class PropertyFormViewModel(
     application: Application,
     private val propertyId: Int
@@ -32,9 +30,7 @@ class PropertyFormViewModel(
     private val _image = MutableStateFlow<PropertyImageItem?>(null)
     val image: StateFlow<PropertyImageItem?> = _image
 
-    /**
-     * Load the property data from the repository.
-     */
+    // Loads property data from the repository for editing
     fun loadPropertyDetails() {
         if (propertyId == -1) return // New property, don't load anything
 
@@ -75,9 +71,7 @@ class PropertyFormViewModel(
 
 
 
-    /**
-     * Save the property to the repository.
-     */
+    // Saves the property to the repository with validation
     fun saveProperty(
         title: String,
         description: String,
@@ -181,28 +175,23 @@ class PropertyFormViewModel(
         }
     }
 
-    /**
-     * Set the single image for the property (replaces any existing image).
-     */
+    // Sets the single image for the property (replaces any existing image)
     fun addImage(uri: Uri) {
         _image.value = PropertyImageItem(uri = uri, isExisting = false)
     }
 
-    /**
-     * Remove the single image from the property.
-     */
+    // Removes the single image from the property
     fun removeImage() {
         _image.value = null
     }
 
-    /**
-     * Factory for creating PropertyFormViewModel instances.
-     */
+    // Factory for creating PropertyFormViewModel instances
     class Factory(
         private val application: Application,
         private val propertyId: Int
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
+        // Creates ViewModel instances for the property form screen
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PropertyFormViewModel::class.java)) {
                 return PropertyFormViewModel(application, propertyId) as T
@@ -212,9 +201,7 @@ class PropertyFormViewModel(
     }
 }
 
-/**
- * Represents the UI state for the property form screen.
- */
+// Represents the UI state for the property form screen
 sealed class PropertyFormUiState {
     data object Initial : PropertyFormUiState()
     data object Loading : PropertyFormUiState()

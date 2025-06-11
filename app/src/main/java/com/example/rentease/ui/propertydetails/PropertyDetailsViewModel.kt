@@ -9,10 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for the PropertyDetailsFragment.
- * Handles loading and managing property details.
- */
+// ViewModel for the PropertyDetailsFragment
 class PropertyDetailsViewModel(
     private val propertyId: Int,
     private val repository: PropertyRepository
@@ -27,6 +24,7 @@ class PropertyDetailsViewModel(
         loadProperty()
     }
 
+    // Loads property details from the repository
     private fun loadProperty() {
         viewModelScope.launch {
             try {
@@ -52,22 +50,18 @@ class PropertyDetailsViewModel(
         }
     }
 
-    /**
-     * Get the landlord ID for the current property.
-     * This is used when navigating to the request form.
-     */
+    // Gets the landlord ID for the current property
     fun getLandlordId(): Int {
         return currentProperty?.landlordId ?: -1
     }
 
-    /**
-     * Factory for creating PropertyDetailsViewModel instances.
-     */
+    // Factory for creating PropertyDetailsViewModel instances
     class Factory(
         private val propertyId: Int,
         private val repository: PropertyRepository
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
+        // Creates ViewModel instances for the property details screen
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PropertyDetailsViewModel::class.java)) {
                 return PropertyDetailsViewModel(propertyId, repository) as T
@@ -77,9 +71,7 @@ class PropertyDetailsViewModel(
     }
 }
 
-/**
- * Represents the UI state for the property details screen.
- */
+// Represents the UI state for the property details screen
 sealed class PropertyDetailsUiState {
     data object Loading : PropertyDetailsUiState()
     data class Success(val property: Property) : PropertyDetailsUiState()

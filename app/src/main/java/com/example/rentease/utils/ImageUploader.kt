@@ -18,20 +18,20 @@ import java.io.FileOutputStream
 import java.util.UUID
 import kotlin.Result
 
-/**
- * Data class representing a property image item for UI
- */
+// Data class representing a property image item for UI
 data class PropertyImageItem(
     val uri: Uri,
     val isExisting: Boolean = false
 )
 
+// Handles image upload operations for property images
 class ImageUploader(
     private val context: Context,
     private val api: RentEaseApi
 ) {
     private val tag = "ImageUploader"
 
+    // Uploads an image for a property and returns the image URL
     suspend fun uploadImage(propertyId: Int, uri: Uri): Result<String> = withContext(Dispatchers.IO) {
         try {
             // Convert Uri to File
@@ -77,6 +77,7 @@ class ImageUploader(
         }
     }
 
+    // Creates a temporary compressed image file from the given URI
     private suspend fun createTempImageFile(uri: Uri): File = withContext(Dispatchers.IO) {
         // Create temporary file
         val tempFile = File(context.cacheDir, "img_${UUID.randomUUID()}.jpg")
@@ -92,6 +93,7 @@ class ImageUploader(
         tempFile
     }
 
+    // Determines the MIME type of the image from the URI
     private fun getMimeType(uri: Uri): String {
         val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "image/jpeg"

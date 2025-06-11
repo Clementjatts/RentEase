@@ -3,7 +3,7 @@
 // API Configuration
 const API_BASE_URL = '';
 
-// WebView detection and header management
+// Detects if the page is running inside a mobile app WebView
 function detectWebView() {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
     
@@ -18,6 +18,7 @@ function detectWebView() {
     return isAndroidWebView || isIOSWebView;
 }
 
+// Sets up conditional header visibility based on WebView detection
 function setupConditionalHeader() {
     const appBar = document.querySelector('.app-bar');
     const content = document.querySelector('.content');
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProperties();
 });
 
+// Loads and displays all available properties from the API
 async function loadProperties() {
     showLoading();
     hideError();
@@ -63,6 +65,7 @@ async function loadProperties() {
     }
 }
 
+// Displays the properties in the UI as cards
 function displayProperties(properties) {
     const container = document.getElementById('propertiesContainer');
     const noPropertiesDiv = document.getElementById('noProperties');
@@ -112,22 +115,26 @@ function displayProperties(properties) {
     }).join('');
 }
 
+// Updates the property count statistics display
 function updateStats(count) {
     document.getElementById('propertyCount').textContent = count;
     document.getElementById('stats').style.display = 'block';
 }
 
+// Shows the loading indicator
 function showLoading() {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('propertiesContainer').style.display = 'none';
     document.getElementById('noProperties').style.display = 'none';
 }
 
+// Hides the loading indicator and shows the properties container
 function hideLoading() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('propertiesContainer').style.display = 'block';
 }
 
+// Shows an error message to the user
 function showError(message) {
     document.getElementById('errorMessage').textContent = message;
     document.getElementById('error').style.display = 'block';
@@ -135,6 +142,7 @@ function showError(message) {
     document.getElementById('noProperties').style.display = 'none';
 }
 
+// Hides the error message from the UI
 function hideError() {
     document.getElementById('error').style.display = 'none';
 }

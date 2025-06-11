@@ -5,12 +5,13 @@ import com.example.rentease.data.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+// Repository for handling user profile operations and landlord management
 class UserRepository(
     private val api: RentEaseApi,
     private val authManager: com.example.rentease.auth.AuthManager
 ) : BaseRepository() {
 
-
+    // Retrieves user profile data for current user or specific landlord
     suspend fun getUserProfile(landlordId: Int? = null): com.example.rentease.data.model.Result<User> = withContext(Dispatchers.IO) {
         try {
             // If landlordId is provided, we're editing a landlord profile
@@ -101,6 +102,7 @@ class UserRepository(
         }
     }
 
+    // Updates user profile information for current user or specific landlord
     suspend fun updateUserProfile(user: User, landlordId: Int? = null): com.example.rentease.data.model.Result<User> = withContext(Dispatchers.IO) {
         try {
             // If landlordId is provided, we're updating a landlord profile
@@ -174,6 +176,7 @@ class UserRepository(
         }
     }
 
+    // Saves user data to local storage (placeholder implementation)
     suspend fun saveUser(): com.example.rentease.data.model.Result<Unit> = withContext(Dispatchers.IO) {
         try {
             com.example.rentease.data.model.Result.Success(Unit)
@@ -182,10 +185,7 @@ class UserRepository(
         }
     }
 
-    /**
-     * Get the landlord ID for the current user
-     * This is used when a landlord wants to edit their own profile
-     */
+    // Gets the landlord ID for the current user when they want to edit their profile
     private suspend fun getLandlordIdForCurrentUser(): com.example.rentease.data.model.Result<Int?> = withContext(Dispatchers.IO) {
         try {
             // Get the user ID and type from AuthManager
@@ -223,7 +223,7 @@ class UserRepository(
         }
     }
 
-    // Landlord management methods (consolidated to use User model)
+    // Retrieves all landlord users for admin management
     suspend fun getLandlords(): com.example.rentease.data.model.Result<List<User>> = withContext(Dispatchers.IO) {
         try {
             val response = api.getLandlords()
@@ -263,6 +263,7 @@ class UserRepository(
         }
     }
 
+    // Deletes a landlord account by ID
     suspend fun deleteLandlord(landlordId: Int): com.example.rentease.data.model.Result<Boolean> = withContext(Dispatchers.IO) {
         try {
             val response = api.deleteLandlord(landlordId)

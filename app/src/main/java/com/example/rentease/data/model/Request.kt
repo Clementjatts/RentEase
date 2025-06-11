@@ -3,6 +3,7 @@ package com.example.rentease.data.model
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+// Request model representing a property inquiry from a potential tenant
 data class Request(
     val id: Int,
     @Json(name = "property_id") val propertyId: Int,
@@ -17,6 +18,7 @@ data class Request(
     @Json(name = "property_address") val propertyAddress: String
 )
 
+// Request data model for creating new property inquiries
 @JsonClass(generateAdapter = true)
 data class CreateRequestData(
     @Json(name = "property_id") val propertyId: Int,

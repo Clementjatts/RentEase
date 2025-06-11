@@ -1,30 +1,15 @@
 <?php
-/**
- * Auth Controller
- *
- * Handles authentication-related API requests
- */
-
+// Authentication controller that handles login, register, and password change operations
 class AuthController extends BaseController {
     private $user;
 
-    /**
-     * Constructor
-     *
-     * @param PDO $db Database connection
-     * @param ResponseService $service Response service
-     * @param array $request Request data
-     */
+    // Initializes the controller with database connection and User model
     public function __construct($db, $service, $request) {
         parent::__construct($db, $service, $request);
         $this->user = new User($db);
     }
 
-    /**
-     * Process the request and route to the appropriate method
-     *
-     * @return array Response data
-     */
+    // Processes authentication requests and routes to appropriate methods
     public function processRequest() {
         $action = isset($this->request['path_parts'][1]) ? $this->request['path_parts'][1] : '';
 
@@ -41,69 +26,37 @@ class AuthController extends BaseController {
         }
     }
 
-    /**
-     * Get all resources - Not used for Auth
-     *
-     * @return array
-     */
+    // Not used for authentication endpoints
     protected function getAll() {
         return $this->service->methodNotAllowed('Method not allowed');
     }
 
-    /**
-     * Get one resource by ID - Not used for Auth
-     *
-     * @param int $id Resource ID
-     * @return array
-     */
+    // Not used for authentication endpoints
     protected function getOne($id) {
         return $this->service->methodNotAllowed('Method not allowed');
     }
 
-    /**
-     * Create a new resource - Used for register
-     *
-     * @return array
-     */
+    // Routes to register method for user creation
     protected function create() {
         return $this->register();
     }
 
-    /**
-     * Update a resource - Not used for Auth
-     *
-     * @param int $id Resource ID
-     * @param bool $partial Whether this is a partial update (PATCH)
-     * @return array
-     */
+    // Not used for authentication endpoints
     protected function update($id, $partial = false) {
         return $this->service->methodNotAllowed('Method not allowed');
     }
 
-    /**
-     * Delete a resource - Not used for Auth
-     *
-     * @param int $id Resource ID
-     * @return array
-     */
+    // Not used for authentication endpoints
     protected function delete($id) {
         return $this->service->methodNotAllowed('Method not allowed');
     }
 
-    /**
-     * Get count of resources - Not used for Auth
-     *
-     * @return array
-     */
+    // Not used for authentication endpoints
     protected function getCount() {
         return $this->service->methodNotAllowed('Method not allowed');
     }
 
-    /**
-     * Login a user
-     *
-     * @return array
-     */
+    // Authenticates a user with username and password
     public function login() {
         // Get request body
         $data = $this->getBody();
@@ -139,11 +92,7 @@ class AuthController extends BaseController {
         ]);
     }
 
-    /**
-     * Register a new user
-     *
-     * @return array
-     */
+    // Registers a new user account
     public function register() {
         // Get request body
         $data = $this->getBody();
@@ -220,11 +169,7 @@ class AuthController extends BaseController {
         ], 'User registered successfully');
     }
 
-    /**
-     * Change user password
-     *
-     * @return array
-     */
+    // Changes the current user's password
     public function changePassword() {
         // Get request body
         $data = $this->getBody();
@@ -274,11 +219,7 @@ class AuthController extends BaseController {
         }
     }
 
-    /**
-     * Get the current authenticated user
-     *
-     * @return array
-     */
+    // Returns the current authenticated user information
     public function getCurrentUser() {
         // Check if user is authenticated
         if (!isset($this->request['user'])) {

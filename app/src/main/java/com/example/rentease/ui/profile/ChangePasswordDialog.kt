@@ -14,6 +14,7 @@ import com.example.rentease.databinding.DialogChangePasswordBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
+// ChangePasswordDialog handles password change functionality
 class ChangePasswordDialog : DialogFragment() {
     private var _binding: DialogChangePasswordBinding? = null
     private val binding get() = _binding!!
@@ -24,6 +25,7 @@ class ChangePasswordDialog : DialogFragment() {
 
     private var positiveButton: Button? = null
 
+    // Creates the dialog with password change form
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogChangePasswordBinding.inflate(layoutInflater)
 
@@ -43,6 +45,7 @@ class ChangePasswordDialog : DialogFragment() {
         return dialog
     }
 
+    // Sets up the save button click handler
     private fun setupPositiveButton(button: Button) {
         button.setOnClickListener {
             val currentPassword = binding.currentPasswordInput.text.toString()
@@ -57,6 +60,7 @@ class ChangePasswordDialog : DialogFragment() {
         }
     }
 
+    // Observes ViewModel state changes
     private fun observeViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -85,6 +89,7 @@ class ChangePasswordDialog : DialogFragment() {
         }
     }
 
+    // Enables or disables input fields and button
     private fun enableInputs(enabled: Boolean) {
         binding.currentPasswordInput.isEnabled = enabled
         binding.newPasswordInput.isEnabled = enabled
@@ -92,22 +97,26 @@ class ChangePasswordDialog : DialogFragment() {
         positiveButton?.isEnabled = enabled
     }
 
+    // Shows error message to the user
     private fun showError(message: String) {
         binding.errorText.text = message
         binding.errorText.isVisible = true
         positiveButton?.isEnabled = true
     }
 
+    // Hides error message
     private fun hideError() {
         binding.errorText.isVisible = false
         positiveButton?.isEnabled = true
     }
 
+    // Notifies parent about successful password change
     private fun showSuccessMessage() {
         (parentFragment as? PasswordChangeListener)?.onPasswordChanged()
             ?: (activity as? PasswordChangeListener)?.onPasswordChanged()
     }
 
+    // Cleans up view binding when dialog is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -120,6 +129,7 @@ class ChangePasswordDialog : DialogFragment() {
     companion object {
         const val TAG = "ChangePasswordDialog"
 
+        // Creates a new instance of ChangePasswordDialog
         fun newInstance() = ChangePasswordDialog()
     }
 }

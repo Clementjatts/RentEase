@@ -20,9 +20,7 @@ import com.example.rentease.di.RepositoryProvider
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
-/**
- * PropertyDetailsFragment displays detailed information about a property.
- */
+// PropertyDetailsFragment displays detailed information about a property
 class PropertyDetailsFragment : Fragment() {
 
     private var _binding: FragmentPropertyDetailsBinding? = null
@@ -36,6 +34,7 @@ class PropertyDetailsFragment : Fragment() {
         )
     }
 
+    // Creates the fragment's view hierarchy
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,6 +44,7 @@ class PropertyDetailsFragment : Fragment() {
         return binding.root
     }
 
+    // Initializes the fragment after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -55,11 +55,13 @@ class PropertyDetailsFragment : Fragment() {
         setupObservers()
     }
 
+    // Sets up all user interface components
     private fun setupUI() {
         setupToolbar()
         setupContactButton()
     }
 
+    // Configures the toolbar with navigation
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -68,6 +70,7 @@ class PropertyDetailsFragment : Fragment() {
         }
     }
 
+    // Sets up the contact button to navigate to request form
     private fun setupContactButton() {
         binding.contactFab.setOnClickListener {
             // Navigate to RequestFormFragment with property ID
@@ -77,6 +80,7 @@ class PropertyDetailsFragment : Fragment() {
         }
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -91,11 +95,13 @@ class PropertyDetailsFragment : Fragment() {
         }
     }
 
+    // Shows loading state while property details are being fetched
     private fun showLoading() {
         binding.mainLoadingIndicator.visibility = View.VISIBLE
         binding.loadingIndicator.visibility = View.GONE
     }
 
+    // Displays the property details in the UI
     private fun showPropertyDetails(property: Property) {
         binding.mainLoadingIndicator.visibility = View.GONE
         binding.loadingIndicator.visibility = View.GONE
@@ -186,17 +192,20 @@ class PropertyDetailsFragment : Fragment() {
         }
     }
 
+    // Shows error state when property loading fails
     private fun showError(message: String) {
         binding.mainLoadingIndicator.visibility = View.GONE
         binding.loadingIndicator.visibility = View.GONE
     }
 
+    // Cleans up view binding when fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of PropertyDetailsFragment
         fun newInstance() = PropertyDetailsFragment()
     }
 } 

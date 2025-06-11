@@ -1,30 +1,15 @@
 <?php
-/**
- * User Controller
- *
- * Handles user-related API requests
- */
+// User controller that handles user-related API requests including landlord management
 class UserController extends BaseController {
     private $user;
 
-    /**
-     * Constructor
-     *
-     * @param PDO $db Database connection
-     * @param ResponseService $service Response service
-     * @param array $request Request data
-     */
+    // Initializes the controller with database connection and User model
     public function __construct($db, $service, $request) {
         parent::__construct($db, $service, $request);
         $this->user = new User($db);
     }
 
-    /**
-     * Process the request and route to the appropriate method
-     * Enhanced to handle landlord-specific routes
-     *
-     * @return array Response data
-     */
+    // Processes requests and routes to appropriate methods including landlord-specific routes
     public function processRequest() {
         $action = $this->request['action'] ?? '';
 
@@ -47,11 +32,7 @@ class UserController extends BaseController {
         return parent::processRequest();
     }
 
-    /**
-     * Get all users
-     *
-     * @return array
-     */
+    // Retrieves all users with admin-only access and pagination
     protected function getAll() {
         try {
             // Only admins can view all users
@@ -98,12 +79,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Get one user by ID
-     *
-     * @param int $id User ID
-     * @return array
-     */
+    // Retrieves a single user by ID with authorization checks
     protected function getOne($id) {
         try {
             // Users can only view their own profile, unless they're admin
@@ -125,11 +101,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Create a new user
-     *
-     * @return array
-     */
+    // Creates a new user with validation and admin-only user type setting
     protected function create() {
         try {
             $data = $this->getBody();
@@ -170,13 +142,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Update a user
-     *
-     * @param int $id User ID
-     * @param bool $partial Whether this is a partial update (PATCH)
-     * @return array
-     */
+    // Updates a user with authorization checks and admin-only user type changes
     protected function update($id, $partial = false) {
         try {
             // Users can only update their own profile, unless they're admin
@@ -230,12 +196,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Delete a user
-     *
-     * @param int $id User ID
-     * @return array
-     */
+    // Deletes a user with authorization checks
     protected function delete($id) {
         try {
             // Only admins can delete users, or users can delete their own account
@@ -265,11 +226,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Get count of users
-     *
-     * @return array
-     */
+    // Returns the total count of users with admin-only access
     protected function getCount() {
         try {
             // Only admins can view user count
@@ -291,11 +248,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Login route (custom route)
-     *
-     * @return array
-     */
+    // Handles user login with credential verification and JWT token generation
     public function login() {
         try {
             $data = $this->getBody();
@@ -337,23 +290,13 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Generate JWT token (simplified for academic project)
-     *
-     * @param array $data Data to encode in the token
-     * @return string Demo token
-     */
+    // Generates a simplified JWT token for academic project demonstration
     private function generateJWT($data) {
         // Simplified for academic project - return demo token
         return 'demo-token-' . ($data['id'] ?? 'unknown') . '-' . time();
     }
 
-    /**
-     * Get all landlords (users with user_type = 'LANDLORD')
-     * Consolidated from LandlordController
-     *
-     * @return array
-     */
+    // Retrieves all landlords with admin-only access and pagination
     public function getLandlords() {
         try {
             // Only admins can view all landlords
@@ -394,12 +337,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Get landlord by user ID (for current authenticated user)
-     * Consolidated from LandlordController
-     *
-     * @return array
-     */
+    // Retrieves landlord profile for the current authenticated user
     public function getLandlordByUserId() {
         try {
             // Get the authenticated user ID
@@ -423,13 +361,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Delete a landlord (user with user_type = 'LANDLORD')
-     * Consolidated from LandlordController with property deletion checks
-     *
-     * @param int $id User ID (landlord ID)
-     * @return array
-     */
+    // Deletes a landlord with admin-only access and property association checks
     public function deleteLandlord($id) {
         try {
             // Only admins can delete landlords
@@ -466,13 +398,7 @@ class UserController extends BaseController {
         }
     }
 
-    /**
-     * Get properties by landlord
-     * Consolidated from LandlordController
-     *
-     * @param int $landlord_id Landlord ID
-     * @return array
-     */
+    // Retrieves all properties owned by a specific landlord with pagination
     public function getLandlordProperties($landlord_id) {
         try {
             if (!$landlord_id) {

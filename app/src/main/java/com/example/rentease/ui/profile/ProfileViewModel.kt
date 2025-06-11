@@ -16,9 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * ProfileViewModel handles the business logic for the profile screen.
- */
+// ProfileViewModel handles the business logic for the profile screen
 class ProfileViewModel(
     application: Application,
     private val landlordId: Int? = null
@@ -30,9 +28,7 @@ class ProfileViewModel(
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Initial)
     val uiState: StateFlow<ProfileUiState> = _uiState
 
-    /**
-     * Load the user data from the repository.
-     */
+    // Loads user data from the repository
     fun loadUserData() {
         _uiState.value = ProfileUiState.Loading
 
@@ -70,10 +66,7 @@ class ProfileViewModel(
         }
     }
 
-    /**
-     * Reload user data without showing loading state.
-     * This is used after successful operations to refresh the data.
-     */
+    // Reloads user data without showing loading state
     private fun reloadUserDataSilently() {
         viewModelScope.launch {
             try {
@@ -107,9 +100,7 @@ class ProfileViewModel(
         }
     }
 
-    /**
-     * Update the user profile.
-     */
+    // Updates the user profile with new information
     fun updateProfile(
         fullName: String,
         email: String,
@@ -166,11 +157,10 @@ class ProfileViewModel(
 
 
 
-    /**
-     * Factory for creating ProfileViewModel instances.
-     */
+    // Factory for creating ProfileViewModel instances
     class Factory(private val application: Application, private val landlordId: Int? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
+        // Creates ViewModel instances for the profile screen
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
                 return ProfileViewModel(application, landlordId) as T
@@ -180,9 +170,7 @@ class ProfileViewModel(
     }
 }
 
-/**
- * Represents the UI state for the profile screen.
- */
+// Represents the UI state for the profile screen
 sealed class ProfileUiState {
     data object Initial : ProfileUiState()
     data object Loading : ProfileUiState()

@@ -7,13 +7,11 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 
-/**
- * MainActivity serves as the single activity container for all fragments in the app.
- * It handles navigation between fragments using the Navigation Component.
- */
+// Main activity that serves as the single activity container for all fragments in the app
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
+    // Initializes the activity with navigation setup and edge-to-edge display
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,9 +29,7 @@ class MainActivity : AppCompatActivity() {
         handleNavigationIntent(intent)
     }
 
-    /**
-     * Enable edge-to-edge display for Android 15 compatibility
-     */
+    // Enables edge-to-edge display for Android 15 compatibility
     private fun enableEdgeToEdge() {
         // Enable edge-to-edge display
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -42,11 +38,13 @@ class MainActivity : AppCompatActivity() {
         // This allows for proper edge-to-edge display with toolbars extending into status bar area
     }
 
+    // Handles new intents when the activity is already running
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleNavigationIntent(intent)
     }
 
+    // Processes navigation intents and routes to appropriate fragments
     private fun handleNavigationIntent(intent: Intent) {
         // Handle navigation from string extra
         intent.getStringExtra("navigate_to")?.let { destination ->
@@ -86,6 +84,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Handles navigation up button presses in the action bar
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }

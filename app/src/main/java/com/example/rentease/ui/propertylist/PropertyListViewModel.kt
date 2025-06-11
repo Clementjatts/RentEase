@@ -10,10 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for the PropertyListFragment.
- * Handles loading and managing the list of properties.
- */
+// ViewModel for the PropertyListFragment that handles loading and managing the list of properties
 class PropertyListViewModel(
     application: Application
 ) : AndroidViewModel(application) {
@@ -23,9 +20,7 @@ class PropertyListViewModel(
     private val _uiState = MutableStateFlow<PropertyListUiState>(PropertyListUiState.Loading)
     val uiState: StateFlow<PropertyListUiState> = _uiState
 
-    /**
-     * Load all available properties from the repository.
-     */
+    // Loads all available properties from the repository
     fun loadProperties() {
         viewModelScope.launch {
             try {
@@ -44,16 +39,12 @@ class PropertyListViewModel(
         }
     }
 
-    /**
-     * Refresh properties (same as loadProperties but with clearer intent for pull-to-refresh).
-     */
+    // Refreshes properties with clearer intent for pull-to-refresh functionality
     fun refreshProperties() {
         loadProperties()
     }
 
-    /**
-     * Factory for creating PropertyListViewModel instances.
-     */
+    // Factory for creating PropertyListViewModel instances
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -65,9 +56,7 @@ class PropertyListViewModel(
     }
 }
 
-/**
- * Represents the UI state for the property list screen.
- */
+// Represents the UI state for the property list screen
 sealed class PropertyListUiState {
     data object Loading : PropertyListUiState()
     data class Success(val properties: List<com.example.rentease.data.model.Property>) : PropertyListUiState()

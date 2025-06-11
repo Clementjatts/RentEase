@@ -8,10 +8,9 @@ import com.example.rentease.data.repository.PropertyRepository
 import com.example.rentease.data.repository.RequestRepository
 import com.example.rentease.data.repository.UserRepository
 
-/**
- * A simple dependency injection provider for repositories
- */
+// Simple dependency injection provider for repositories
 object RepositoryProvider {
+    // Creates and returns an AuthRepository instance
     fun provideAuthRepository(context: Context): AuthRepository {
         return AuthRepository(
             api = ApiClient.getApi(context),
@@ -19,6 +18,7 @@ object RepositoryProvider {
         )
     }
 
+    // Creates and returns a PropertyRepository instance
     fun providePropertyRepository(context: Context): PropertyRepository {
         return PropertyRepository(
             api = ApiClient.getApi(context),
@@ -26,6 +26,7 @@ object RepositoryProvider {
         )
     }
 
+    // Creates and returns a UserRepository instance
     fun provideUserRepository(context: Context): UserRepository {
         return UserRepository(
             api = ApiClient.getApi(context),
@@ -33,6 +34,7 @@ object RepositoryProvider {
         )
     }
 
+    // Creates and returns a RequestRepository instance
     fun provideRequestRepository(context: Context): RequestRepository {
         return RequestRepository(
             api = ApiClient.getApi(context)

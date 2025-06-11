@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+// ChangePasswordViewModel handles password change logic
 class ChangePasswordViewModel(
     private val repository: AuthRepository
 ) : ViewModel() {
@@ -18,6 +19,7 @@ class ChangePasswordViewModel(
     private val _uiState = MutableStateFlow<ChangePasswordUiState>(ChangePasswordUiState.Initial)
     val uiState: StateFlow<ChangePasswordUiState> = _uiState
 
+    // Changes user password with validation
     fun changePassword(
         currentPassword: String,
         newPassword: String,
@@ -32,7 +34,7 @@ class ChangePasswordViewModel(
 
             try {
                 val result = repository.changePassword(currentPassword, newPassword)
-                
+
                 if (result is com.example.rentease.data.model.Result.Success) {
                     _uiState.value = ChangePasswordUiState.Success
                 } else if (result is com.example.rentease.data.model.Result.Error) {
@@ -48,6 +50,7 @@ class ChangePasswordViewModel(
         }
     }
 
+    // Validates password change input
     private fun validateInput(
         currentPassword: String,
         newPassword: String,
@@ -76,8 +79,10 @@ class ChangePasswordViewModel(
         return true
     }
 
+    // Factory for creating ChangePasswordViewModel instances
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
+        // Creates ViewModel instances for password change dialog
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ChangePasswordViewModel::class.java)) {
                 val authManager = AuthManager.getInstance(application)
@@ -89,6 +94,7 @@ class ChangePasswordViewModel(
     }
 }
 
+// Represents the UI state for password change dialog
 sealed class ChangePasswordUiState {
     data object Initial : ChangePasswordUiState()
     data object Loading : ChangePasswordUiState()

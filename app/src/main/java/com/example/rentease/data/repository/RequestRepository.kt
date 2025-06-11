@@ -5,11 +5,10 @@ import com.example.rentease.data.model.CreateRequestData
 import com.example.rentease.data.model.Request
 import com.example.rentease.data.model.Result
 
+// Repository for handling property inquiry requests and notifications
 class RequestRepository(private val api: RentEaseApi) {
-    
-    /**
-     * Submit a new contact request
-     */
+
+    // Submits a new contact request for a property
     suspend fun submitRequest(
         propertyId: Int,
         landlordId: Int,
@@ -38,10 +37,8 @@ class RequestRepository(private val api: RentEaseApi) {
             Result.Error(e.message ?: "Network error")
         }
     }
-    
-    /**
-     * Get all requests for a landlord
-     */
+
+    // Retrieves all contact requests for a specific landlord
     suspend fun getRequestsForLandlord(landlordId: Int): Result<List<Request>> {
         return try {
             val response = api.getRequestsForLandlord(landlordId)
@@ -76,10 +73,8 @@ class RequestRepository(private val api: RentEaseApi) {
             Result.Error(e.message ?: "Network error")
         }
     }
-    
-    /**
-     * Mark a request as read
-     */
+
+    // Marks a specific request as read by the landlord
     suspend fun markAsRead(requestId: Int): Result<Boolean> {
         return try {
             val response = api.markRequestAsRead(requestId)
@@ -92,10 +87,8 @@ class RequestRepository(private val api: RentEaseApi) {
             Result.Error(e.message ?: "Network error")
         }
     }
-    
-    /**
-     * Get unread count for a landlord
-     */
+
+    // Gets the count of unread requests for a landlord
     suspend fun getUnreadCount(landlordId: Int): Result<Int> {
         return try {
             val response = api.getUnreadCount(landlordId)
@@ -116,9 +109,7 @@ class RequestRepository(private val api: RentEaseApi) {
         }
     }
 
-    /**
-     * Helper method to convert a Map to a Request object
-     */
+    // Converts a Map from API response to a Request object
     private fun convertMapToRequest(map: Map<*, *>): Request {
         return Request(
             id = (map["id"] as? Number)?.toInt() ?: 0,

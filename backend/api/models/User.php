@@ -1,28 +1,15 @@
 <?php
-/**
- * User Model
- *
- * Handles database operations for users
- */
+// User model that handles database operations for users including authentication
 class User {
     private $db;
     private $table = 'users';
 
-    /**
-     * Constructor
-     *
-     * @param PDO $db Database connection
-     */
+    // Initializes the model with database connection
     public function __construct($db) {
         $this->db = $db;
     }
 
-    /**
-     * Get all users
-     *
-     * @param array $params Optional filter parameters
-     * @return array
-     */
+    // Retrieves all users with optional filtering and pagination
     public function getAll($params = []) {
         // Include all user fields for simplified schema
         $query = "SELECT id, username, email, phone, user_type, full_name, created_at FROM {$this->table}";
@@ -61,12 +48,7 @@ class User {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get a single user by ID
-     *
-     * @param int $id User ID
-     * @return array|false
-     */
+    // Retrieves a single user by ID without password field
     public function getById($id) {
         // Include all fields needed by the Android app
         $query = "SELECT id, username, email, user_type, full_name, phone, created_at
@@ -78,12 +60,7 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get a single user by ID including password (for authentication purposes)
-     *
-     * @param int $id User ID
-     * @return array|false
-     */
+    // Retrieves a single user by ID including password for authentication purposes
     public function getByIdWithPassword($id) {
         $query = "SELECT id, username, email, password, user_type, full_name, phone, created_at
                   FROM {$this->table} WHERE id = ?";
@@ -94,12 +71,7 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get a user by username
-     *
-     * @param string $username Username
-     * @return array|false
-     */
+    // Retrieves a user by username including password for authentication
     public function getByUsername($username) {
         // Removed updated_at from the query
         $query = "SELECT id, username, email, password, user_type, created_at
@@ -111,12 +83,7 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get a user by email
-     *
-     * @param string $email Email
-     * @return array|false
-     */
+    // Retrieves a user by email including password for authentication
     public function getByEmail($email) {
         // Removed updated_at from the query
         $query = "SELECT id, username, email, password, user_type, created_at
@@ -128,12 +95,7 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Create a new user
-     *
-     * @param array $data User data
-     * @return int|false The ID of the new user or false on failure
-     */
+    // Creates a new user with password hashing and duplicate checking
     public function create($data) {
         // Check if username or email already exists
         $check_query = "SELECT id FROM {$this->table} WHERE username = ? OR email = ?";
@@ -168,13 +130,7 @@ class User {
         return false;
     }
 
-    /**
-     * Update a user
-     *
-     * @param int $id User ID
-     * @param array $data User data
-     * @return bool
-     */
+    // Updates an existing user with duplicate checking and password hashing
     public function update($id, $data) {
         // First get the current user to check if it exists
         $current = $this->getById($id);
@@ -271,12 +227,7 @@ class User {
 
 
 
-    /**
-     * Delete a user
-     *
-     * @param int $id User ID
-     * @return bool
-     */
+    // Deletes a user by ID after existence check
     public function delete($id) {
         // Check if the user exists
         $current = $this->getById($id);
@@ -289,13 +240,7 @@ class User {
         return $stmt->execute([(int)$id]);
     }
 
-    /**
-     * Verify a user's credentials
-     *
-     * @param string $username Username or email
-     * @param string $password Password
-     * @return array|false User data if credentials are valid, false otherwise
-     */
+    // Verifies user credentials using secure password hashing
     public function verify($username, $password) {
         // Check if input is email or username
         $is_email = filter_var($username, FILTER_VALIDATE_EMAIL);

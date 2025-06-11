@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * PropertyManagementViewModel handles the business logic for the property management screen.
- */
+// PropertyManagementViewModel handles the business logic for the property management screen
 class PropertyManagementViewModel(
     application: Application
 ) : AndroidViewModel(application) {
@@ -26,9 +24,7 @@ class PropertyManagementViewModel(
     private val _uiState = MutableStateFlow<PropertyManagementUiState>(PropertyManagementUiState.Loading)
     val uiState: StateFlow<PropertyManagementUiState> = _uiState
 
-    /**
-     * Load the landlord's properties from the repository.
-     */
+    // Loads properties based on user type (admin sees all, landlord sees own)
     fun loadProperties() {
         _uiState.value = PropertyManagementUiState.Loading
 
@@ -67,9 +63,7 @@ class PropertyManagementViewModel(
         }
     }
 
-    /**
-     * Delete a property from the repository.
-     */
+    // Deletes a property and reloads the property list
     fun deleteProperty(propertyId: Int) {
         viewModelScope.launch {
             try {
@@ -88,11 +82,10 @@ class PropertyManagementViewModel(
         }
     }
 
-    /**
-     * Factory for creating PropertyManagementViewModel instances.
-     */
+    // Factory for creating PropertyManagementViewModel instances
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
+        // Creates ViewModel instances for the property management screen
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PropertyManagementViewModel::class.java)) {
                 return PropertyManagementViewModel(application) as T
@@ -102,9 +95,7 @@ class PropertyManagementViewModel(
     }
 }
 
-/**
- * Represents the UI state for the property management screen.
- */
+// Represents the UI state for the property management screen
 sealed class PropertyManagementUiState {
     data object Loading : PropertyManagementUiState()
     data class Success(val properties: List<Property>) : PropertyManagementUiState()

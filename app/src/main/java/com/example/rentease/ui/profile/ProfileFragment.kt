@@ -17,10 +17,7 @@ import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 import androidx.core.view.isGone
 
-/**
- * ProfileFragment handles user profile management.
- * Simplified implementation without BaseFragment complexity.
- */
+// ProfileFragment handles user profile management
 class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener {
 
     private var _binding: FragmentProfileBinding? = null
@@ -54,6 +51,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         ProfileViewModel.Factory(requireActivity().application, effectiveLandlordId)
     }
 
+    // Creates the fragment's view hierarchy
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -63,6 +61,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         return binding.root
     }
 
+    // Initializes the fragment after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -73,6 +72,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         setupObservers()
     }
 
+    // Sets up all user interface components
     private fun setupUI() {
         setupToolbar()
         setupSaveButton()
@@ -80,6 +80,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         setupFormChangeListeners()
     }
 
+    // Configures the toolbar with navigation
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -89,6 +90,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         }
     }
 
+    // Sets up the save button to update profile information
     private fun setupSaveButton() {
         binding.saveButton.setOnClickListener {
             val fullName = binding.fullNameInput.text.toString()
@@ -103,12 +105,14 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         }
     }
 
+    // Sets up the change password button to show dialog
     private fun setupChangePasswordButton() {
         binding.changePasswordButton.setOnClickListener {
             showChangePasswordDialog()
         }
     }
 
+    // Sets up text change listeners to track form modifications
     private fun setupFormChangeListeners() {
         // Add text change listeners to track form modifications
         binding.fullNameInput.addTextChangedListener(object : android.text.TextWatcher {
@@ -136,6 +140,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         })
     }
 
+    // Updates save button state based on form changes
     private fun updateSaveButtonState() {
         val currentFullName = binding.fullNameInput.text.toString()
         val currentEmail = binding.emailInput.text.toString()
@@ -149,11 +154,13 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         binding.saveButton.isEnabled = hasChanges && binding.loadingIndicator.isGone
     }
 
+    // Shows the change password dialog
     private fun showChangePasswordDialog() {
         val dialog = ChangePasswordDialog.newInstance()
         dialog.show(parentFragmentManager, ChangePasswordDialog.TAG)
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -175,18 +182,21 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         viewModel.loadUserData()
     }
 
+    // Shows the initial state with enabled controls
     private fun showInitialState() {
         binding.loadingIndicator.visibility = View.GONE
         binding.changePasswordButton.isEnabled = true
         updateSaveButtonState()
     }
 
+    // Shows loading state with disabled controls
     private fun showLoadingState() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.saveButton.isEnabled = false
         binding.changePasswordButton.isEnabled = false
     }
 
+    // Handles successful profile update
     private fun handleSuccess(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.changePasswordButton.isEnabled = true
@@ -195,6 +205,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
+    // Shows error message and re-enables controls
     private fun showError(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.changePasswordButton.isEnabled = true
@@ -203,6 +214,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
+    // Populates form fields with user data
     private fun showUserData(state: ProfileUiState.UserData) {
         // Hide loading indicator and enable change password button when user data is loaded
         binding.loadingIndicator.visibility = View.GONE
@@ -224,16 +236,19 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
         // Account information section has been removed from the layout
     }
 
+    // Handles password change success callback
     override fun onPasswordChanged() {
         Toast.makeText(requireContext(), "Password changed successfully", Toast.LENGTH_LONG).show()
     }
 
+    // Cleans up view binding when fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of ProfileFragment
         fun newInstance() = ProfileFragment()
     }
 }

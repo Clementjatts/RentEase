@@ -1,33 +1,19 @@
 <?php
-/**
- * Base Controller Class
- *
- * Provides common functionality for all controllers
- */
+// Base controller class providing common functionality for all API controllers
 abstract class BaseController {
     protected $db;
     protected $service;
     protected $request;
     protected $response;
 
-    /**
-     * Constructor
-     *
-     * @param PDO $db Database connection
-     * @param ResponseService $service Response service
-     * @param array $request Request data
-     */
+    // Initializes the controller with database connection, response service, and request data
     public function __construct($db, $service, $request) {
         $this->db = $db;
         $this->service = $service;
         $this->request = $request;
     }
 
-    /**
-     * Process the request and route to the appropriate method
-     *
-     * @return array Response data
-     */
+    // Processes the incoming request and routes to the appropriate method
     public function processRequest() {
         $method = $this->request['method'];
         $action = $this->request['action'] ?? (isset($this->request['path_parts'][1]) ? $this->request['path_parts'][1] : '');
@@ -85,57 +71,25 @@ abstract class BaseController {
         }
     }
 
-    /**
-     * Get all resources
-     *
-     * @return array
-     */
+    // Retrieves all resources
     abstract protected function getAll();
 
-    /**
-     * Get one resource by ID
-     *
-     * @param int $id Resource ID
-     * @return array
-     */
+    // Retrieves a single resource by ID
     abstract protected function getOne($id);
 
-    /**
-     * Create a new resource
-     *
-     * @return array
-     */
+    // Creates a new resource
     abstract protected function create();
 
-    /**
-     * Update a resource
-     *
-     * @param int $id Resource ID
-     * @param bool $partial Whether this is a partial update (PATCH)
-     * @return array
-     */
+    // Updates an existing resource
     abstract protected function update($id, $partial = false);
 
-    /**
-     * Delete a resource
-     *
-     * @param int $id Resource ID
-     * @return array
-     */
+    // Deletes a resource by ID
     abstract protected function delete($id);
 
-    /**
-     * Get count of resources
-     *
-     * @return array
-     */
+    // Gets the count of resources
     abstract protected function getCount();
 
-    /**
-     * Get pagination parameters from the request
-     *
-     * @return array
-     */
+    // Extracts pagination parameters from the request
     protected function getPaginationParams() {
         $params = [];
 
@@ -149,11 +103,7 @@ abstract class BaseController {
         return $params;
     }
 
-    /**
-     * Get query parameters from the request, filtering out pagination params
-     *
-     * @return array
-     */
+    // Gets query parameters from the request excluding pagination parameters
     protected function getQueryParams() {
         $query = $this->request['query'] ?? [];
 
@@ -164,49 +114,27 @@ abstract class BaseController {
         return $query;
     }
 
-    /**
-     * Get body data from the request
-     *
-     * @return array
-     */
+    // Retrieves the request body data
     protected function getBody() {
         return $this->request['body'] ?? [];
     }
 
-    /**
-     * Get user ID from the request (from JWT)
-     *
-     * @return int|null
-     */
+    // Gets the current user ID from the request
     protected function getUserId() {
         return isset($this->request['user']) ? (int)$this->request['user']['id'] : null;
     }
 
-    /**
-     * Get user type from the request (from JWT)
-     *
-     * @return string|null
-     */
+    // Gets the current user type from the request
     protected function getUserType() {
         return isset($this->request['user']) ? $this->request['user']['user_type'] : null;
     }
 
-    /**
-     * Check if the current user is an admin
-     *
-     * @return bool
-     */
+    // Checks if the current user is an admin
     protected function isAdmin() {
         return $this->getUserType() === 'ADMIN';
     }
 
-    /**
-     * Validate required fields in data
-     *
-     * @param array $data Data to validate
-     * @param array $required Required fields
-     * @return array|false Validation errors or false if valid
-     */
+    // Validates that required fields are present in the data
     protected function validateRequired($data, $required) {
         $errors = [];
 

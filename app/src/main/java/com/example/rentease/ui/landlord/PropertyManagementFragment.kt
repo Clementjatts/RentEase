@@ -19,10 +19,7 @@ import com.example.rentease.databinding.FragmentPropertyManagementBinding
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import kotlinx.coroutines.launch
 
-/**
- * PropertyManagementFragment displays the landlord's properties for management.
- * Simplified implementation without BaseFragment complexity.
- */
+// PropertyManagementFragment displays the landlord's properties for management
 class PropertyManagementFragment : Fragment() {
 
     private var _binding: FragmentPropertyManagementBinding? = null
@@ -34,6 +31,7 @@ class PropertyManagementFragment : Fragment() {
 
     private lateinit var propertyAdapter: PropertyManagementAdapter
 
+    // Creates the fragment's view hierarchy
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +41,7 @@ class PropertyManagementFragment : Fragment() {
         return binding.root
     }
 
+    // Initializes the fragment after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -55,10 +54,12 @@ class PropertyManagementFragment : Fragment() {
         setupBackNavigation()
     }
 
+    // Sets up the options menu (currently empty)
     private fun setupMenu() {
         // Menu setup removed as refresh function is not needed
     }
 
+    // Configures back navigation behavior
     private fun setupBackNavigation() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -70,11 +71,13 @@ class PropertyManagementFragment : Fragment() {
         )
     }
 
+    // Sets up the user interface components
     private fun setupUI() {
         setupToolbar()
         setupRecyclerView()
     }
 
+    // Configures the toolbar with navigation
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -84,6 +87,7 @@ class PropertyManagementFragment : Fragment() {
         }
     }
 
+    // Configures the RecyclerView with adapter and layout manager
     private fun setupRecyclerView() {
         propertyAdapter = PropertyManagementAdapter(
             onItemClick = { property ->
@@ -104,6 +108,7 @@ class PropertyManagementFragment : Fragment() {
         }
     }
 
+    // Shows confirmation dialog before deleting a property
     private fun showDeleteConfirmation(property: Property) {
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Delete Property")
@@ -115,6 +120,7 @@ class PropertyManagementFragment : Fragment() {
             .show()
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -132,12 +138,14 @@ class PropertyManagementFragment : Fragment() {
         viewModel.loadProperties()
     }
 
+    // Shows loading state while properties are being fetched
     private fun showLoading() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.propertyRecyclerView.visibility = View.GONE
         binding.emptyView.visibility = View.GONE
     }
 
+    // Displays the list of properties or empty state
     private fun showProperties(state: PropertyManagementUiState.Success) {
         binding.loadingIndicator.visibility = View.GONE
 
@@ -151,6 +159,7 @@ class PropertyManagementFragment : Fragment() {
         }
     }
 
+    // Shows error message when property loading fails
     private fun showError(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.propertyRecyclerView.visibility = View.GONE
@@ -158,12 +167,14 @@ class PropertyManagementFragment : Fragment() {
         binding.emptyView.text = message
     }
 
+    // Cleans up view binding when fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of PropertyManagementFragment
         fun newInstance() = PropertyManagementFragment()
     }
 }

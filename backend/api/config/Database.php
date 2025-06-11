@@ -1,13 +1,10 @@
 <?php
-/**
- * Database Connection Class
- *
- * Handles database connection and initialization
- */
+// Database connection class that handles SQLite database initialization and connection
 class Database {
     private $db;
     private $dbPath;
 
+    // Initializes database connection with automatic path detection for Docker and local environments
     public function __construct() {
         try {
             // Check if running in Docker container
@@ -37,11 +34,12 @@ class Database {
         }
     }
 
+    // Returns the PDO database connection instance
     public function getConnection() {
         return $this->db;
     }
 
-    // Added method to get DSN for debugging
+    // Returns database information for debugging purposes
     public function getDatabaseInfo() {
         return [
             'path' => $this->dbPath,

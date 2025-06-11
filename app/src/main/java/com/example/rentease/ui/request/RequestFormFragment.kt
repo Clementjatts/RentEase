@@ -17,10 +17,7 @@ import com.example.rentease.ui.helpers.WindowInsetsHelper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
-/**
- * RequestFormFragment handles contact requests for properties.
- * Simplified implementation without BaseFragment complexity.
- */
+// RequestFormFragment handles contact requests for properties
 class RequestFormFragment : Fragment() {
 
     private var _binding: FragmentRequestFormBinding? = null
@@ -32,6 +29,7 @@ class RequestFormFragment : Fragment() {
         RequestFormViewModel.Factory(requireActivity().application, args.propertyId)
     }
 
+    // Creates the fragment's view hierarchy
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,6 +39,7 @@ class RequestFormFragment : Fragment() {
         return binding.root
     }
 
+    // Initializes the fragment after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -51,6 +50,7 @@ class RequestFormFragment : Fragment() {
         setupObservers()
     }
 
+    // Sets up all user interface components
     private fun setupUI() {
         setupToolbar()
         setupSubmitButton()
@@ -59,6 +59,7 @@ class RequestFormFragment : Fragment() {
         viewModel.loadPropertyDetails()
     }
 
+    // Configures the toolbar with navigation
     private fun setupToolbar() {
         val appCompatActivity = requireActivity() as AppCompatActivity
         appCompatActivity.setSupportActionBar(binding.toolbar)
@@ -68,6 +69,7 @@ class RequestFormFragment : Fragment() {
         }
     }
 
+    // Sets up the submit button with form validation
     private fun setupSubmitButton() {
         binding.submitButton.setOnClickListener {
             val name = binding.nameInput.text.toString()
@@ -81,6 +83,7 @@ class RequestFormFragment : Fragment() {
         }
     }
 
+    // Validates form inputs and shows error messages
     private fun validateInputs(name: String, email: String, phone: String, message: String): Boolean {
         var isValid = true
 
@@ -119,6 +122,7 @@ class RequestFormFragment : Fragment() {
         return isValid
     }
 
+    // Sets up observers for ViewModel state changes
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -136,11 +140,13 @@ class RequestFormFragment : Fragment() {
         }
     }
 
+    // Shows loading state while processing request
     private fun showLoading() {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.submitButton.isEnabled = false
     }
 
+    // Displays property details in the form
     private fun showPropertyDetails(state: RequestFormUiState.PropertyLoaded) {
         binding.loadingIndicator.visibility = View.GONE
         binding.submitButton.isEnabled = true
@@ -156,6 +162,7 @@ class RequestFormFragment : Fragment() {
         }
     }
 
+    // Handles successful request submission
     private fun handleSuccess() {
         binding.loadingIndicator.visibility = View.GONE
         binding.submitButton.isEnabled = true
@@ -181,6 +188,7 @@ class RequestFormFragment : Fragment() {
         }, 3000) // 3 seconds delay
     }
 
+    // Shows error message when request submission fails
     private fun showError(message: String) {
         binding.loadingIndicator.visibility = View.GONE
         binding.submitButton.isEnabled = true
@@ -195,12 +203,14 @@ class RequestFormFragment : Fragment() {
         }
     }
 
+    // Cleans up view binding when fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        // Creates a new instance of RequestFormFragment
         fun newInstance() = RequestFormFragment()
     }
 }

@@ -17,15 +17,13 @@ import com.example.rentease.R
 import com.example.rentease.ui.helpers.WindowInsetsHelper
 import com.google.android.material.appbar.MaterialToolbar
 
-/**
- * WebViewFragment displays the RentEase web application within the mobile app.
- * This demonstrates the integration between mobile and web technologies.
- */
+// WebViewFragment displays the RentEase web application within the mobile app
 class WebViewFragment : Fragment() {
 
     private lateinit var webView: WebView
     private lateinit var rootView: View
 
+    // Creates the fragment's view hierarchy
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -35,6 +33,7 @@ class WebViewFragment : Fragment() {
         return rootView
     }
 
+    // Initializes the fragment after view creation
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,6 +46,7 @@ class WebViewFragment : Fragment() {
         loadWebApplication()
     }
 
+    // Configures the toolbar with navigation
     private fun setupToolbar() {
         val toolbar = rootView.findViewById<MaterialToolbar>(R.id.toolbar)
         val appCompatActivity = requireActivity() as AppCompatActivity
@@ -59,6 +59,7 @@ class WebViewFragment : Fragment() {
         }
     }
 
+    // Configures WebView settings and clients
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         webView = rootView.findViewById(R.id.webView)
@@ -128,6 +129,7 @@ class WebViewFragment : Fragment() {
         }
     }
 
+    // Loads the RentEase web application
     private fun loadWebApplication() {
         // Load the web application
         // Using localhost:8000 with ADB reverse port forwarding (same as API client)
@@ -135,18 +137,21 @@ class WebViewFragment : Fragment() {
         webView.loadUrl(webUrl)
     }
 
+    // Shows loading state while web page is loading
     private fun showLoading() {
         rootView.findViewById<View>(R.id.loadingIndicator).visibility = View.VISIBLE
         rootView.findViewById<View>(R.id.webView).visibility = View.GONE
         rootView.findViewById<View>(R.id.errorLayout).visibility = View.GONE
     }
 
+    // Hides loading state and shows web content
     private fun hideLoading() {
         rootView.findViewById<View>(R.id.loadingIndicator).visibility = View.GONE
         rootView.findViewById<View>(R.id.webView).visibility = View.VISIBLE
         rootView.findViewById<View>(R.id.errorLayout).visibility = View.GONE
     }
 
+    // Shows error state when web page fails to load
     private fun showError(message: String) {
         rootView.findViewById<View>(R.id.loadingIndicator).visibility = View.GONE
         rootView.findViewById<View>(R.id.webView).visibility = View.GONE
@@ -159,6 +164,7 @@ class WebViewFragment : Fragment() {
         }
     }
 
+    // Cleans up WebView resources when fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         // Clean up WebView
@@ -168,6 +174,7 @@ class WebViewFragment : Fragment() {
     }
 
     companion object {
+        // Creates a new instance of WebViewFragment
         fun newInstance() = WebViewFragment()
     }
 }

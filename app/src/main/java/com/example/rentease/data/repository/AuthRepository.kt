@@ -7,6 +7,7 @@ import com.example.rentease.data.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+// Repository for handling authentication operations like login, register, and password changes
 class AuthRepository(
     private val api: RentEaseApi,
     private val authManager: AuthManager
@@ -14,6 +15,7 @@ class AuthRepository(
 
     private val userRepository by lazy { UserRepository(api, authManager) }
 
+    // Authenticates user with username and password
     suspend fun login(
         username: String,
         password: String
@@ -52,6 +54,7 @@ class AuthRepository(
         }
     }
 
+    // Registers a new user account and logs them in
     suspend fun register(
         username: String,
         password: String,
@@ -90,9 +93,7 @@ class AuthRepository(
         }
     }
 
-    /**
-     * Register a new user without affecting the current admin session.
-     */
+    // Registers a new user as admin without affecting the current admin session
     suspend fun registerUserAsAdmin(
         username: String,
         password: String,
@@ -123,7 +124,7 @@ class AuthRepository(
         }
     }
 
-
+    // Changes the current user's password
     suspend fun changePassword(
         currentPassword: String,
         newPassword: String
