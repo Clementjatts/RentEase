@@ -42,7 +42,7 @@ RentEase/
 
 1. **Open the project in Android Studio**
 
-2. **Set up port forwarding for emulator**:
+2. **Set up port forwarding for emulator and webview**:
    ```bash
    adb reverse tcp:8000 tcp:8000
    ```
@@ -70,7 +70,9 @@ Full API documentation is available by examining `backend/api/config/Routes.php`
 ## Development Notes
 
 ### Port Forwarding
-The Android app connects to the backend using `localhost:8000`. When using an Android emulator, you must set up ADB reverse port forwarding as shown above. This maps the emulator's localhost to your development machine's localhost.
+Both the Android app and the WebView interface connect to the backend using `localhost:8000`. When using an Android emulator, you must set up ADB reverse port forwarding as shown above. This maps the emulator's localhost to your development machine's localhost.
+
+**Important**: The WebView component also relies on this same port forwarding setup since it runs within the Android app context and uses the same network configuration.
 
 ### Database Location
 The SQLite database is stored at `backend/database/rentease.db` on your local machine, not inside the Docker container. This ensures data persistence across container restarts.
@@ -82,10 +84,11 @@ Property images are stored in `backend/uploads/properties/` and served via the w
 
 ### Common Issues
 
-1. **App can't connect to backend**:
+1. **App or WebView can't connect to backend**:
    - Ensure Docker containers are running: `docker-compose ps`
    - Verify port forwarding: `adb reverse tcp:8000 tcp:8000`
    - Check backend logs: `docker-compose logs api`
+   - Note: Both the native Android app and WebView require the same port forwarding
 
 2. **Database connection errors**:
    - Ensure the `backend/database/` directory exists and is writable
