@@ -69,8 +69,6 @@ class PropertyFormViewModel(
         }
     }
 
-
-
     // Saves the property to the repository with validation
     fun saveProperty(
         title: String,

@@ -23,10 +23,7 @@ import com.example.rentease.ui.helpers.WindowInsetsHelper
 import com.example.rentease.data.model.Result
 import kotlinx.coroutines.launch
 
-/**
- * LandlordDashboardFragment displays the landlord dashboard screen.
- * Simplified implementation without BaseFragment complexity.
- */
+// LandlordDashboardFragment displays the landlord dashboard screen.
 class LandlordDashboardFragment : Fragment() {
 
     private var _binding: FragmentLandlordDashboardBinding? = null
@@ -153,8 +150,6 @@ class LandlordDashboardFragment : Fragment() {
         loadNotificationCount()
     }
 
-    // Deprecated menu methods removed and replaced with MenuProvider in setupMenu()
-
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.title_logout)
@@ -167,12 +162,7 @@ class LandlordDashboardFragment : Fragment() {
             .show()
     }
 
-
-
-    /**
-     * Navigate to the profile fragment with the correct landlord ID
-     * Since landlord_id = user_id in the backend, we can use userId directly
-     */
+    // Navigate to the profile fragment with the correct landlord ID
     private fun navigateToProfileWithCorrectLandlordId() {
         try {
             val userId = authManager.getUserId().toIntOrNull()

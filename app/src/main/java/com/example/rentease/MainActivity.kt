@@ -34,8 +34,6 @@ class MainActivity : AppCompatActivity() {
         // Enable edge-to-edge display
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // Don't apply padding to the root view - let fragments handle their own insets
-        // This allows for proper edge-to-edge display with toolbars extending into status bar area
     }
 
     // Handles new intents when the activity is already running

@@ -58,9 +58,7 @@ class UserRepository(
                 if (user != null) {
                     // Check if we got a guest user (id = 0)
                     if (user.id <= 0 || user.userType == "GUEST") {
-                        // If we got a guest user but we have authentication data,
-                        // it means the backend authentication failed
-                        // Let's try to get the landlord data directly
+                        // If we got a guest user but we have authentication data, it means the backend authentication failed
                         if (userType == com.example.rentease.auth.UserType.LANDLORD) {
                             val landlordResult = getLandlordIdForCurrentUser()
                             if (landlordResult is com.example.rentease.data.model.Result.Success && landlordResult.data != null) {
@@ -150,7 +148,6 @@ class UserRepository(
                 }
             } else {
                 // Update current user profile via user API endpoint
-                // Ensure we have the username - use AuthManager as fallback
                 val username = if (user.username.isNotEmpty()) {
                     user.username
                 } else {

@@ -29,7 +29,7 @@ class ProfileFragment : Fragment(), ChangePasswordDialog.PasswordChangeListener 
     private var originalPhone = ""
 
     private val viewModel: ProfileViewModel by viewModels {
-        // Get landlordId from arguments if available
+        // Get landlordId from arguments
         val landlordId = arguments?.getInt("landlordId", -1)?.takeIf { it > 0 }
 
         // Get the current user type to determine how to handle the landlordId

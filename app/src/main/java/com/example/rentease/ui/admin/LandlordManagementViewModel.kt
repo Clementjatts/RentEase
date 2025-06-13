@@ -12,10 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for the LandlordManagementFragment.
- * Handles loading and managing landlord accounts for admin users.
- */
+//Handles loading and managing landlord accounts for admin users.
 class LandlordManagementViewModel(
     application: Application
 ) : AndroidViewModel(application) {
@@ -25,9 +22,7 @@ class LandlordManagementViewModel(
     private val _uiState = MutableStateFlow<LandlordManagementUiState>(LandlordManagementUiState.Loading)
     val uiState: StateFlow<LandlordManagementUiState> = _uiState
 
-    /**
-     * Load all landlords from the repository.
-     */
+    //Load all landlords from the repository.
     fun loadLandlords() {
         viewModelScope.launch {
             try {
@@ -46,9 +41,7 @@ class LandlordManagementViewModel(
         }
     }
 
-    /**
-     * Delete a landlord
-     */
+    //Delete a landlord
     fun deleteLandlord(landlordId: Int) {
         viewModelScope.launch {
             try {
@@ -69,9 +62,7 @@ class LandlordManagementViewModel(
         }
     }
 
-    /**
-     * Factory for creating LandlordManagementViewModel instances.
-     */
+    //Factory for creating LandlordManagementViewModel instances.
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -83,10 +74,7 @@ class LandlordManagementViewModel(
     }
 }
 
-/**
- * Represents the UI state for the landlord management screen.
- * Updated to use User model for consistency.
- */
+//Updated to use User model for consistency.
 sealed class LandlordManagementUiState {
     data object Loading : LandlordManagementUiState()
     data class Success(val landlords: List<User>) : LandlordManagementUiState()
